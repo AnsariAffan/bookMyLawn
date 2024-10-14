@@ -55,7 +55,7 @@ const contactNumber = 34543543
       <View style={styles.row}>
       <Icon name="map-marker" size={25} color="#ffff"  style={{ marginRight:-160}} />
         <Text style={styles.itemText}>Address</Text>
-        <Text style={styles.priceText}>Nagpur</Text>
+        <Text style={styles.priceText}>Nagpur Kamptee</Text>
       </View>
       </TouchableOpacity>
     </Card.Content>
