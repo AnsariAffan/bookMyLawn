@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "lawnApp",
-    "slug": "lawnApp",
+    "name": "BookMyLawn",
+    "slug": "BookMyLawn",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
