@@ -4,7 +4,7 @@ import NavigationManager from "./components/NavigationManager";
 
 export default function App() {
   return (
-   <NavigationManager/>
+   <NavigationManager />
   );
 }
 

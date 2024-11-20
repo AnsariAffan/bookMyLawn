@@ -20,7 +20,7 @@ const bookingDate = route.params?.date
         Your booking has been processed successfully for the date {bookingDate}.
       </Text>
       
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('BookingList')}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LawnOwnerDashboard')}>
         <Text style={styles.buttonText}>Go to Home</Text>
       </TouchableOpacity>
     </View>

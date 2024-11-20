@@ -10,11 +10,23 @@ export default function LoginChoice() {
   return (
     <View style={styles.container}>
  
-      <Image source={require('../assets/icon.webp')} style={styles.icon} />
+   
+    <Image source={require('../assets/icon.webp')} style={styles.icon} />
+      <Text style={
+        {fontSize: 28,
+    fontWeight: "bold",
+  marginTop:20,
+    color: "#007bff"}
+      }>Book My Lawn</Text>
+    
+      
+      
 
       {/* "Book" button */}
     
-      <View style={{width:"100%",height:100,display:"flex",flexDirection:"column"}}>
+      <View style={{width:"100%",height:100,display:"flex",flexDirection:"column",marginTop:50,
+      
+      }}>
 
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("SignInwithPhoneNumber")}>
       <Text style={styles.buttonText}>Sign in with Phone Numer</Text>
@@ -33,13 +45,18 @@ export default function LoginChoice() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "space-around",
+   
     alignItems: "center",
     backgroundColor: "#fff",
-    paddingHorizontal: 20,
+    paddingHorizontal:20,
+    justifyContent: "center",
+    alignItems: "center",
+    
+    
     
   },
   iconOne:{
+    
 
 
 
@@ -47,7 +64,9 @@ const styles = StyleSheet.create({
   icon: {
     width: 150,
     height: 150,
-    marginBottom: 40,
+    borderRadius:30,
+    
+    
   },
   button: {
     backgroundColor: "#28a745", // Green color for the booking button
@@ -61,7 +80,7 @@ const styles = StyleSheet.create({
     
   },
   loginButton: {
-    backgroundColor: "#007bff", // Blue color for the login button
+   backgroundColor: "#00509E", // Blue color for the login button
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 25,

@@ -1,27 +1,63 @@
-// LoginScreen.js
-
 import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ActivityIndicator } from "react-native";
+import { useAuth } from "./Authprovider.js/AuthProvider";
 
 export default function LoginScreen() {
-  const navigation = useNavigation(); // Use navigation
-  const [id, setId] = useState("anam");
-  const [password, setPassword] = useState("anam");
+  const navigation = useNavigation();
+  const { signIn, signUp, user, loading } = useAuth(); // loading added
+  const [id, setId] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSigningUp, setIsSigningUp] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);  // State to manage loader visibility
 
-  const handleLogin = () => {
-    // Replace with your actual login logic
- const   isLawnOwner = true
-    if (id === "anam" && password === "anam") {
-      navigation.navigate("MainApp",  { isLawnOwner, userId: "anam" }); // Navigate to LawnOwnerDashboard with userId
-    } else {
-      alert(`Incorrect Credential`);
+  const handleLogin = async () => {
+    setIsLoading(true);  // Set loading state to true before login attempt
+    try {
+      await signIn(id, password);
+      // Wait until user state is updated (add this condition)
+      if (user) {
+        const isLawnOwner = true; // Replace with actual logic
+        navigation.navigate("MainApp", { isLawnOwner, userId: user.email });
+      }
+    } catch (error) {
+      alert(`Login failed: ${error.message}`);
+    } finally {
+      setIsLoading(false); // Set loading state to false after login attempt
     }
   };
+
+  const 
+  handleSignUp = async () => {
+    setIsLoading(true);  // Set loading state to true before sign up attempt
+    try {
+      await signUp(id, password);
+      // Wait until user state is updated (add this condition)
+      if (user) {
+        const isLawnOwner = true; // Replace with actual logic
+        navigation.navigate("MainApp", { isLawnOwner, userId: user.email });
+      } else {
+        alert("Sign up failed. Please try again.");
+      }
+    } catch (error) {
+      alert(`Sign up failed: ${error.message}`);
+    } finally {
+      setIsLoading(false); // Set loading state to false after sign up attempt
+    }
+  };
+
+  useEffect(() => {
+    // Automatically navigate if user is already logged in
+    if (user) {
+      const isLawnOwner = true; // Replace with actual logic
+      navigation.navigate("MainApp", { isLawnOwner, userId: user.email });
+    }
+  }, [user, navigation]);
 
   return (
     <View style={styles.container}>
       <Image source={require('../assets/icon.webp')} style={styles.icon} />
+      <Text style={styles.title}>Book My Lawn</Text>
 
       <TextInput
         style={styles.input}
@@ -42,8 +78,28 @@ export default function LoginScreen() {
         autoCapitalize="none"
       />
 
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-        <Text style={styles.loginButtonText}>Login</Text>
+      {isSigningUp ? (
+        <TouchableOpacity style={styles.loginButton} onPress={handleSignUp} disabled={isLoading}>
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#fff" />  // Show loader while signing up
+          ) : (
+            <Text style={styles.loginButtonText}>Sign Up</Text>
+          )}
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={isLoading}>
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#fff" />  // Show loader while logging in
+          ) : (
+            <Text style={styles.loginButtonText}>Login</Text>
+          )}
+        </TouchableOpacity>
+      )}
+
+      <TouchableOpacity onPress={() => setIsSigningUp(!isSigningUp)}>
+        <Text style={styles.switchText}>
+          {isSigningUp ? "Already have an account? Login" : "Don't have an account? Sign Up"}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -60,7 +116,14 @@ const styles = StyleSheet.create({
   icon: {
     width: 150,
     height: 150,
+    marginBottom: 20,
+    borderRadius: 30,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
     marginBottom: 40,
+    color: "#007bff",
   },
   input: {
     width: "100%",
@@ -74,7 +137,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   loginButton: {
-    backgroundColor: "#007bff", // Blue color for the login button
+    backgroundColor: "#00509E",
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 25,
@@ -85,5 +148,9 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  switchText: {
+    marginTop: 20,
+    color: "#007bff",
   },
 });

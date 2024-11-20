@@ -14,7 +14,12 @@ const SplashScreen = ({ navigation }) => {
     <View style={styles.container}>
       {/* Splash Screen Content */}
       <Image source={require('../assets/icon.webp')} style={styles.logo} />
-      <Text style={styles.text}>Book My Lawn</Text>
+      <Text style={
+        {fontSize: 28,
+    fontWeight: "bold",
+    marginTop: 20,
+    color: "#007bff"}
+      }>Book My Lawn</Text>
     </View>
   );
 };
@@ -30,13 +35,8 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     resizeMode: "contain",
-  },
-  text: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginTop: 20,
-    color: "#007bff", // Customize this to your app's branding
-  },
+  }
+  
 });
 
 export default SplashScreen;

@@ -1,0 +1,234 @@
+import React, { useContext, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, TextInput, ActivityIndicator, TouchableOpacity, Dimensions } from 'react-native';
+import { Appbar, Menu, IconButton } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { BookingListContext } from './BookingListContext';
+
+const { width } = Dimensions.get('window'); // Get device width
+
+const BookingList = ({ navigation }) => {
+  const {
+    search,
+    filteredHotels,
+    loading,
+    handleSearch,
+    handleCardPress,
+    user
+  } = useContext(BookingListContext);
+
+  // State for menu visibility and selected filter
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [filter, setFilter] = useState('all'); // Default filter is 'all'
+
+  // Handle menu visibility
+  const openMenu = () => setMenuVisible(true);
+  const closeMenu = () => setMenuVisible(false);
+
+  // Handle the filter change
+  const handleFilterChange = (status) => {
+    setFilter(status);
+    closeMenu();
+  };
+
+  // Filter hotels based on the selected filter
+  const filterHotels = () => {
+    if (filter === 'all') {
+      return filteredHotels; // No filter, show all hotels
+    }
+    return filteredHotels.filter((hotel) => hotel.paymentStatus.toLowerCase() === filter.toLowerCase());
+  };
+
+  const renderHotelItem = ({ item }) => {
+    const monthCollection = [
+      "January", "February", "March", "April", "May", "June", "July", "August",
+      "September", "October", "November", "December"
+    ];
+
+    const monthIndex = parseInt(item.dates[0].split("-")[1], 10);
+    const monthName = monthCollection[monthIndex - 1];
+
+    return (
+      <TouchableOpacity
+        style={[styles.button, { width: width - 30 }]} // Dynamically adjust width
+        onPress={() => handleCardPress(item, navigation)}
+      >
+        <View style={styles.hotelCard}>
+          <View style={styles.dateContainer}>
+            <Text style={styles.dateText}>{item.dates[0].split("-")[2]}</Text>
+            <Text style={styles.monthText}>{monthName}</Text>
+          </View>
+
+          <View style={styles.hotelInfo}>
+            <View style={styles.row}>
+              <Text style={styles.hotelName}>{item.name}</Text>
+              <Text style={styles.bookingStatus}>{item.paymentStatus}</Text>
+            </View>
+            <View style={[styles.row, { paddingTop: 5 }]}>
+              <View style={styles.row}>
+                <Icon name="phone" size={20} color="#666666" />
+                <Text style={styles.hotelLocation}>{item.contact}</Text>
+              </View>
+              <Text style={styles.hotelPrice}>{item.totalAmount}</Text>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <Appbar.Header style={{ backgroundColor: "#00509E" }}>
+        <Appbar.BackAction
+          style={{ color: "#ffffff" }}
+          onPress={() => navigation.goBack()}
+        />
+        <Text style={{ fontSize: 20, fontWeight: "bold", color: "#ffff" }}>
+          Bookings
+        </Text>
+
+        {/* Three-Dot Menu for Filter Options */}
+        <Menu
+          visible={menuVisible}
+          onDismiss={closeMenu}
+          anchor={<IconButton icon="dots-vertical" onPress={openMenu} color="#fff" size={30} />}
+        >
+          <Menu.Item onPress={() => handleFilterChange('all')} title="All" />
+          <Menu.Item onPress={() => handleFilterChange('fully paid')} title="Fully Paid" />
+          <Menu.Item onPress={() => handleFilterChange('partially paid')} title="Partially Paid" />
+          <Menu.Item onPress={() => handleFilterChange('pending')} title="Pending" />
+        </Menu>
+      </Appbar.Header>
+
+      <View style={styles.containerTwo}>
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search Hotels"
+          value={search}
+          onChangeText={handleSearch}
+        />
+      </View>
+
+      {/* Loading Indicator */}
+      {loading && (
+        <ActivityIndicator
+          size="large"
+          color="black"
+          style={styles.loadingIndicator}
+        />
+      )}
+
+      <View style={styles.containerThree}>
+        <FlatList
+          data={filterHotels()} // Apply the filter here
+          renderItem={renderHotelItem}
+          keyExtractor={(item) => item.id}
+          style={styles.hotelList}
+        />
+      </View>
+    </View>
+  );
+};
+
+// Styles
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#00509E",
+    paddingHorizontal: 0,
+    paddingTop: 0,
+  },
+  containerTwo: {
+    backgroundColor: "#00509E",
+    paddingHorizontal: 20,
+    paddingBottom: 5,
+  },
+  containerThree: {
+    flex: 1,
+    paddingTop: 20,
+    paddingHorizontal: 15,
+    backgroundColor: "#ffffff",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+  },
+  searchBar: {
+    backgroundColor: "#ffffff",
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  hotelList: {
+    width: "100%",
+  },
+  hotelCard: {
+    flexDirection: "row",
+    borderRadius: 15,
+    padding: 10,
+    marginBottom: 15,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  dateContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 20,
+  },
+  dateText: {
+    fontSize: 40,
+    fontWeight: "bold",
+    color: "#00509E",
+  },
+  monthText: {
+    fontSize: 16,
+    color: "#00509E",
+  },
+  hotelInfo: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  hotelName: {
+    fontSize: 18,
+    color: "#333333",
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  hotelLocation: {
+    fontSize: 15,
+    color: "#666666",
+  },
+  hotelPrice: {
+    color: "#333333",
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  bookingStatus: {
+    fontSize: 16,
+    color: "#333333",
+    fontWeight: "bold",
+  },
+  loadingIndicator: {
+    position: "absolute",
+    top: 50,
+    right: 10,
+    zIndex: 2,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  button: {
+    width: width - 30, // Make button width dynamic
+    alignSelf: "center",
+  },
+});
+
+export default BookingList;

@@ -7,15 +7,19 @@ import {
   Card,
   Title,
 } from "react-native-paper";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons"; // or any other icon set
 import UserDetail from "./UserDetail";
-import BillingDetail from "./BillingDetail";
+// import BillingDetail from "./BillingDetail";
+import { BillingProvider } from "./BillingDetails/BillingContext";
+import BillingDetail from "./BillingDetails/Billingdetail";
 
-const BookingDetails = ({ navigation }) => {
+const BookingDetails = ({ navigation,route }) => {
   const [activeTab, setActiveTab] = useState("userDetails"); // State to manage active tab
 
 
-
+const bdata = route.params.booking
+// console.log("--- data recevied in booking details page");
+// console.log(bdata);
+// console.log("--- data recevied in booking details page");
   return (
 
 
@@ -58,12 +62,14 @@ const BookingDetails = ({ navigation }) => {
       <View style={styles.itemsContainer}>
         {activeTab === "userDetails" && ( // Render content based on active tab
           <>
-           <UserDetail/>
+           <UserDetail dataDefaulting={bdata}/>
           </>
         )}
 
         {activeTab === "billingDetails" && ( // Empty for Billing Details
-         <BillingDetail/>
+       <BillingProvider>
+        <BillingDetail dataDefaulting={bdata}/>
+       </BillingProvider> 
         )}
       </View>
 
@@ -93,7 +99,7 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: "#00FF00", // Color for the active tab
+    borderBottomColor: "lightblue", // Color for the active tab
   },
   tabText: {
     color: "#ffffff",
