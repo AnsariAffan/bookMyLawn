@@ -59,8 +59,6 @@ const BookingList = ({ navigation }) => {
             </View>
             <View style={[styles.row, { paddingTop: 5 }]}>
               <View style={styles.row}>
-                <Icon name="phone" size={20} color="#666666" />
-                <Text style={styles.hotelLocation}>{item.contact}</Text>
               </View>
               <Text style={styles.hotelPrice}>{item.totalAmount}</Text>
             </View>
@@ -175,7 +173,8 @@ const styles = StyleSheet.create({
   hotelCard: {
     flexDirection: "row",
     borderRadius: 15,
-    padding: 10,
+    paddingVertical: 8, // Reduce vertical padding
+    paddingHorizontal: 15, // Adjust horizontal padding if needed
     marginBottom: 15,
     backgroundColor: "#FFFFFF",
     shadowColor: "#000",
@@ -183,19 +182,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
+    height: 80, // Set a fixed height for the card (optional)
   },
+
   dateContainer: {
     alignItems: "center",
     justifyContent: "center",
     marginRight: 20,
   },
   dateText: {
-    fontSize: 40,
+    fontSize: 35,
     fontWeight: "bold",
     color: "#00509E",
   },
   monthText: {
-    fontSize: 16,
+    fontSize: 15,
     color: "#00509E",
   },
   hotelInfo: {
@@ -219,8 +220,8 @@ const styles = StyleSheet.create({
   },
   bookingStatus: {
     fontSize: 16,
-    color: "#333333",
-    fontWeight: "bold",
+    color: "darkblue",
+    fontWeight: "100",
   },
   loadingIndicator: {
     position: "absolute",

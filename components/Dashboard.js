@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal, Button } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal, Button, ActivityIndicator } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
 import { Calendar } from 'react-native-calendars';
@@ -10,7 +10,6 @@ const screenWidth = Dimensions.get('window').width;
 
 const Dashboard = () => {
 
-
   const { userBookings, 
     totalRevenue, 
     bookingsByMonth, 
@@ -20,52 +19,48 @@ const Dashboard = () => {
     loading, 
     revenueByMonth,
     error  } = useBookings();
-  
-    useEffect(() => {
-      console.log("User Bookings:", userBookings);
-      console.log("Revenue By Month:", revenueByMonth);
-      console.log("Total Revenue:", totalRevenue);
-      console.log("Bookings By Month:", bookingsByMonth);
-      console.log("Upcoming Event Dates:", upcomingEventDates);
-      console.log("Current Month Bookings:", currentMonthBookings);
-      console.log("Upcoming Dates In Current Month:", upcomingDatesInCurrentMonth);
-      console.log("Loading State:", loading);
-      console.log("Error State:", error);
-    }, [
-      userBookings,
-      totalRevenue,
-      bookingsByMonth,
-      upcomingEventDates,
-      currentMonthBookings,
-      upcomingDatesInCurrentMonth,
-      revenueByMonth,
-      loading,
-      error
-    ]);
-    
 
-  // Static data for now, replace with real data from backend
-  const [bookingsData, setBookingsData] = useState([10, 15, 20, 18, 30, 25, 40, 35, 28, 24, 22, 30]); // Bookings per month
-  const [revenueData, setRevenueData] = useState([5000, 2000, 8000, 7500, 10000, 9000, 12000, 11000, 9500, 8000, 6500, 7000]); // Revenue per month
+  useEffect(() => {
+    console.log("User Bookings:", userBookings);
+    console.log("Revenue By Month:", revenueByMonth);
+    console.log("Total Revenue:", totalRevenue);
+    console.log("Bookings By Month:", bookingsByMonth);
+    console.log("Upcoming Event Dates:", upcomingEventDates);
+    console.log("Current Month Bookings:", currentMonthBookings);
+    console.log("Upcoming Dates In Current Month:", upcomingDatesInCurrentMonth);
+    console.log("Loading State:", loading);
+    console.log("Error State:", error);
+  }, [
+    userBookings,
+    totalRevenue,
+    bookingsByMonth,
+    upcomingEventDates,
+    currentMonthBookings,
+    upcomingDatesInCurrentMonth,
+    revenueByMonth,
+    loading,
+    error
+  ]);
+
+  const [bookingsData, setBookingsData] = useState([10, 15, 20, 18, 30, 25, 40, 35, 28, 24, 22, 30]);
+  const [revenueData, setRevenueData] = useState([5000, 2000, 8000, 7500, 10000, 9000, 12000, 11000, 9500, 8000, 6500, 7000]);
   const [filteredBookings, setFilteredBookings] = useState(bookingsData);
   const [filteredRevenue, setFilteredRevenue] = useState(revenueData);
-  const [selectedFilter, setSelectedFilter] = useState('currentMonth'); // Possible values: 'currentMonth', 'monthRange', 'year'
-  const [isModalVisible, setModalVisible] = useState(false); // Modal for filter options
-  const [startDate, setStartDate] = useState(null); // To store start date for range
-  const [endDate, setEndDate] = useState(null); // To store end date for range
+  const [selectedFilter, setSelectedFilter] = useState('currentMonth');
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
-  const currentMonth = new Date().getMonth(); // Get current month (0-11)
-  const currentYear = new Date().getFullYear(); // Get current year
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
   const { user, signOut } = useAuth();
-  // console.log(user?.email);
-  // Static events data
+
   const [events, setEvents] = useState([
     { title: 'Wedding Anniversary', date: '2024-11-15' },
     { title: 'Corporate Event', date: '2024-11-20' },
     { title: 'Birthday Party', date: '2024-12-05' },
   ]);
 
-  // Function to render upcoming events
   const renderUpcomingEvents = () => {
     return events.map((event, index) => (
       <View key={index} style={styles.eventCard}>
@@ -75,7 +70,6 @@ const Dashboard = () => {
     ));
   };
 
-  // Filter data for the current month
   const filterCurrentMonth = () => {
     setSelectedFilter('currentMonth');
     setFilteredBookings([bookingsData[currentMonth]]);
@@ -83,7 +77,6 @@ const Dashboard = () => {
     setModalVisible(false);
   };
 
-  // Filter data for a specific month range (example: January to March)
   const filterMonthRange = () => {
     if (startDate && endDate) {
       const startMonth = new Date(startDate).getMonth();
@@ -96,14 +89,11 @@ const Dashboard = () => {
     }
   };
 
-  // Filter data for a specific year (example: 2024)
   const filterByYear = (year) => {
     setSelectedFilter('year');
-    // Example: You can have data for different years' worth of data, filter the data accordingly
     setModalVisible(false);
   };
 
-  // Function to reset filters
   const resetFilters = () => {
     setSelectedFilter('currentMonth');
     setFilteredBookings(bookingsData);
@@ -115,13 +105,12 @@ const Dashboard = () => {
     <ScrollView style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Hi,{user?.email.slice(0,-10)}</Text>
-        
-        {/* Three Dots for Filter */}
         <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.dotsButton}>
           <Text style={styles.dotsText}>•••</Text>
         </TouchableOpacity>
       </View>
       <Text style={styles.dataLabe2}>@Danish Lawn</Text>
+
       {/* Filter Modal */}
       <Modal
         transparent={true}
@@ -156,114 +145,99 @@ const Dashboard = () => {
         </View>
       </Modal>
 
-      {/* Bookings & Revenue Section side by side */}
-      <View style={styles.sideBySideContainer}>
-        {/* Total Revenue */}
-        <View style={[styles.dataBox, { backgroundColor: 'rgba(100, 150, 255, 0.2)' }]}>
-          <View style={styles.revenueContainer}>
-            <Text style={styles.currencyText}>₹</Text>
-            <Text style={styles.dataText}>{totalRevenue}</Text>
-          </View>
-          <Text style={styles.dataLabel}>Total Revenue</Text>
+      {/* Show loader when data is loading */}
+      {loading ? (
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
         </View>
-      </View>
+      ) : (
+        <>
+          {/* Bookings & Revenue Section */}
+          <View style={styles.sideBySideContainer}>
+            <View style={[styles.dataBox, { backgroundColor: 'rgba(100, 150, 255, 0.2)' }]}>
+              <View style={styles.revenueContainer}>
+                <Text style={styles.currencyText}>₹</Text>
+                <Text style={styles.dataText}>{totalRevenue}</Text>
+              </View>
+              <Text style={styles.dataLabel}>Total Revenue</Text>
+            </View>
+          </View>
 
-      {/* Total Bookings Card */}
-      <View style={{display:"flex",flexDirection:"row",justifyContent:"space-around",marginTop:-15,width:screenWidth/1.1}}>
-      
-      <View style={styles.dataBox2}>
-        <Text style={styles.dataText}>{currentMonthBookings}</Text>
-        <Text style={styles.dataLabel}>Total Bookings</Text>
-      </View>
+          {/* Total Bookings and Upcoming Events */}
+          <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: -15, width: screenWidth / 1.1 }}>
+          <View style={[styles.dataBox2, { marginRight: 2 }]}>
+            <Text style={styles.dataText}>{currentMonthBookings}</Text>
+            <Text style={styles.dataLabel}>Total Bookings</Text>
+          </View>
+        
+          <View style={[styles.dataBox3, { marginLeft: 2 }]}>
+            <Text style={styles.dataText}>{upcomingDatesInCurrentMonth}</Text>
+            <Text style={styles.dataLabel}>Upcoming Events</Text>
+          </View>
+        </View>
+        
+ {/* Upcoming Events Section */}
+ <View style={styles.section}>
+ <Text style={styles.sectionTitle}>Upcoming Events</Text>
+ <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+   {renderUpcomingEvents()}
+ </ScrollView>
+</View>
+          {/* Revenue vs Time Graph */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Revenue vs Time (Monthly)</Text>
+            <LineChart
+              data={{
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{ data: filteredRevenue, strokeWidth: 1 }],
+              }}
+              width={screenWidth - 40}
+              height={220}
+              chartConfig={{
+                backgroundColor: '#1cc910',
+                backgroundGradientFrom: '#eff3ff',
+                backgroundGradientTo: '#eff3ff',
+                decimalPlaces: 0,
+                color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                style: { borderRadius: 16 },
+                propsForDots: { r: '6', strokeWidth: '2', stroke: '#ffa726' },
+              }}
+              style={{ marginVertical: 8, borderRadius: 16 }}
+            />
+          </View>
 
-      {/* Upcoming Events Card */}
-      <View style={styles.dataBox3}>
-        <Text style={styles.dataText}>{upcomingDatesInCurrentMonth}</Text>
-        <Text style={styles.dataLabel}>Upcoming Events</Text>
-      </View>
-
-      </View>
-
-      {/* Revenue vs Time Graph */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Revenue vs Time (Monthly)</Text>
-        <LineChart
-          data={{
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            datasets: [{ data: filteredRevenue, strokeWidth: 1 }],
-          }}
-          width={screenWidth - 40}
-          height={220}
-          chartConfig={{
-            backgroundColor: '#1cc910',
-            backgroundGradientFrom: '#eff3ff',
-            backgroundGradientTo: '#eff3ff',
-            decimalPlaces: 0,
-            color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            style: { borderRadius: 16 },
-            propsForDots: { r: '6', strokeWidth: '2', stroke: '#ffa726' },
-          }}
-          style={{ marginVertical: 8, borderRadius: 16 }}
-        />
-      </View>
-
-      {/* Upcoming Events Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Upcoming Events</Text>
-        {renderUpcomingEvents()}
-      </View>
+         
+        </>
+      )}
     </ScrollView>
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9f9f9', padding: 20 },
-  header: { fontSize: 28, fontWeight: 'bold', marginBottom: 0, marginTop: 20 },
-  headerContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  dotsButton: { padding: 10 },
+  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
+  headerContainer: { flexDirection: 'row', justifyContent: 'space-between',marginTop:20},
+  header: { fontSize: 24, fontWeight: 'bold' },
+  dotsButton: { padding: 5 },
   dotsText: { fontSize: 20 },
-  sideBySideContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
-  dataBox: {
-  backgroundColor: "lightgray", // Ensure this is being applied
-  borderRadius: 15,
-  padding: 20,
-  borderRadius: 10,
-  alignItems: 'left',
-  width: screenWidth / 1.1,
-  marginTop:10
- 
-},
-
-  currencyText: { fontSize: 25, fontWeight: '700', color: '#333', paddingRight: 4,paddingTop:15 },
-  dataText: { fontSize: 40, fontWeight: '700', color: '#333' },
-  dataLabel: { fontSize: 16, color: '#777' },
-  dataLabe2: { fontSize: 14, color: '#777' },
-  dataBox2: {
-    backgroundColor: '#FFB6C1', 
-    borderRadius: 15, 
-    padding: 20, 
-    alignItems: 'center',
-    //  width:"99%"
-  },
-  dataBox3: {
-    backgroundColor: '#87CEFA', 
-    borderRadius: 15, 
-    padding: 20, 
-    alignItems: 'center',
-    // width:"99%"
-  },
-
-  revenueContainer: { flexDirection: 'row', alignItems: 'center' },
-  section: { marginBottom: 20,marginTop:10 },
-  sectionTitle: { fontSize: 22, fontWeight: '600', marginBottom: 10 },
-  eventCard: { backgroundColor: '#fff', padding: 15, marginBottom: 10, borderRadius: 8 },
-  eventTitle: { fontSize: 18, fontWeight: '600' },
-  eventDate: { fontSize: 16, color: '#555' },
+  dataLabe2: { fontSize: 16, color: 'gray',marginBottom:5 },
+  loaderContainer: { justifyContent: 'center', alignItems: 'center', flex: 1 },
   modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
-  modalContent: { backgroundColor: '#fff', padding: 20, width: screenWidth - 40, borderRadius: 10 },
-  modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 15 },
+  modalContent: { backgroundColor: 'white', padding: 20, borderRadius: 8 },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+  sideBySideContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+  dataBox: { flex: 1, padding: 16, backgroundColor: 'lightgray', borderRadius: 8 },
+  revenueContainer: { flexDirection: 'row', justifyContent: 'left', alignItems: 'center', },
+  currencyText: { fontSize: 35, fontWeight: 'bold', marginRight: 5 },
+  dataText: { fontSize: 30, fontWeight: 'bold' },
+  dataLabel: { textAlign: 'left', marginTop: 8 },
+  dataBox2: { flex: 1, padding: 16, backgroundColor: '#dde8ff', borderRadius: 8 },
+  dataBox3: { flex: 1, padding: 16, backgroundColor: '#c9f8d7', borderRadius: 8 },
+  section: { marginTop: 10 },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
+  eventCard: { backgroundColor: '#f5f5f5', padding: 10, margin: 5, borderRadius: 8 },
+  eventTitle: { fontSize: 16, fontWeight: 'bold' },
+  eventDate: { fontSize: 14, color: 'gray' },
 });
 
 export default Dashboard;

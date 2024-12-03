@@ -67,7 +67,7 @@ export default function LoginScreen() {
         onChangeText={setId}
         autoCapitalize="none"
       />
-
+zz
       <TextInput
         style={styles.input}
         placeholder="Enter Password"

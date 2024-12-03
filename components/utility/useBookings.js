@@ -6,7 +6,7 @@ export function useBookings() {
   const [userBookings, setUserBookings] = useState([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [bookingsByMonth, setBookingsByMonth] = useState({});
-  const [revenueByMonth, setRevenueByMonth] = useState({}); // Added state for revenue by month
+  const [revenueByMonth, setRevenueByMonth] = useState({});
   const [upcomingEventDates, setUpcomingEventDates] = useState([]);
   const [currentMonthBookings, setCurrentMonthBookings] = useState(0);
   const [upcomingDatesInCurrentMonth, setUpcomingDatesInCurrentMonth] = useState(0);
@@ -18,40 +18,41 @@ export function useBookings() {
     const auth = getAuth();
     const loggedInUserId = auth.currentUser ? auth.currentUser.uid : null;
 
-    // If no user is logged in, return and set an error
+    // If no user is logged in, set error and stop loading
     if (!loggedInUserId) {
       setError("No user is logged in.");
       setLoading(false);
       return;
     }
 
-    // Create the Firestore query
     const bookingsCollection = collection(db, "billings");
     const userBookingsQuery = query(bookingsCollection, where("userId", "==", loggedInUserId));
 
-    setLoading(true);
+    setLoading(true); // Start loading
 
-    // Listen for real-time updates to the Firestore collection
     const unsubscribe = onSnapshot(userBookingsQuery, (querySnapshot) => {
       const bookings = querySnapshot.docs.map(doc => doc.data());
       setUserBookings(bookings);
 
-      // Calculate necessary data after receiving new data
+      // Calculate necessary data
       setTotalRevenue(calculateTotalRevenue(bookings, loggedInUserId));
       setBookingsByMonth(calculateBookingsByMonth(bookings));
-      setRevenueByMonth(calculateRevenueByMonth(bookings)); // Calculate revenue by month
+      setRevenueByMonth(calculateRevenueByMonth(bookings));
       setUpcomingEventDates(getUpcomingEventDates(bookings));
       setCurrentMonthBookings(calculateCurrentMonthBookings(bookings));
       setUpcomingDatesInCurrentMonth(getUpcomingDatesInCurrentMonth(bookings));
+
+      setLoading(false); // Set loading to false once data is fetched
+
     }, (err) => {
       console.error("Error listening to Firestore updates:", err);
       setError("Failed to fetch booking data.");
+      setLoading(false); // Stop loading even if there's an error
     });
 
-    // Cleanup the listener on component unmount
     return () => unsubscribe();
 
-  }, []); // Empty dependency array to run this effect only once when the component mounts
+  }, []); // Empty dependency array
 
   // Function to calculate total revenue
   const calculateTotalRevenue = (data, loggedInUserId) => {
@@ -80,7 +81,6 @@ export function useBookings() {
       return result; // Return the accumulated result
     }, {});
   };
-  
 
   const calculateBookingsByMonth = (data) => {
     return data.reduce((result, booking) => {
@@ -133,7 +133,7 @@ export function useBookings() {
     userBookings, 
     totalRevenue, 
     bookingsByMonth, 
-    revenueByMonth, // Return revenue by month
+    revenueByMonth, 
     upcomingEventDates, 
     currentMonthBookings, 
     upcomingDatesInCurrentMonth, 
