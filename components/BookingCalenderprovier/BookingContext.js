@@ -21,6 +21,7 @@ export const BookingProvider = ({ children }) => {
     AdvBookAmount: 0,
     paidAmount: 0,
     billingId: "",
+    totalReceivedAmount:0
   });
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -121,6 +122,7 @@ export const BookingProvider = ({ children }) => {
         remainingAmount: newBooking.totalAmount - newBooking.AdvBookAmount,
         paymentStatus: newBooking.AdvBookAmount.length > 0 ? "Partially Paid" : "Not Paid",
         userId: user.uid, // Add the userId to the booking data
+        totalReceivedAmount:newBooking.AdvBookAmount
       };
 
       // Save the booking data to Firestore and get the booking ID

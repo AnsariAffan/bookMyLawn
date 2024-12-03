@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput, ActivityIndicator, TouchableOpacity, Dimensions } from 'react-native';
-import { Appbar, Menu, IconButton } from 'react-native-paper';
+import { Appbar, IconButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { BookingListContext } from './BookingListContext';
 
@@ -16,18 +16,12 @@ const BookingList = ({ navigation }) => {
     user
   } = useContext(BookingListContext);
 
-  // State for menu visibility and selected filter
-  const [menuVisible, setMenuVisible] = useState(false);
+  // State for the selected filter
   const [filter, setFilter] = useState('all'); // Default filter is 'all'
-
-  // Handle menu visibility
-  const openMenu = () => setMenuVisible(true);
-  const closeMenu = () => setMenuVisible(false);
 
   // Handle the filter change
   const handleFilterChange = (status) => {
     setFilter(status);
-    closeMenu();
   };
 
   // Filter hotels based on the selected filter
@@ -86,27 +80,40 @@ const BookingList = ({ navigation }) => {
         <Text style={{ fontSize: 20, fontWeight: "bold", color: "#ffff" }}>
           Bookings
         </Text>
-
-        {/* Three-Dot Menu for Filter Options */}
-        <Menu
-          visible={menuVisible}
-          onDismiss={closeMenu}
-          anchor={<IconButton icon="dots-vertical" onPress={openMenu} color="#fff" size={30} />}
-        >
-          <Menu.Item onPress={() => handleFilterChange('all')} title="All" />
-          <Menu.Item onPress={() => handleFilterChange('fully paid')} title="Fully Paid" />
-          <Menu.Item onPress={() => handleFilterChange('partially paid')} title="Partially Paid" />
-          <Menu.Item onPress={() => handleFilterChange('pending')} title="Pending" />
-        </Menu>
       </Appbar.Header>
+
+    
 
       <View style={styles.containerTwo}>
         <TextInput
           style={styles.searchBar}
-          placeholder="Search Hotels"
+          placeholder="Search"
           value={search}
           onChangeText={handleSearch}
         />
+
+          {/* Filter Buttons Container */}
+  <View style={styles.filterContainer}>
+  <TouchableOpacity
+    style={[styles.filterButton, filter === 'all' && styles.selectedFilter]}
+    onPress={() => handleFilterChange('all')}
+  >
+    <Text style={styles.filterButtonText}>All</Text>
+  </TouchableOpacity>
+  <TouchableOpacity
+    style={[styles.filterButton, filter === 'fully paid' && styles.selectedFilter]}
+    onPress={() => handleFilterChange('fully paid')}
+  >
+    <Text style={styles.filterButtonText}>Fully Paid</Text>
+  </TouchableOpacity>
+  <TouchableOpacity
+    style={[styles.filterButton, filter === 'partially paid' && styles.selectedFilter]}
+    onPress={() => handleFilterChange('partially paid')}
+  >
+    <Text style={styles.filterButtonText}>Partially Paid</Text>
+  </TouchableOpacity>
+
+</View>
       </View>
 
       {/* Loading Indicator */}
@@ -228,6 +235,31 @@ const styles = StyleSheet.create({
   button: {
     width: width - 30, // Make button width dynamic
     alignSelf: "center",
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    marginTop: -10,
+  },
+
+  filterButton: {
+    width:115,
+    backgroundColor: '#fff',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#00509E',
+  },
+
+  selectedFilter: {
+    backgroundColor: 'lightblue',
+  },
+  filterButtonText: {
+    color: '#00509E',
+    fontWeight: 'bold',
   },
 });
 

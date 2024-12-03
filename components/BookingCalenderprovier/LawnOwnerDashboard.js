@@ -328,70 +328,81 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    padding: 20,
+    padding: 25,
     backgroundColor: "white",
     borderTopLeftRadius: 35,
     borderTopRightRadius: 35,
-  },
-  legendContainer: {
-    flexDirection: "column",
-    justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  legendItem: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  colorBox: {
-    width: 20,
-    height: 20,
-    marginRight: 10,
-  },
-  legendText: {
-    fontSize: 16,
+    marginTop: 10, // Add margin on top for spacing
+ 
   },
   remarkContainer: {
     marginTop: 20,
-    padding: 10,
-    backgroundColor: "#f9f9f9",
-    borderRadius: 5,
+    padding: 15,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 10,
+    marginBottom: 20, // Adding space between elements
   },
   remarkText: {
     fontSize: 16,
+    color: "#333", // Dark text for readability
+    fontWeight: "400",
   },
-  // button: {
-  //   backgroundColor: "#00509E",
-  //   padding: 15,
-  //   borderRadius: 50,
-  //   marginTop: 20,
-  // },
 
-  picker: {
-    height: 50,
-    marginBottom: 15,
+  // Calendar Styles
+  calendarContainer: {
+    backgroundColor: "#ffffff",
+    borderRadius: 10,
+    padding: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+
   },
+
+  button: {
+    backgroundColor: "#00509E",
+    paddingVertical: 15,
+    borderRadius: 25, // Rounded buttons
+    alignItems: "center",
+    marginTop: 20,
+    elevation: 5, // Add elevation for a floating effect
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "500",
+  },
+
+  // Modal Styles
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+    backgroundColor: "rgba(0, 0, 0, 0.6)", // Slightly darker modal background
   },
   modalContent: {
-    width: "95%",
+    width: "90%", // Increased width for better readability
     backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 20,
+    borderRadius: 15,
+    padding: 25,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
   },
   closeIcon: {
     alignSelf: "flex-end",
-    top: -20,
+    marginTop: -25,
   },
   formTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
     marginBottom: 20,
+    color: "#333", // Dark text for better contrast
   },
+
+  // Input Fields
   input: {
     height: 50,
     borderColor: "#ccc",
@@ -400,36 +411,48 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 20,
     backgroundColor: "#f9f9f9",
+    fontSize: 16,
+    color: "#333",
   },
+
   pickerContainer: {
     marginBottom: 20,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 15,
-    overflow: "hidden", // Ensure the corners are rounded
+    overflow: "hidden", // Ensure rounded corners
   },
   pickerLabel: {
     paddingHorizontal: 15,
     paddingVertical: 10,
     backgroundColor: "#f9f9f9",
     color: "#333",
+    fontSize: 16,
   },
   picker: {
     height: 50,
     width: "100%",
   },
-  button: {
-    backgroundColor: "#00509E",
-    paddingVertical: 15,
-    borderRadius: 15,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "500",
-  },
-  
-});
 
+  // Header Style
+  header: {
+    backgroundColor: "#00509E",
+    paddingTop: 10,
+    paddingBottom: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    borderTopLeftRadius: 35,
+    borderTopRightRadius: 35,
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+
+  // Activity Indicator
+  loadingIndicator: {
+    marginTop: 15,
+  },
+});
 export default LawnOwnerDashboard;

@@ -19,6 +19,7 @@ export const BillingProvider = ({ children }) => {
     remainingAmount: 0,
     bookingAmount: 0,
     billId: "",
+    totalReceivedAmount:0
   });
 
 
