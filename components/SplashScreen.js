@@ -32,11 +32,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff", // You can change the background color here
   },
   logo: {
+  
     width: 150,
     height: 150,
-    resizeMode: "contain",
-  }
+    marginBottom: 20,
+    borderRadius: 30,
+
+}
   
-});
+})
 
 export default SplashScreen;
