@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TouchableOpacity } from "react-native";
+import { Dimensions, TouchableOpacity } from "react-native";
 import { View, StyleSheet, Linking } from "react-native";
 import {
   Appbar,
@@ -11,9 +11,10 @@ import UserDetail from "./UserDetail";
 // import BillingDetail from "./BillingDetail";
 import { BillingProvider } from "./BillingDetails/BillingContext";
 import BillingDetail from "./BillingDetails/Billingdetail";
+const { width,height } = Dimensions.get('window'); // Get device width
 
 const BookingDetails = ({ navigation,route }) => {
-  const [activeTab, setActiveTab] = useState("userDetails"); // State to manage active tab
+  const [activeTab, setActiveTab] = useState("billingDetails"); // State to manage active tab
 
 
 const bdata = route.params.booking
@@ -24,14 +25,14 @@ const bdata = route.params.booking
 
 
     <View style={styles.container}>
-      <Appbar.Header style={{ backgroundColor: "#1e1e1e" }}>
+      <Appbar.Header style={{ backgroundColor: "#ffff" }}>
         <Appbar.BackAction
-          style={{ color: "#ffff", backgroundColor: "#ffff" }}
+          style={{ color: "black", backgroundColor: "#ffff" }}
           onPress={() => navigation.goBack()}
         />
         <Appbar.Content
-          style={{ paddingLeft: 10 }}
-          color="#ffff"
+          style={{ paddingLeft: 10,  fontWeight:"700" }}
+          color="black"
           title="Details"
           subtitle="Step 2 of 3"
         />
@@ -44,17 +45,18 @@ const bdata = route.params.booking
 
       {/* Tabs for User Details and Billing Details */}
       <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === "userDetails" && styles.activeTab]}
-          onPress={() => setActiveTab("userDetails")}
-        >
-          <Text style={styles.tabText}>User Details</Text>
-        </TouchableOpacity>
+       
         <TouchableOpacity
           style={[styles.tab, activeTab === "billingDetails" && styles.activeTab]}
           onPress={() => setActiveTab("billingDetails")}
         >
           <Text style={styles.tabText}>Billing Details</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "userDetails" && styles.activeTab]}
+          onPress={() => setActiveTab("userDetails")}
+        >
+          <Text style={styles.tabText}>User Details</Text>
         </TouchableOpacity>
       </View>
 
@@ -81,15 +83,16 @@ const bdata = route.params.booking
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#ffffff",
   },
   itemsContainer: {
     padding: 16,
+    backgroundColor:"#ffffff"
   },
   tabContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#ffff",
     paddingVertical: 10,
   },
   tab: {
@@ -99,10 +102,10 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: "lightblue", // Color for the active tab
+    borderBottomColor: "#00509E", // Color for the active tab
   },
   tabText: {
-    color: "#ffffff",
+    color: "black",
     fontWeight: "bold",
   },
   card: {
@@ -119,8 +122,8 @@ const styles = StyleSheet.create({
     color: "#ffffff",
   },
   priceText: {
-    fontSize: 16,
-    color: "#00FF00",
+    fontSize: width * 0.06,
+    color: "black",
     marginLeft: 10,
   },
   emptyContainer: {
@@ -131,7 +134,7 @@ const styles = StyleSheet.create({
   summaryContainer: {
     padding: 16,
     marginTop: "auto",
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#ffff",
     display: "flex",
     flexDirection: "row",
     alignItems: "flex-end",
@@ -139,7 +142,7 @@ const styles = StyleSheet.create({
   },
   totalText: {
     fontSize: 18,
-    color: "#00FF00",
+    color: "black",
     paddingRight: 20,
     paddingLeft: 15,
     paddingTop: 5,
@@ -147,7 +150,7 @@ const styles = StyleSheet.create({
   total: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#ffff",
+    color: "black",
   },
   button: {
     backgroundColor: "black",

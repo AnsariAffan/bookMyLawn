@@ -1,3 +1,0 @@
-git add .
-git commit -m "adding UI changs for dashboard & List card"
-git push -u origin main

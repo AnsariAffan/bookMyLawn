@@ -95,7 +95,7 @@ const MainApp = ({ route }) => {
           return <Icon name={icons[route.name] || 'circle'} color={color} size={size} />;
         },
       })}
-      tabBarOptions={{ activeTintColor: 'tomato', inactiveTintColor: 'gray' }}
+      tabBarOptions={{ activeTintColor: '#00509E', inactiveTintColor: 'gray' }}
     >
       {['Home', 'Booking', 'Offers',"Settings"].map(screenName => (
         <Tab.Screen key={screenName} name={screenName} component={getScreenComponent(screenName)} />
@@ -117,7 +117,7 @@ export default function NavigationManager() {
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Splash" component={SplashScreen} />
             <Stack.Screen name="Dashboard" component={Dashboard} />
-            <Stack.Screen name="LoginChoice" component={LoginChoice} />
+       {/*  <Stack.Screen name="LoginChoice" component={LoginChoice} />*/}   
             <Stack.Screen name="LoginScreen" component={LoginScreen} />
             <Stack.Screen name="MainApp" component={MainApp} />
             <Stack.Screen name="SuccessMessage" component={SuccessMessage} />

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { View, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Alert, Dimensions } from "react-native";
 import { Text, Card, TextInput, Title, ActivityIndicator } from "react-native-paper";
 import RNHTMLtoPDF from "react-native-html-to-pdf";
 import FileViewer from "react-native-file-viewer";
@@ -9,8 +9,9 @@ import { BookingListContext } from "../BookingListContext/BookingListContext";
 import { updateDocument } from "../../firebaseConfiguration/crudForBooking";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebaseConfiguration/firebaseConfig";
-
+const { width,height } = Dimensions.get('window'); // Get device width
 const BillingDetail = ({ dataDefaulting }) => {
+ 
     const { billingDetails, setBillingDetails, fetchBooingDetails, fetchingAllBillings, allBills } = useBilling();
     const { filteredHotels } = useContext(BookingListContext);
     const [billID, setBillId] = useState();
@@ -157,13 +158,13 @@ const BillingDetail = ({ dataDefaulting }) => {
             return () => unsubscribe();
         }
     }, [billID]);
-
+  
     return (
         <>
             <Icon
                 name="printer"
                 size={25}
-                color="#ffff"
+                color="#00509E"
                 style={{ marginRight: 60, position: "absolute", top: -115, right: -40 }}
                 onPress={createPDF} // Disable editing if fully paid
             />
@@ -247,20 +248,22 @@ const BillingDetail = ({ dataDefaulting }) => {
 const styles = StyleSheet.create({
     totalText: {
         fontSize: 20,
-        color: "lightblue",
+        color: "black",
         paddingRight: 20,
         paddingLeft: 15,
         paddingTop: 5,
         marginBottom: 40,
         marginTop: 10,
+        fontWeight:"700"
     },
     total: {
-        fontSize: 24,
+        fontSize: width * 0.06,
         fontWeight: "bold",
-        color: "#ffff",
+        color: "black",
         marginBottom: 40,
         marginTop: 10,
         paddingLeft: 10,
+        fontStyle:"italic",
     },
     row: {
         display: "flex",
@@ -268,22 +271,26 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
     },
     card: {
-        marginBottom: 8,
-        backgroundColor: "#1e1e1e",
+        marginBottom: height * 0.01, // 2% of the screen height
+        marginHorizontal: width * 0.00, // 5% of the screen width
+        backgroundColor: "#ffff",
+        padding:height * 0,
     },
     itemText: {
-        fontSize: 18,
-        color: "#ffff",
-        fontWeight: "500",
+        fontSize: width * 0.04,
+        color: "black",
+        fontWeight: "600",
         paddingTop: 5,
+        fontStyle:"italic",
     },
     priceText: {
-        fontSize: 18,
-        color: "lightblue",
+        fontSize: width * 0.04,
+        color: "black",
         paddingTop: 5,
+        fontWeight: "600"
     },
     button: {
-        backgroundColor: "#4CAF50",
+        backgroundColor: "#00509E",
         padding: 20,
         alignItems: "center",
         borderRadius: 25,
@@ -291,7 +298,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: "#fff",
-        fontSize: 16,
+        fontSize: width * 0.04,
     },
 });
 

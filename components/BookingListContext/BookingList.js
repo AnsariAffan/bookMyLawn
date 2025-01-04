@@ -193,11 +193,12 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 35,
     fontWeight: "bold",
-    color: "#00509E",
+    // color: "#00509E",
+    color:"black"
   },
   monthText: {
     fontSize: 15,
-    color: "#00509E",
+    color: "black",
   },
   hotelInfo: {
     flex: 1,
@@ -206,8 +207,8 @@ const styles = StyleSheet.create({
   hotelName: {
     fontSize: 18,
     color: "#333333",
-    fontWeight: "bold",
-    marginBottom: 5,
+    
+    
   },
   hotelLocation: {
     fontSize: 15,
@@ -217,11 +218,13 @@ const styles = StyleSheet.create({
     color: "#333333",
     fontSize: 20,
     fontWeight: "bold",
+    
   },
   bookingStatus: {
-    fontSize: 16,
+    fontSize: width * 0.04,
     color: "darkblue",
-    fontWeight: "100",
+    fontWeight: "700",
+    fontStyle:"italic",
   },
   loadingIndicator: {
     position: "absolute",
@@ -257,10 +260,13 @@ const styles = StyleSheet.create({
 
   selectedFilter: {
     backgroundColor: 'lightblue',
+    
   },
   filterButtonText: {
-    color: '#00509E',
-    fontWeight: 'bold',
+    color: 'black',
+  fontSize:12,
+  fontStyle:"italic",
+  fontWeight:700
   },
 });
 

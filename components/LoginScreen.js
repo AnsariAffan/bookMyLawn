@@ -1,8 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Dimensions } from "react-native";
 import { useAuth } from "./Authprovider.js/AuthProvider";
-
+const { width, height } = Dimensions.get("window");
 export default function LoginScreen() {
   const navigation = useNavigation();
   const { signIn, signUp, user, loading } = useAuth(); // loading added
@@ -58,7 +58,7 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <Image source={require('../assets/icon.webp')} style={styles.icon} />
       <Text style={styles.title}>Book My Lawn</Text>
-
+<View style={{width:width-50,marginTop:20}}>
       <TextInput
         style={styles.input}
         placeholder="Enter ID"
@@ -67,7 +67,7 @@ export default function LoginScreen() {
         onChangeText={setId}
         autoCapitalize="none"
       />
-zz
+
       <TextInput
         style={styles.input}
         placeholder="Enter Password"
@@ -77,7 +77,7 @@ zz
         secureTextEntry={true}
         autoCapitalize="none"
       />
-
+</View>
       {isSigningUp ? (
         <TouchableOpacity style={styles.loginButton} onPress={handleSignUp} disabled={isLoading}>
           {isLoading ? (
@@ -111,28 +111,28 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fff",
-    paddingHorizontal: 20,
+    paddingHorizontal: 30,
   },
   icon: {
     width: 150,
     height: 150,
-    marginBottom: 20,
+    marginBottom: 10,
     borderRadius: 30,
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 40,
-    color: "#007bff",
+    color: "black",
   },
   input: {
     width: "100%",
-    height: 50,
+    height: 45,
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 25,
     paddingHorizontal: 15,
-    marginBottom: 20,
+    marginBottom: 10,
     backgroundColor: "#f9f9f9",
     color: "#333",
   },

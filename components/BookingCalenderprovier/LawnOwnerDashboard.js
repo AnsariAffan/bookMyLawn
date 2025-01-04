@@ -135,7 +135,7 @@ const LawnOwnerDashboard = () => {
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Appbar.Header style={{ backgroundColor: "#00509E" }}>
         <Appbar.BackAction
-          style={{ color: "#ffffff" }}
+          style={{ color: "#fff" }}
           onPress={() => navigation.goBack()}
         />
         <Text style={{ fontSize: 20, fontWeight: "bold", color: "#ffff" }}>
@@ -213,6 +213,7 @@ const LawnOwnerDashboard = () => {
                   display: "flex",
                   flexDirection: "row",
                   justifyContent: "space-between",
+                  paddingBottom:10
                 }}
               >
                 <Text style={styles.formTitle}>Confirm Booking</Text>
@@ -223,7 +224,6 @@ const LawnOwnerDashboard = () => {
                   <Text
                     style={{
                       fontWeight: "bold",
-                      marginRight: 10,
                       fontSize: 20,
                     }}
                   >
@@ -328,11 +328,11 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    padding: 25,
+    padding: 13,
     backgroundColor: "white",
     borderTopLeftRadius: 35,
     borderTopRightRadius: 35,
-    marginTop: 10, // Add margin on top for spacing
+  
  
   },
   remarkContainer: {
@@ -398,18 +398,19 @@ const styles = StyleSheet.create({
   formTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 10,
+    marginTop:10,
     color: "#333", // Dark text for better contrast
   },
 
   // Input Fields
   input: {
-    height: 50,
+    height: 45,
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 15,
     paddingHorizontal: 15,
-    marginBottom: 20,
+    marginBottom: 10,
     backgroundColor: "#f9f9f9",
     fontSize: 16,
     color: "#333",

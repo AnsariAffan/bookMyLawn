@@ -6,7 +6,8 @@ const SplashScreen = ({ navigation }) => {
   useEffect(() => {
     // Simulating an API call or loading task
     setTimeout(() => {
-      navigation.replace("LoginChoice");
+      // navigation.replace("LoginChoice");
+      navigation.replace("LoginScreen")
     }, 3000); // Navigate after 3 seconds
   }, [navigation]);
 
@@ -17,8 +18,7 @@ const SplashScreen = ({ navigation }) => {
       <Text style={
         {fontSize: 28,
     fontWeight: "bold",
-    marginTop: 20,
-    color: "#007bff"}
+    color: "black"}
       }>Book My Lawn</Text>
     </View>
   );
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   
     width: 150,
     height: 150,
-    marginBottom: 20,
+    marginBottom: 10,
     borderRadius: 30,
 
 }

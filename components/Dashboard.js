@@ -154,7 +154,7 @@ const Dashboard = () => {
         <>
           {/* Bookings & Revenue Section */}
           <View style={styles.sideBySideContainer}>
-            <View style={[styles.dataBox, { backgroundColor: 'rgba(100, 150, 255, 0.2)' }]}>
+            <View style={[styles.dataBox, { backgroundColor: '#ffff' }]}>
               <View style={styles.revenueContainer}>
                 <Text style={styles.currencyText}>₹</Text>
                 <Text style={styles.dataText}>{totalRevenue}</Text>
@@ -191,8 +191,8 @@ const Dashboard = () => {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                 datasets: [{ data: filteredRevenue, strokeWidth: 1 }],
               }}
-              width={screenWidth - 40}
-              height={220}
+              width={screenWidth - 30}
+              height={200}
               chartConfig={{
                 backgroundColor: '#1cc910',
                 backgroundGradientFrom: '#eff3ff',
@@ -215,29 +215,145 @@ const Dashboard = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
-  headerContainer: { flexDirection: 'row', justifyContent: 'space-between',marginTop:20},
-  header: { fontSize: 24, fontWeight: 'bold' },
-  dotsButton: { padding: 5 },
-  dotsText: { fontSize: 20 },
-  dataLabe2: { fontSize: 16, color: 'gray',marginBottom:5 },
-  loaderContainer: { justifyContent: 'center', alignItems: 'center', flex: 1 },
-  modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
-  modalContent: { backgroundColor: 'white', padding: 20, borderRadius: 8 },
-  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
-  sideBySideContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  dataBox: { flex: 1, padding: 16, backgroundColor: 'lightgray', borderRadius: 8 },
-  revenueContainer: { flexDirection: 'row', justifyContent: 'left', alignItems: 'center', },
-  currencyText: { fontSize: 35, fontWeight: 'bold', marginRight: 5 },
-  dataText: { fontSize: 30, fontWeight: 'bold' },
-  dataLabel: { textAlign: 'left', marginTop: 8 },
-  dataBox2: { flex: 1, padding: 16, backgroundColor: '#dde8ff', borderRadius: 8 },
-  dataBox3: { flex: 1, padding: 16, backgroundColor: '#c9f8d7', borderRadius: 8 },
-  section: { marginTop: 10 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
-  eventCard: { backgroundColor: '#f5f5f5', padding: 10, margin: 5, borderRadius: 8 },
-  eventTitle: { fontSize: 16, fontWeight: 'bold' },
-  eventDate: { fontSize: 14, color: 'gray' },
+  container: {
+    flex: 1,
+    padding: 15,
+    backgroundColor: '#ffff',
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  header: {
+    fontSize: 40,
+    fontWeight: 'bold',
+      
+  },
+  dotsButton: {
+    padding: 5,
+  },
+  dotsText: {
+    fontSize: 20,
+  },
+  dataLabe2: {
+    fontSize: 16,
+    color: 'gray',
+    marginBottom: 10,
+    fontStyle:"italic",
+    
+  },
+  loaderContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  sideBySideContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  // Style for the cards
+  dataBox: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#ffffff', // White background for the card
+    borderRadius: 16, // Rounded corners
+    shadowColor: '#000', // Shadow color
+    shadowOffset: { width: 0, height: 2 }, // Shadow offset (slightly below)
+    shadowOpacity: 0.1, // Light shadow opacity
+    shadowRadius: 6, // Soft shadow
+    elevation: 3, // For Android (elevation gives a 3D effect)
+  },
+  revenueContainer: {
+    flexDirection: 'row',
+    justifyContent: 'left',
+    alignItems: 'center',
+  },
+  currencyText: {
+    fontSize: 35,
+    fontWeight: 'bold',
+    marginRight: 5,
+  },
+  dataText: {
+    fontSize: 30,
+    fontWeight: 'bold',
+  },
+  dataLabel: {
+    textAlign: 'left',
+    marginTop: 8,
+    color:"#00509E",
+    fontSize:15,
+  
+  
+  },
+  dataBox2: {
+    flex: 1,
+    padding: 15,
+    backgroundColor: '#ffffff', // White background for the card
+    borderRadius: 16, // Rounded corners
+    shadowColor: '#000', // Shadow color
+    shadowOffset: { width: 0, height: 2 }, // Shadow offset (slightly below)
+    shadowOpacity: 0.1, // Light shadow opacity
+    shadowRadius: 6, // Soft shadow
+    elevation: 3, // For Android (elevation gives a 3D effect)
+  },
+  dataBox3: {
+    flex: 1,
+    padding: 15,
+    backgroundColor: '#ffffff', // White background for the card
+    borderRadius: 16, // Rounded corners
+    shadowColor: '#000', // Shadow color
+    shadowOffset: { width: 0, height: 2 }, // Shadow offset (slightly below)
+    shadowOpacity: 0.1, // Light shadow opacity
+    shadowRadius: 6, // Soft shadow
+    elevation: 3, // For Android (elevation gives a 3D effect)
+  },
+  section: {
+    marginTop: 10,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    fontStyle:"italic",
+  },
+  eventCard: {
+    backgroundColor: 'lightgray',
+    padding: 10,
+    margin: 5,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  eventTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  eventDate: {
+    fontSize: 14,
+    color: 'gray',
+  },
 });
+
 
 export default Dashboard;

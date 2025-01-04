@@ -87,9 +87,9 @@ const UserDetail = ({ dataDefaulting }) => {
 
 const styles = StyleSheet.create({
   card: {
-    marginBottom: height * 0.02, // 2% of the screen height
-    marginHorizontal: width * 0.01, // 5% of the screen width
-    backgroundColor: "#1e1e1e",
+    marginBottom: height * 0.01, // 2% of the screen height
+    marginHorizontal: width * 0.00, // 5% of the screen width
+    backgroundColor: "#ffff",
     borderRadius: 10,
   },
   row: {
@@ -98,17 +98,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   itemText: {
-    fontSize: width * 0.04, // 4% of the screen width
-    color: "#ffffff",
+    fontSize: 15, // 4% of the screen width
+    color: "black",
     flex: 1,
+         fontWeight:"600",
+         fontStyle:"italic",
   },
   priceText: {
     fontSize: width * 0.035, // 3.5% of the screen width
-    color: "lightblue",
+    color: "black",
     textAlign: "right",
+    fontWeight:"600"
+    
   },
   icon: {
-    marginRight: width * 0.02, // 2% of the screen width
+    marginRight: width * 0.02, // 2% of the screen width,
+    color:"#00509E"
   },
 });
 

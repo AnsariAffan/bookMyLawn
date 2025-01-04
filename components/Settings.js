@@ -99,12 +99,12 @@ const Settings = ({ navigation }) => {
             onPress={() => console.log('Change Password')}
           />
           
-          <List.Item
+          {/* <List.Item
             title="Theme"
             left={() => <List.Icon icon="theme-light-dark" />}
             onPress={() => console.log('Change Theme')}
           />
-          
+           */}
           <List.Item
             title="Contact Us & About Us"
             left={() => <List.Icon icon="file-document-outline" />}
@@ -143,6 +143,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 15,
+    backgroundColor:"#ffff"
   },
   profileContainer: {
     alignItems: 'center',
