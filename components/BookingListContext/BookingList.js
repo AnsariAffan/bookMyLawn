@@ -253,6 +253,7 @@ const styles = StyleSheet.create({
   dateContainer: {
     display: "flex",
     flexDirection: "row",
+    marginLeft:4
   },
 
   dateText: {
@@ -272,7 +273,7 @@ const styles = StyleSheet.create({
   hotelName: {
     fontSize: 15,
     color: "black",
-    marginLeft: 0,
+    marginLeft: 5,
     fontWeight: "bold",
   },
   hotelLocation: {
