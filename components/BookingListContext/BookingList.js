@@ -111,7 +111,7 @@ const BookingList = ({ navigation }) => {
               </View>
             </View>
           </View>
-          <View style={{}}>
+          <View style={{marginRight:2,marginTop:5}}>
             <Text
               style={[
                 styles.bookingStatus,
@@ -284,13 +284,14 @@ const styles = StyleSheet.create({
     color: "#333333",
     fontSize: 18,
     fontWeight: "normal",
+    
   },
   bookingStatus: {
     fontSize: width * 0.03,
     color: "white",
     fontWeight: "700",
     paddingVertical: 2,
-    paddingHorizontal: 5,
+    paddingHorizontal: 3,
     borderRadius: 15,
     textAlign: "center",
     overflow: "hidden",
