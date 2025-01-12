@@ -1,5 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Linking, Dimensions } from 'react-native';
+
+// Get device dimensions
+const { width, height } = Dimensions.get('window');
 
 const AboutContactUs = () => {
   // Function to open dialer when contact number is clicked
@@ -14,11 +17,11 @@ const AboutContactUs = () => {
         <Image source={require('../assets/icon.webp')} style={styles.logo} />
         <Text style={styles.heading}>About Us</Text>
         <Text style={styles.paragraph}>
-        Welcome to "Book My Lawn"!
+          Welcome to "Book My Lawn"!
 
-        At Book My Lawn, we are committed to delivering the best user experience. Our goal is to simplify your lawn care bookings and streamline your business operations, helping you save time and focus on what matters most. Whether you’re a homeowner looking to maintain your lawn or a business aiming to manage your services efficiently, we’ve got you covered.
-        
-        Thank you for choosing Book My Lawn – where quality service meets convenience!
+          At Book My Lawn, we are committed to delivering the best user experience. Our goal is to simplify your lawn care bookings and streamline your business operations, helping you save time and focus on what matters most. Whether you’re a homeowner looking to maintain your lawn or a business aiming to manage your services efficiently, we’ve got you covered.
+          
+          Thank you for choosing Book My Lawn – where quality service meets convenience!
         </Text>
       </View>
 
@@ -48,26 +51,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9f9f9',
-    padding: 20,
+    padding: 15,
   },
   section: {
     marginBottom: 20,
   },
   heading: {
-    fontSize: 24,
+    fontSize: width * 0.06, // Dynamic font size based on screen width
     fontWeight: 'bold',
     marginBottom: 8,
     color: '#333',
   },
   paragraph: {
-    fontSize: 16,
+    fontSize: width * 0.04, // Dynamic font size based on screen width
     marginBottom: 10,
     color: '#555',
-    textAlign:"auto",
-    
+    textAlign: "auto",
   },
   infoText: {
-    fontSize: 16,
+    fontSize: width * 0.04, // Dynamic font size based on screen width
     marginBottom: 10,
     color: '#333',
   },
@@ -77,8 +79,8 @@ const styles = StyleSheet.create({
   },
   logo: {
     marginTop: 10,
-    width: 360,
-    height: 210,
+    width: width -30, // Dynamic width based on screen size (90% of screen width)
+    height: height * 0.3, // Dynamic height based on screen size (30% of screen height)
     marginBottom: 5,
     borderRadius: 30,
   },

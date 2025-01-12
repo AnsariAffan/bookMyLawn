@@ -53,7 +53,7 @@ export const BookingProvider = ({ children }) => {
           id: doc.id,
           userId: doc.data().userId,
           ...doc.data(),
-          
+      
         }));
   
         // Set the bookings data for the logged-in user

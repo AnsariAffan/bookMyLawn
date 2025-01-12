@@ -14,6 +14,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { BookingListContext } from "./BookingListContext";
 import { useBookings } from "../utility/useBookings";
 import { useBilling } from "../BillingDetails/BillingContext";
+import { readDocuments } from "../../firebaseConfiguration/crudForBooking";
 
 const { width, height } = Dimensions.get("window"); // Get device width and height
 
@@ -30,10 +31,10 @@ const BookingList = ({ navigation }) => {
   } = useContext(BookingListContext,useBilling);
 
    const { formatDates } = useBookings();
-
+  
   // State for the selected filter
   const [filter, setFilter] = useState("all"); // Default filter is 'all'
-console.log(billingDetails);
+
   // Handle the filter change
   const handleFilterChange = (status) => {
     setFilter(status);
@@ -83,7 +84,10 @@ console.log(billingDetails);
           return { backgroundColor: "grey" }; // Default color
       }
     };
-
+    const  billData = readDocuments("billings")
+    console.log("---billingDetails-----");
+    console.log(  billData);
+    console.log("---billingDetails----");
 
     return (
       <TouchableOpacity
