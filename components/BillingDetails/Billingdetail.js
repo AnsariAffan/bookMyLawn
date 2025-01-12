@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
         marginBottom: 40,
         marginTop: 10,
         paddingLeft: 10,
-        fontStyle:"italic",
+        fontStyle:"normal",
     },
     row: {
         display: "flex",
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
         color: "black",
         fontWeight: "600",
         paddingTop: 5,
-        fontStyle:"italic",
+        fontStyle:"normal",
     },
     priceText: {
         fontSize: width * 0.04,

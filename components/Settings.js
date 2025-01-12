@@ -2,78 +2,132 @@ import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, Avatar, List, TextInput, Dialog, Portal, Button, Provider } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
-import { useAuth } from './Authprovider.js/AuthProvider';  // Import useAuth hook
-import { storeUserInformation } from './Authprovider.js/userManagement';
+import { updateProfile, updatePassword } from 'firebase/auth'; // Import Firebase methods
+import { auth } from '../firebaseConfiguration/firebaseConfig';
 
 const Settings = ({ navigation }) => {
-  const { user, signOut } = useAuth();  // Get signOut from context
   const [image, setImage] = useState(null);
-  const [username, setUsername] = useState(user?.displayName);  // Using user info from context
-  const [email, setEmail] = useState(user?.email || 'user@example.com');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [visible, setVisible] = useState(false);
   const [editType, setEditType] = useState('');
   const [tempValue, setTempValue] = useState('');
+  const [passwordDialogVisible, setPasswordDialogVisible] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
 
+  // Fetch user details on component mount
   useEffect(() => {
-    // Reset the fields if the user changes in the context
-    console.log(user);
-    setUsername(user?.displayName || 'Username');
-    setEmail(user?.email || 'user@example.com');
-  }, [user]);
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      setUsername(currentUser.displayName || 'Username');
+      setEmail(currentUser.email || 'user@example.com');
+      setImage(currentUser.photoURL || null);
+    }
+  }, []);
 
+  // Show dialog to edit username or email
   const showDialog = (type) => {
     setEditType(type);
     setTempValue(type === 'username' ? username : email);
     setVisible(true);
   };
 
+  // Show password change dialog
+  const showPasswordDialog = () => {
+    setPasswordDialogVisible(true);
+  };
+
+  // Hide the dialog
   const hideDialog = () => setVisible(false);
 
+  // Hide password dialog
+  const hidePasswordDialog = () => setPasswordDialogVisible(false);
+
+  // Handle save action for updating display name or email
   const handleSave = async () => {
     if (editType === 'username') {
-      setUsername(tempValue);
+      try {
+        await updateProfile(auth.currentUser, { displayName: tempValue });
+
+        const currentUser = auth.currentUser;
+        setUsername(currentUser.displayName); // Update username in state
+      } catch (error) {
+        console.error('Error updating displayName:', error);
+      }
     } else if (editType === 'email') {
-      setEmail(tempValue);
+      try {
+        await auth.currentUser.updateEmail(tempValue); // This will require email verification
+        setEmail(tempValue); // Update email in state
+      } catch (error) {
+        console.error('Error updating email:', error);
+      }
     }
     hideDialog();
-
-    // Update Firestore with the new user information
-    try {
-      await storeUserInformation({
-        ...user,
-        displayName: username,
-        email: email,
-      });
-    } catch (error) {
-      console.error("Error updating user information:", error);
-    }
   };
 
+  // Pick and upload a new profile image
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    if (!result.canceled) {
-      setImage(result.uri);
+    if (status !== 'granted') {
+      console.log('Permission to access media library was denied.');
+      return;
+    }
+
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const selectedImage = result.assets[0].uri;
+        setImage(selectedImage);
+        await updateProfile(auth.currentUser, { photoURL: selectedImage });
+      } else {
+        console.log('Image selection was canceled.');
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
     }
   };
 
+  // Handle user logout
   const handleLogout = async () => {
     try {
-      await signOut();  // Call the signOut function from context
-      // Optionally navigate to login screen or any other screen after logout
-      navigation.navigate('LoginScreen');  // Ensure you have navigation set up
+      await auth.signOut();
+      navigation.navigate('LoginScreen');
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.error('Logout failed:', error);
+    }
+  };
+
+  // Handle password change
+  const handleChangePassword = async () => {
+    try {
+      const user = auth.currentUser;
+
+      // Re-authenticate the user to ensure they are allowed to change the password
+      const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+      await user.reauthenticateWithCredential(credential);
+
+      // Update password
+      await updatePassword(user, newPassword);
+      alert('Password updated successfully!');
+      setNewPassword('');
+      setCurrentPassword('');
+      hidePasswordDialog();
+    } catch (error) {
+      console.error('Error updating password:', error);
+      alert('Failed to update password. Please check your current password.');
     }
   };
 
   return (
-    <Provider>
+
       <SafeAreaView style={styles.container}>
         <View style={styles.profileContainer}>
           <TouchableOpacity onPress={pickImage}>
@@ -86,37 +140,36 @@ const Settings = ({ navigation }) => {
           <Text style={styles.username}>{username}</Text>
           <Text style={styles.email}>{email}</Text>
         </View>
-        <List.Section>
-          <List.Item
-            title="Change Username"
-            left={() => <List.Icon icon="account-edit" />}
-            onPress={() => showDialog('username')}
-          />
-          
-          <List.Item
-            title="Change Password"
-            left={() => <List.Icon icon="lock-reset" />}
-            onPress={() => console.log('Change Password')}
-          />
-          
-          {/* <List.Item
-            title="Theme"
-            left={() => <List.Icon icon="theme-light-dark" />}
-            onPress={() => console.log('Change Theme')}
-          />
-           */}
-          <List.Item
-            title="Contact Us & About Us"
-            left={() => <List.Icon icon="file-document-outline" />}
-            onPress={() => console.log('Logger Details')}
-          />
-
-          <List.Item
-            title="Logout"
-            left={() => <List.Icon icon="logout" />}
-            onPress={handleLogout}  // Call handleLogout on logout
-          />
-        </List.Section>
+        <View style={styles.section}>
+        <TouchableOpacity style={styles.item} onPress={() => showDialog('username')}>
+          <View style={styles.iconTextContainer}>
+            <Text style={styles.icon}>✏️</Text>
+            <Text style={styles.title}>Change Username</Text>
+          </View>
+        </TouchableOpacity>
+      
+        <TouchableOpacity style={styles.item} onPress={showPasswordDialog}>
+          <View style={styles.iconTextContainer}>
+            <Text style={styles.icon}>🔒</Text>
+            <Text style={styles.title}>Change Password</Text>
+          </View>
+        </TouchableOpacity>
+      
+        <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('AboutContactUs')}>
+          <View style={styles.iconTextContainer}>
+            <Text style={styles.icon}>📄</Text>
+            <Text style={styles.title}>Contact Us & About Us</Text>
+          </View>
+        </TouchableOpacity>
+      
+        <TouchableOpacity style={styles.item} onPress={handleLogout}>
+          <View style={styles.iconTextContainer}>
+            <Text style={styles.icon}>🚪</Text>
+            <Text style={styles.title}>Logout</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+      
 
         <Portal>
           <Dialog visible={visible} onDismiss={hideDialog}>
@@ -133,9 +186,32 @@ const Settings = ({ navigation }) => {
               <Button onPress={handleSave}>Save</Button>
             </Dialog.Actions>
           </Dialog>
+
+          {/* Password change dialog */}
+          <Dialog visible={passwordDialogVisible} onDismiss={hidePasswordDialog}>
+            <Dialog.Title>Change Password</Dialog.Title>
+            <Dialog.Content>
+              <TextInput
+                label="Current Password"
+                secureTextEntry
+                value={currentPassword}
+                onChangeText={(text) => setCurrentPassword(text)}
+              />
+              <TextInput
+                label="New Password"
+                secureTextEntry
+                value={newPassword}
+                onChangeText={(text) => setNewPassword(text)}
+              />
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={hidePasswordDialog}>Cancel</Button>
+              <Button onPress={handleChangePassword}>Save</Button>
+            </Dialog.Actions>
+          </Dialog>
         </Portal>
       </SafeAreaView>
-    </Provider>
+   
   );
 };
 
@@ -143,21 +219,45 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 15,
-    backgroundColor:"#ffff"
+    backgroundColor:"white"
   },
   profileContainer: {
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 100,
     marginBottom: 40,
   },
   username: {
     marginTop: 10,
     fontSize: 18,
     fontWeight: 'bold',
+  color:"black"
   },
   email: {
     fontSize: 16,
-    color: 'gray',
+     color:"black"
+  },
+  section: {
+    marginTop: 20,
+
+  
+    paddingTop: 10,
+  },
+  item: {
+    paddingVertical: 10,
+  
+  },
+  iconTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  icon: {
+    fontSize: 20, // Adjust the size of the icon
+    marginRight: 10,
+  },
+  title: {
+    fontSize: 16,
+    color: '#333', // Adjust the color to improve visibility
+    fontWeight: 'bold',
   },
 });
 

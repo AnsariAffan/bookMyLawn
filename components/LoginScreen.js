@@ -1,24 +1,36 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Dimensions } from "react-native";
-import { useAuth } from "./Authprovider.js/AuthProvider";
+import { Checkbox } from "react-native-paper"; // Import the Checkbox component from react-native-paper
+import { useAuth } from "./Authprovider.js/AuthProvider"; // Your custom AuthProvider
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const { width, height } = Dimensions.get("window");
+
 export default function LoginScreen() {
   const navigation = useNavigation();
-  const { signIn, signUp, user, loading } = useAuth(); // loading added
+  const { signIn, signUp, user, loading } = useAuth();
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [isSigningUp, setIsSigningUp] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);  // State to manage loader visibility
+  const [isLoading, setIsLoading] = useState(false); // State to manage loader visibility
+  const [rememberMe, setRememberMe] = useState(true); // State to track if "Remember Me" is checked
 
   const handleLogin = async () => {
-    setIsLoading(true);  // Set loading state to true before login attempt
+    setIsLoading(true); // Set loading state to true before login attempt
     try {
       await signIn(id, password);
-      // Wait until user state is updated (add this condition)
       if (user) {
         const isLawnOwner = true; // Replace with actual logic
         navigation.navigate("MainApp", { isLawnOwner, userId: user.email });
+      }
+      // Save credentials to AsyncStorage if "Remember Me" is checked
+      if (rememberMe) {
+        await AsyncStorage.setItem("id", id); // Store id in AsyncStorage
+        await AsyncStorage.setItem("password", password); // Store password in AsyncStorage
+      } else {
+        await AsyncStorage.removeItem("id"); // Remove stored id if "Remember Me" is unchecked
+        await AsyncStorage.removeItem("password"); // Remove stored password if "Remember Me" is unchecked
       }
     } catch (error) {
       alert(`Login failed: ${error.message}`);
@@ -27,12 +39,10 @@ export default function LoginScreen() {
     }
   };
 
-  const 
-  handleSignUp = async () => {
-    setIsLoading(true);  // Set loading state to true before sign up attempt
+  const handleSignUp = async () => {
+    setIsLoading(true); // Set loading state to true before sign up attempt
     try {
       await signUp(id, password);
-      // Wait until user state is updated (add this condition)
       if (user) {
         const isLawnOwner = true; // Replace with actual logic
         navigation.navigate("MainApp", { isLawnOwner, userId: user.email });
@@ -47,6 +57,19 @@ export default function LoginScreen() {
   };
 
   useEffect(() => {
+    // Check if user has stored credentials on app launch
+    const loadStoredCredentials = async () => {
+      const storedId = await AsyncStorage.getItem("id");
+      const storedPassword = await AsyncStorage.getItem("password");
+      if (storedId && storedPassword) {
+        setId(storedId);
+        setPassword(storedPassword);
+        setRememberMe(true); // If credentials are stored, set "Remember Me" to true
+      }
+    };
+
+    loadStoredCredentials();
+
     // Automatically navigate if user is already logged in
     if (user) {
       const isLawnOwner = true; // Replace with actual logic
@@ -58,26 +81,35 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <Image source={require('../assets/icon.webp')} style={styles.icon} />
       <Text style={styles.title}>Book My Lawn</Text>
-<View style={{width:width-50,marginTop:20}}>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter ID"
-        placeholderTextColor="#666"
-        value={id}
-        onChangeText={setId}
-        autoCapitalize="none"
-      />
+      <View style={{ width: width - 50, marginTop: 20 }}>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter ID"
+          placeholderTextColor="#666"
+          value={id}
+          onChangeText={setId}
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Password"
+          placeholderTextColor="#666"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={true}
+          autoCapitalize="none"
+        />
+      </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Enter Password"
-        placeholderTextColor="#666"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry={true}
-        autoCapitalize="none"
+      <View style={styles.rememberMeContainer}>
+      <Checkbox
+    
+        status={rememberMe ? "checked" : "unchecked"}
+        onPress={() => setRememberMe(!rememberMe)} // Toggle "Remember Me" state
       />
-</View>
+      <Text style={styles.rememberMeText}>Remember Me</Text>
+    </View>
+
       {isSigningUp ? (
         <TouchableOpacity style={styles.loginButton} onPress={handleSignUp} disabled={isLoading}>
           {isLoading ? (
@@ -96,11 +128,7 @@ export default function LoginScreen() {
         </TouchableOpacity>
       )}
 
-      <TouchableOpacity onPress={() => setIsSigningUp(!isSigningUp)}>
-        <Text style={styles.switchText}>
-          {isSigningUp ? "Already have an account? Login" : "Don't have an account? Sign Up"}
-        </Text>
-      </TouchableOpacity>
+        
     </View>
   );
 }
@@ -136,6 +164,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9f9f9",
     color: "#333",
   },
+  rememberMeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 0,
+  },
+  rememberMeText: {
+    fontSize: 14,
+    color: "#666",
+  },
   loginButton: {
     backgroundColor: "#00509E",
     paddingVertical: 15,
@@ -143,6 +180,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     width: "100%",
     alignItems: "center",
+    marginTop: 20,
   },
   loginButtonText: {
     color: "#fff",

@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal, Button, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Image,StyleSheet, TouchableOpacity, Modal, Button, ActivityIndicator } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useAuth } from './Authprovider.js/AuthProvider';
 import { useBookings } from './utility/useBookings';
+import { Avatar } from 'react-native-paper';
+import { auth } from '../firebaseConfiguration/firebaseConfig';
+import { useNavigation } from '@react-navigation/native';
+
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -62,14 +66,41 @@ const Dashboard = () => {
   ]);
 
   const renderUpcomingEvents = () => {
-    return events.map((event, index) => (
-      <View key={index} style={styles.eventCard}>
-        <Text style={styles.eventTitle}>{event.title}</Text>
-        <Text style={styles.eventDate}>{event.date}</Text>
-      </View>
-    ));
+    // Log upcomingEventDates to ensure data is in the expected format
+    console.log("Upcoming Event Dates:", upcomingEventDates);
+  
+    return upcomingEventDates?.map((event, index) => {
+      // Check if event is a valid string (date string) before proceeding
+      if (typeof event !== 'string' || !event) {
+        console.log(`Invalid event data at index ${index}:`, event);
+        return null; // Skip invalid events
+      }
+  
+      // Convert the event string to a Date object
+      const eventDate = new Date(event);
+      
+      // Check if the eventDate is valid
+      if (isNaN(eventDate)) {
+        console.log(`Invalid date at index ${index}:`, event);
+        return null; // Skip invalid dates
+      }
+  
+      const dayOfWeek = eventDate?.getDay(); // Get the day of the week (0=Sunday, 1=Monday, etc.)
+  
+      const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const dayName = daysOfWeek[dayOfWeek]; // Get the corresponding day name
+  
+      return (
+        <View key={index} style={styles.eventCard}>
+          {/* Ensure all text is wrapped inside a <Text> component */}
+          <Text style={styles.eventTitle}>{dayName}</Text>
+          <Text style={styles.eventDate}>{eventDate.toLocaleDateString()}</Text>
+        </View>
+      );
+    });
   };
-
+  
+  
   const filterCurrentMonth = () => {
     setSelectedFilter('currentMonth');
     setFilteredBookings([bookingsData[currentMonth]]);
@@ -100,14 +131,22 @@ const Dashboard = () => {
     setFilteredRevenue(revenueData);
     setModalVisible(false);
   };
-
+  const [image, setImage] = useState(null);
+const navigation = useNavigation();
+  useEffect(() => {
+    // Fetch user data when the component mounts
+    const user = auth.currentUser;
+    if (user && user.photoURL) {
+      setImage(user.photoURL);  // Set the user's photo URL if available
+    }
+  }, []);
   return (
     <ScrollView style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Hi,{user?.email.slice(0,-10)}</Text>
-        <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.dotsButton}>
-          <Text style={styles.dotsText}>•••</Text>
-        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("Settings")} style={styles.dotsButton}>
+         <Avatar.Image size={50} source={{ uri: image }} />
+         </TouchableOpacity>
       </View>
       <Text style={styles.dataLabe2}>@Danish Lawn</Text>
 
@@ -165,12 +204,12 @@ const Dashboard = () => {
 
           {/* Total Bookings and Upcoming Events */}
           <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: -15, width: screenWidth / 1.1 }}>
-          <View style={[styles.dataBox2, { marginRight: 2 }]}>
+          <View style={[styles.dataBox2, { marginRight: 3 }]}>
             <Text style={styles.dataText}>{currentMonthBookings}</Text>
             <Text style={styles.dataLabel}>Total Bookings</Text>
           </View>
         
-          <View style={[styles.dataBox3, { marginLeft: 2 }]}>
+          <View style={[styles.dataBox3, { marginLeft: 5 }]}>
             <Text style={styles.dataText}>{upcomingDatesInCurrentMonth}</Text>
             <Text style={styles.dataLabel}>Upcoming Events</Text>
           </View>
@@ -218,12 +257,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 15,
-    backgroundColor: '#ffff',
+    backgroundColor: '#F5F5F5',
   },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
+    marginTop: 25,
   },
   header: {
     fontSize: 40,
@@ -231,7 +270,7 @@ const styles = StyleSheet.create({
       
   },
   dotsButton: {
-    padding: 5,
+  marginTop:5
   },
   dotsText: {
     fontSize: 20,
@@ -240,7 +279,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'gray',
     marginBottom: 10,
-    fontStyle:"italic",
+    fontStyle:"normal",
     
   },
   loaderContainer: {
@@ -257,7 +296,7 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: 'white',
     padding: 20,
-    borderRadius: 16,
+    borderRadius: 20,
   },
   modalTitle: {
     fontSize: 18,
@@ -267,14 +306,20 @@ const styles = StyleSheet.create({
   sideBySideContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: 25,
+  },icon: {
+    width: 45,
+    height: 45,
+    borderRadius:50,
+    marginTop:5
+    
   },
   // Style for the cards
   dataBox: {
     flex: 1,
     padding: 16,
     backgroundColor: '#ffffff', // White background for the card
-    borderRadius: 16, // Rounded corners
+    borderRadius: 20, // Rounded corners
     shadowColor: '#000', // Shadow color
     shadowOffset: { width: 0, height: 2 }, // Shadow offset (slightly below)
     shadowOpacity: 0.1, // Light shadow opacity
@@ -307,7 +352,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 15,
     backgroundColor: '#ffffff', // White background for the card
-    borderRadius: 16, // Rounded corners
+    borderRadius: 20, // Rounded corners
     shadowColor: '#000', // Shadow color
     shadowOffset: { width: 0, height: 2 }, // Shadow offset (slightly below)
     shadowOpacity: 0.1, // Light shadow opacity
@@ -318,7 +363,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 15,
     backgroundColor: '#ffffff', // White background for the card
-    borderRadius: 16, // Rounded corners
+    borderRadius: 20, // Rounded corners
     shadowColor: '#000', // Shadow color
     shadowOffset: { width: 0, height: 2 }, // Shadow offset (slightly below)
     shadowOpacity: 0.1, // Light shadow opacity
@@ -332,13 +377,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 5,
-    fontStyle:"italic",
+    fontStyle:"normal",
   },
   eventCard: {
-    backgroundColor: 'lightgray',
+    backgroundColor: '#ffff',
     padding: 10,
     margin: 5,
-    borderRadius: 16,
+    borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

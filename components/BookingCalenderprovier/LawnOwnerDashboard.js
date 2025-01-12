@@ -14,7 +14,7 @@ import {
 import { Calendar } from "react-native-calendars";
 import moment from "moment";
 import { Picker } from "@react-native-picker/picker";
-import { ActivityIndicator, Appbar, Icon } from "react-native-paper";
+import { ActivityIndicator, Appbar, Checkbox, Icon } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { BookingContext } from "./BookingContext"; // Import your context
 import { collection, doc, Firestore, onSnapshot } from "firebase/firestore";
@@ -69,7 +69,7 @@ const LawnOwnerDashboard = () => {
         customStyles: {
           container: {
              backgroundColor: "lightblue", // blue color for selecting date
-            // backgroundColor:"#FFCCCB", //  light red color
+           
             
           },
           text: {
@@ -111,7 +111,7 @@ const LawnOwnerDashboard = () => {
               updatedMarkedDates[date] = {
                 customStyles: {
                   container: {
-                    backgroundColor: "lightpink", // Red for booked dates
+                    backgroundColor: "purple", // Red for booked dates
                   },
                   text: {
                     color: "#000",
@@ -158,6 +158,17 @@ const LawnOwnerDashboard = () => {
             textDayHeaderFontWeight: "bold",
           }}
         />
+
+        <View style={styles.rememberMeContainer}>
+      <Checkbox
+      color="purple" // Light pink color
+      
+        status={true==true ? "checked" : "unchecked"}
+        
+      />
+      <Text style={styles.rememberMeText}>Booked Dates</Text>
+      
+    </View>
         {loading && <ActivityIndicator style={styles.loadingIndicator} />}
         <View style={styles.remarkContainer}>
           {selectedDates.length > 0 ? (
@@ -334,6 +345,16 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 35,
   
  
+  },
+  rememberMeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 0,
+  },
+  rememberMeText: {
+    fontSize: 14,
+    color: "#666",
+    fontSize:15
   },
   remarkContainer: {
     marginTop: 20,

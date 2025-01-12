@@ -29,6 +29,7 @@ import { BillingProvider } from './BillingDetails/BillingContext';
 import { AuthProvider } from './Authprovider.js/AuthProvider';
 import Settings from './Settings';
 import Dashboard from './Dashboard';
+import AboutContactUs from './AboutContactUs';
 
 // Dummy Components for other tabs
 const TheatresScreen = () => (
@@ -58,6 +59,7 @@ const HomeStack = () => (
     <Stack.Screen name="LawnProfile" component={LawnProfile} options={{ title: 'Profile', headerShown: true }} />
     <Stack.Screen name="BookingScreen" component={BookingScreen} options={{ title: 'Booking', headerShown: true }} />
     <Stack.Screen name="LoginScreen" component={LoginScreen} />
+    <Stack.Screen name="AboutContactUs" component={AboutContactUs} />
 
     </Stack.Navigator>
 );
@@ -125,7 +127,7 @@ export default function NavigationManager() {
             <Stack.Screen name="BookingList" component={BookingList} />
             <Stack.Screen name="BookingDetails" component={BookingDetails} />
             <Stack.Screen name="Settings" component={Settings} />
-
+ <Stack.Screen name="AboutContactUs" component={AboutContactUs} />
             </Stack.Navigator>
           </BookingProvider>
         </BookingListProvider>

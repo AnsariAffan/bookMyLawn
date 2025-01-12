@@ -37,10 +37,24 @@ const BookingList = ({ navigation }) => {
       "January", "February", "March", "April", "May", "June", "July", "August",
       "September", "October", "November", "December"
     ];
-
+  
     const monthIndex = parseInt(item.dates[0].split("-")[1], 10);
     const monthName = monthCollection[monthIndex - 1];
-
+  
+    // Determine badge color based on payment status
+    const getBadgeStyle = (status) => {
+      switch (status.toLowerCase()) {
+        case 'fully paid':
+          return { backgroundColor: 'green' }; // Green for fully paid
+        case 'partially paid':
+          return { backgroundColor: 'orange' }; // Orange for partially paid
+        case 'unpaid':
+          return { backgroundColor: 'red' }; // Red for unpaid
+        default:
+          return { backgroundColor: 'grey' }; // Default color
+      }
+    };
+  
     return (
       <TouchableOpacity
         style={[styles.button, { width: width - 30 }]} // Dynamically adjust width
@@ -55,7 +69,9 @@ const BookingList = ({ navigation }) => {
           <View style={styles.hotelInfo}>
             <View style={styles.row}>
               <Text style={styles.hotelName}>{item.name}</Text>
-              <Text style={styles.bookingStatus}>{item.paymentStatus}</Text>
+              <Text style={[styles.bookingStatus, getBadgeStyle(item.paymentStatus)]}>
+              {item.paymentStatus}
+            </Text>
             </View>
             <View style={[styles.row, { paddingTop: 5 }]}>
               <View style={styles.row}>
@@ -72,7 +88,7 @@ const BookingList = ({ navigation }) => {
     <View style={styles.container}>
       <Appbar.Header style={{ backgroundColor: "#00509E" }}>
         <Appbar.BackAction
-          style={{ color: "#ffffff" }}
+          style={{ color: "#F5F5F5" }}
           onPress={() => navigation.goBack()}
         />
         <Text style={{ fontSize: 20, fontWeight: "bold", color: "#ffff" }}>
@@ -152,7 +168,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 20,
     paddingHorizontal: 15,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#F5F5F5",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
   },
@@ -174,7 +190,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderRadius: 15,
     paddingVertical: 8, // Reduce vertical padding
-    paddingHorizontal: 15, // Adjust horizontal padding if needed
+    paddingHorizontal: 10, // Adjust horizontal padding if needed
     marginBottom: 15,
     backgroundColor: "#FFFFFF",
     shadowColor: "#000",
@@ -203,9 +219,10 @@ const styles = StyleSheet.create({
   hotelInfo: {
     flex: 1,
     justifyContent: "center",
+    
   },
   hotelName: {
-    fontSize: 18,
+    fontSize: 15,
     color: "#333333",
     
     
@@ -220,12 +237,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     
   },
-  bookingStatus: {
-    fontSize: width * 0.04,
-    color: "darkblue",
-    fontWeight: "700",
-    fontStyle:"italic",
-  },
+bookingStatus: {
+  fontSize: width * 0.03,
+  color: "white", // Text color should remain white for contrast
+  fontWeight: "700",
+  paddingVertical: 4, // Padding for vertical spacing
+  paddingHorizontal: 5, // Padding for horizontal spacing
+  borderRadius: 15, // Rounded corners to give it a badge-like shape
+  textAlign: "center", // Center-align the text within the badge
+  overflow: "hidden", // Ensure text does not overflow the badge
+marginBottom:15
+},
   loadingIndicator: {
     position: "absolute",
     top: 50,
@@ -265,7 +287,7 @@ const styles = StyleSheet.create({
   filterButtonText: {
     color: 'black',
   fontSize:12,
-  fontStyle:"italic",
+  fontStyle:"normal",
   fontWeight:700
   },
 });
