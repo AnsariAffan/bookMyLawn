@@ -1,10 +1,21 @@
-import React, { useContext, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, ActivityIndicator, TouchableOpacity, Dimensions } from 'react-native';
-import { Appbar, IconButton } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { BookingListContext } from './BookingListContext';
+import React, { useContext, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TextInput,
+  ActivityIndicator,
+  TouchableOpacity,
+  Dimensions,
+} from "react-native";
+import { Appbar, Avatar, IconButton } from "react-native-paper";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { BookingListContext } from "./BookingListContext";
+import { useBookings } from "../utility/useBookings";
+import { useBilling } from "../BillingDetails/BillingContext";
 
-const { width } = Dimensions.get('window'); // Get device width
+const { width, height } = Dimensions.get("window"); // Get device width and height
 
 const BookingList = ({ navigation }) => {
   const {
@@ -13,12 +24,16 @@ const BookingList = ({ navigation }) => {
     loading,
     handleSearch,
     handleCardPress,
-    user
-  } = useContext(BookingListContext);
+    user,
+    billingDetails
+   
+  } = useContext(BookingListContext,useBilling);
+
+   const { formatDates } = useBookings();
 
   // State for the selected filter
-  const [filter, setFilter] = useState('all'); // Default filter is 'all'
-
+  const [filter, setFilter] = useState("all"); // Default filter is 'all'
+console.log(billingDetails);
   // Handle the filter change
   const handleFilterChange = (status) => {
     setFilter(status);
@@ -26,58 +41,82 @@ const BookingList = ({ navigation }) => {
 
   // Filter hotels based on the selected filter
   const filterHotels = () => {
-    if (filter === 'all') {
+    if (filter === "all") {
+      console.log("-----filteredHotels-----");
+      console.log(filteredHotels);
       return filteredHotels; // No filter, show all hotels
     }
-    return filteredHotels.filter((hotel) => hotel.paymentStatus.toLowerCase() === filter.toLowerCase());
+    return filteredHotels.filter(
+      (hotel) => hotel.paymentStatus.toLowerCase() === filter.toLowerCase()
+    );
   };
 
   const renderHotelItem = ({ item }) => {
     const monthCollection = [
-      "January", "February", "March", "April", "May", "June", "July", "August",
-      "September", "October", "November", "December"
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ];
-  
+
     const monthIndex = parseInt(item.dates[0].split("-")[1], 10);
     const monthName = monthCollection[monthIndex - 1];
-  
+
     // Determine badge color based on payment status
     const getBadgeStyle = (status) => {
       switch (status.toLowerCase()) {
-        case 'fully paid':
-          return { backgroundColor: 'green' }; // Green for fully paid
-        case 'partially paid':
-          return { backgroundColor: 'orange' }; // Orange for partially paid
-        case 'unpaid':
-          return { backgroundColor: 'red' }; // Red for unpaid
+        case "fully paid":
+          return { backgroundColor: "green" }; // Green for fully paid
+        case "partially paid":
+          return { backgroundColor: "orange" }; // Orange for partially paid
+        case "unpaid":
+          return { backgroundColor: "red" }; // Red for unpaid
         default:
-          return { backgroundColor: 'grey' }; // Default color
+          return { backgroundColor: "grey" }; // Default color
       }
     };
-  
+
+
     return (
       <TouchableOpacity
         style={[styles.button, { width: width - 30 }]} // Dynamically adjust width
         onPress={() => handleCardPress(item, navigation)}
       >
         <View style={styles.hotelCard}>
-          <View style={styles.dateContainer}>
-            <Text style={styles.dateText}>{item.dates[0].split("-")[2]}</Text>
-            <Text style={styles.monthText}>{monthName}</Text>
-          </View>
+          <Avatar.Text
+            size={40}
+            label={item.name.slice(0, 2).toUpperCase()}
+            style={{ marginTop: 12, marginLeft: 5 }}
+          />
 
           <View style={styles.hotelInfo}>
             <View style={styles.row}>
               <Text style={styles.hotelName}>{item.name}</Text>
-              <Text style={[styles.bookingStatus, getBadgeStyle(item.paymentStatus)]}>
+              <View style={styles.dateContainer}>
+                <Text style={styles.dateText}>
+                  {formatDates(item.dates)}
+                </Text>
+              </View>
+            </View>
+          </View>
+          <View style={{}}>
+            <Text
+              style={[
+                styles.bookingStatus,
+                getBadgeStyle(item.paymentStatus),
+              ]}
+            >
               {item.paymentStatus}
             </Text>
-            </View>
-            <View style={[styles.row, { paddingTop: 5 }]}>
-              <View style={styles.row}>
-              </View>
-              <Text style={styles.hotelPrice}>{item.totalAmount}</Text>
-            </View>
+            <Text style={styles.hotelPrice}>{item.totalAmount-item.paidAmount}</Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -91,12 +130,10 @@ const BookingList = ({ navigation }) => {
           style={{ color: "#F5F5F5" }}
           onPress={() => navigation.goBack()}
         />
-        <Text style={{ fontSize: 20, fontWeight: "bold", color: "#ffff" }}>
+        <Text style={{ fontSize: 20, fontWeight: "normal", color: "#ffff" }}>
           Bookings
         </Text>
       </Appbar.Header>
-
-    
 
       <View style={styles.containerTwo}>
         <TextInput
@@ -106,28 +143,36 @@ const BookingList = ({ navigation }) => {
           onChangeText={handleSearch}
         />
 
-          {/* Filter Buttons Container */}
-  <View style={styles.filterContainer}>
-  <TouchableOpacity
-    style={[styles.filterButton, filter === 'all' && styles.selectedFilter]}
-    onPress={() => handleFilterChange('all')}
-  >
-    <Text style={styles.filterButtonText}>All</Text>
-  </TouchableOpacity>
-  <TouchableOpacity
-    style={[styles.filterButton, filter === 'fully paid' && styles.selectedFilter]}
-    onPress={() => handleFilterChange('fully paid')}
-  >
-    <Text style={styles.filterButtonText}>Fully Paid</Text>
-  </TouchableOpacity>
-  <TouchableOpacity
-    style={[styles.filterButton, filter === 'partially paid' && styles.selectedFilter]}
-    onPress={() => handleFilterChange('partially paid')}
-  >
-    <Text style={styles.filterButtonText}>Partially Paid</Text>
-  </TouchableOpacity>
-
-</View>
+        {/* Filter Buttons Container */}
+        <View style={styles.filterContainer}>
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              filter === "all" && styles.selectedFilter,
+            ]}
+            onPress={() => handleFilterChange("all")}
+          >
+            <Text style={styles.filterButtonText}>All</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              filter === "fully paid" && styles.selectedFilter,
+            ]}
+            onPress={() => handleFilterChange("fully paid")}
+          >
+            <Text style={styles.filterButtonText}>Fully Paid</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              filter === "partially paid" && styles.selectedFilter,
+            ]}
+            onPress={() => handleFilterChange("partially paid")}
+          >
+            <Text style={styles.filterButtonText}>Partially Paid</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Loading Indicator */}
@@ -161,8 +206,8 @@ const styles = StyleSheet.create({
   },
   containerTwo: {
     backgroundColor: "#00509E",
-    paddingHorizontal: 20,
-    paddingBottom: 5,
+    paddingHorizontal: 10,
+    paddingBottom: 2,
   },
   containerThree: {
     flex: 1,
@@ -189,43 +234,42 @@ const styles = StyleSheet.create({
   hotelCard: {
     flexDirection: "row",
     borderRadius: 15,
-    paddingVertical: 8, // Reduce vertical padding
-    paddingHorizontal: 10, // Adjust horizontal padding if needed
-    marginBottom: 15,
+    paddingVertical: 8,
+    paddingHorizontal: 5,
+    marginBottom: 0,
     backgroundColor: "#FFFFFF",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
-    height: 80, // Set a fixed height for the card (optional)
+    height: height * 0.10, // Dynamic height based on screen size
   },
 
   dateContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 20,
+    display: "flex",
+    flexDirection: "row",
   },
+
   dateText: {
-    fontSize: 35,
-    fontWeight: "bold",
-    // color: "#00509E",
-    color:"black"
+    fontSize: 15,
+    fontWeight: "normal",
+    color: "grey",
   },
   monthText: {
     fontSize: 15,
-    color: "black",
+    color: "grey",
   },
   hotelInfo: {
     flex: 1,
     justifyContent: "center",
-    
+    marginLeft: 5,
   },
   hotelName: {
     fontSize: 15,
-    color: "#333333",
-    
-    
+    color: "black",
+    marginLeft: 0,
+    fontWeight: "bold",
   },
   hotelLocation: {
     fontSize: 15,
@@ -233,21 +277,20 @@ const styles = StyleSheet.create({
   },
   hotelPrice: {
     color: "#333333",
-    fontSize: 20,
-    fontWeight: "bold",
-    
+    fontSize: 18,
+    fontWeight: "normal",
   },
-bookingStatus: {
-  fontSize: width * 0.03,
-  color: "white", // Text color should remain white for contrast
-  fontWeight: "700",
-  paddingVertical: 4, // Padding for vertical spacing
-  paddingHorizontal: 5, // Padding for horizontal spacing
-  borderRadius: 15, // Rounded corners to give it a badge-like shape
-  textAlign: "center", // Center-align the text within the badge
-  overflow: "hidden", // Ensure text does not overflow the badge
-marginBottom:15
-},
+  bookingStatus: {
+    fontSize: width * 0.03,
+    color: "white",
+    fontWeight: "700",
+    paddingVertical: 2,
+    paddingHorizontal: 5,
+    borderRadius: 15,
+    textAlign: "center",
+    overflow: "hidden",
+    marginBottom: 10,
+  },
   loadingIndicator: {
     position: "absolute",
     top: 50,
@@ -255,40 +298,40 @@ marginBottom:15
     zIndex: 2,
   },
   row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    display: "flex",
+    flexDirection: "column",
   },
   button: {
-    width: width - 30, // Make button width dynamic
+    width: width - 30,
     alignSelf: "center",
+    height:height*0.11
   },
   filterContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    flexDirection: "row",
+    justifyContent: "space-evenly",
     marginTop: -10,
   },
 
   filterButton: {
-    width:115,
-    backgroundColor: '#fff',
-    paddingVertical: 10,
-    paddingHorizontal: 10,
+    width: width*0.3,
+    backgroundColor: "#fff",
+    paddingVertical: 8,
+    paddingHorizontal: 5,
     borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1,
-    borderColor: '#00509E',
+    borderColor: "#00509E",
   },
 
   selectedFilter: {
-    backgroundColor: 'lightblue',
-    
+    backgroundColor: "lightblue",
   },
   filterButtonText: {
-    color: 'black',
-  fontSize:12,
-  fontStyle:"normal",
-  fontWeight:700
+    color: "black",
+    fontSize: 12,
+    fontStyle: "normal",
+    fontWeight: 700,
   },
 });
 

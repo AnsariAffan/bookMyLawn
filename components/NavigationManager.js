@@ -38,9 +38,9 @@ const TheatresScreen = () => (
   </View>
 );
 
-const OffersScreen = () => (
+const ListScreen = () => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>Offers Screen</Text>
+    <Text>List Screen</Text>
   </View>
 );
 
@@ -77,7 +77,7 @@ const MainApp = ({ route }) => {
     const screens = {
       Home: isLawnOwner ? Dashboard : HomeStack,
       Booking: isLawnOwner ? LawnOwnerStack : TheatresScreen,
-      Offers: BookingList,
+      List: BookingList,
     Settings:Settings
     };
     return screens[screenName] || View; // Default to View if no match
@@ -91,7 +91,7 @@ const MainApp = ({ route }) => {
           const icons = {
             Home: 'home',
             Booking: 'calendar',
-            Offers: 'notebook',
+            List: 'notebook',
             Settings:"cog"
           };
           return <Icon name={icons[route.name] || 'circle'} color={color} size={size} />;
@@ -99,7 +99,7 @@ const MainApp = ({ route }) => {
       })}
       tabBarOptions={{ activeTintColor: '#00509E', inactiveTintColor: 'gray' }}
     >
-      {['Home', 'Booking', 'Offers',"Settings"].map(screenName => (
+      {['Home', 'Booking', 'List',"Settings"].map(screenName => (
         <Tab.Screen key={screenName} name={screenName} component={getScreenComponent(screenName)} />
       ))}
     </Tab.Navigator>

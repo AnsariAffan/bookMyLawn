@@ -50,13 +50,13 @@ const bdata = route.params.booking
           style={[styles.tab, activeTab === "billingDetails" && styles.activeTab]}
           onPress={() => setActiveTab("billingDetails")}
         >
-          <Text style={styles.tabText}>Billing Details</Text>
+          <Text style={styles.tabText}>Billing Detail</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, activeTab === "userDetails" && styles.activeTab]}
           onPress={() => setActiveTab("userDetails")}
         >
-          <Text style={styles.tabText}>User Details</Text>
+          <Text style={styles.tabText}>Booking Detail</Text>
         </TouchableOpacity>
       </View>
 
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     color: "black",
-    fontWeight: "bold",
+    fontWeight: "normal",
   },
   card: {
     marginBottom: 8,

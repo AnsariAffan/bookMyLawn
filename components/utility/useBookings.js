@@ -159,10 +159,26 @@ export function useBookings() {
       );
     });
     
-    return upcomingDates.length+1; // Return the count of upcoming dates
+    return upcomingDates.length; // Return the count of upcoming dates
   };
   
+  // Function to format the dates into "Day Month Year" format
+const formatDates = (dates) => {
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
+    ];
   
+    return dates
+      ?.map(dateString => {
+        const date = new Date(dateString); // Create a Date object from the string
+        const day = date.getDate(); // Get the day of the month
+        const month = monthNames[date.getMonth()]; // Get the month name
+        const year = date.getFullYear(); // Get the year
+        return `${day} ${month} ${year}`; // Format the date as "Day Month Year"
+      })
+      .join(", "); // Join multiple dates with commas
+  };
+
 
   // Function to set a new range of months
   const setMonthRange = (start, end) => {
@@ -180,6 +196,7 @@ export function useBookings() {
     upcomingDatesInCurrentMonth, 
     loading, 
     error,
-    setMonthRange // Expose this function to allow setting a custom month range
+    setMonthRange, // Expose this function to allow setting a custom month range
+    formatDates
   };
 }

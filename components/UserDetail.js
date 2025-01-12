@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     color: "black",
     flex: 1,
          fontWeight:"600",
-         fontStyle:"italic",
+         fontStyle:"normal",
   },
   priceText: {
     fontSize: width * 0.035, // 3.5% of the screen width
