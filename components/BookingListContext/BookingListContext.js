@@ -31,7 +31,7 @@ export const BookingListProvider = ({ children }) => {
       }));
 
       // Filter hotels by current user
-      const userBookings = fetchedHotels.filter((hotel) => hotel.userId === user.uid);
+      const userBookings = fetchedHotels.filter((hotel) => hotel.userId === user?.uid);
       setHotels(userBookings); // Set the filtered user-specific hotels
       setFilteredHotels(userBookings); // Also update the filtered hotels state
       setLoading(false); // Set loading to false after fetching data

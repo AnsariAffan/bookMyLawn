@@ -53,7 +53,7 @@ const user = auth?.currentUser; // Get the currently signed-in user
 
     const fetchData = async () => {
       if (user) {
-        const data = await fetchDataBasedOnUserId(user.uid, "billings"); // Await the data
+        const data = await fetchDataBasedOnUserId(user?.uid, "billings"); // Await the data
         setBillData(data)
       } else {
         console.log("No user signed in");
@@ -63,21 +63,6 @@ const user = auth?.currentUser; // Get the currently signed-in user
     fetchData(); // Call the async function
   }, []);
 
-  const unsubscribe = onSnapshot(
-     
-    query(collection(db, "billings"), where("userId", "==", user.uid)),
-    (snapshot) => {
-      const bookingsData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        userId: doc.data().userId,
-        ...doc.data(),
-    
-      }));
-
-
-   
-    }
-  );
   
   // Log the updated state when it changes
 useEffect(() => {
@@ -132,10 +117,8 @@ useEffect(() => {
           return { backgroundColor: "grey" }; // Default color
       }
     };
-    const  billData = readDocuments("billings")
-    console.log("---billingDetails-----");
-    console.log(  billData);
-    console.log("---billingDetails----");
+
+  
 
     return (
       <TouchableOpacity
@@ -177,13 +160,18 @@ useEffect(() => {
 
  // Real-time listener for Firestore updates
  useEffect(() => {
+  if (!user?.uid) {
+    // If the user is not logged in, skip the Firestore query
+    return;
+  }
+
   const unsubscribe = onSnapshot(
-    query(collection(db, "billings"), where("userId", "==", user.uid)),
+    query(collection(db, "billings"), where("userId", "==", user?.uid)),
     (snapshot) => {
-      const bookingsData = snapshot.docs.map((doc) => ({
-        id: doc.id,
+      const bookingsData = snapshot?.docs.map((doc) => ({
+        id: doc?.id,
         userId: doc.data().userId,
-        ...doc.data(),
+        ...doc?.data(),
       }));
       setBillData(bookingsData);
     },
@@ -192,11 +180,12 @@ useEffect(() => {
     }
   );
 
-  // Cleanup the subscription on unmount
+  // Cleanup the subscription on unmount or when user logs out
   return () => {
     unsubscribe();
   };
-}, [user]);
+}, [user?.uid]); // Make sure to re-run this effect when the user's UID changes
+
 
   
   return (

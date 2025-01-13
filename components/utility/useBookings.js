@@ -20,7 +20,7 @@ export function useBookings() {
   useEffect(() => {
     const db = getFirestore();
     const auth = getAuth();
-    const loggedInUserId = auth.currentUser ? auth.currentUser.uid : null;
+    const loggedInUserId = auth.currentUser ? auth.currentUser?.uid : null;
 
     // If no user is logged in, set error and stop loading
     if (!loggedInUserId) {

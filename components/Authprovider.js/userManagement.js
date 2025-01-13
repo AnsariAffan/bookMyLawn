@@ -11,7 +11,7 @@ export const storeUserInformation = async (user) => {
   // If the document doesn't exist, we will add the user data
   if (!docSnap.exists()) {
     const userData = {
-      uid: user.uid,
+      uid: user?.uid,
       email: user.email,
       displayName: user.displayName || 'BookMyLawn', // Set displayName once, won't change later
       photoURL: user.photoURL || '',

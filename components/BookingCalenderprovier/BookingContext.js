@@ -36,7 +36,7 @@ export const BookingProvider = ({ children }) => {
 
   // Firestore listener to fetch data only when the user is logged in
   useEffect(() => {
-    if (!user || !user.uid) {
+    if (!user || !user?.uid) {
       // If no user is logged in, reset bookings and marked dates
       setBookings([]);
       setMarkedDates({});
@@ -44,10 +44,10 @@ export const BookingProvider = ({ children }) => {
     }
   
     // Firestore query to fetch bookings for the logged-in user
-    console.log(user.uid);
+    console.log(user?.uid);
     const unsubscribe = onSnapshot(
      
-      query(collection(db, "bookings"), where("userId", "==", user.uid)),
+      query(collection(db, "bookings"), where("userId", "==", user?.uid)),
       (snapshot) => {
         const bookingsData = snapshot.docs.map((doc) => ({
           id: doc.id,
@@ -122,7 +122,7 @@ export const BookingProvider = ({ children }) => {
         status: "Approved", // Default status
         remainingAmount: newBooking.totalAmount - newBooking.AdvBookAmount,
         paymentStatus: newBooking.AdvBookAmount.length > 0 ? "Partially Paid" : "Not Paid",
-        userId: user.uid, // Add the userId to the booking data
+        userId: user?.uid, // Add the userId to the booking data
         totalReceivedAmount:newBooking.AdvBookAmount
       };
 
