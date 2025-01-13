@@ -7,6 +7,7 @@ import {
 } from "firebase/auth";
 import { auth } from '../../firebaseConfiguration/firebaseConfig';
 import { storeUserInformation } from './userManagement';
+import { Alert } from 'react-native';
 
 export const AuthContext = createContext({});
 
@@ -28,6 +29,14 @@ export const AuthProvider = ({ children }) => {
   const signIn = async (email, password) => {
     try {
       setLoading(true);
+
+      // Check if there is already a user logged in
+      if (user) {
+         Alert.alert("A user is already logged in.");
+        setLoading(false);
+        return; // Prevent login if a user is already logged in
+      }
+
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const currentUser = userCredential.user;
       
@@ -45,6 +54,14 @@ export const AuthProvider = ({ children }) => {
   const signUp = async (email, password) => {
     try {
       setLoading(true);
+
+      // Check if there is already a user logged in
+      if (user) {
+        console.log("A user is already logged in.");
+        setLoading(false);
+        return; // Prevent signup if a user is already logged in
+      }
+
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const currentUser = userCredential.user;
       
