@@ -1,182 +1,90 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, TouchableOpacity, Alert, Dimensions } from "react-native";
-import { Text, Card, TextInput, Title, ActivityIndicator } from "react-native-paper";
-import RNHTMLtoPDF from "react-native-html-to-pdf";
-import FileViewer from "react-native-file-viewer";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useBilling } from "./BillingContext";
-import { BookingListContext } from "../BookingListContext/BookingListContext";
+import { Text, Card, Title, ActivityIndicator } from "react-native-paper";
 import { updateDocument } from "../../firebaseConfiguration/crudForBooking";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebaseConfiguration/firebaseConfig";
-const { width,height } = Dimensions.get('window'); // Get device width
+
+const { width, height } = Dimensions.get('window');
+
 const BillingDetail = ({ dataDefaulting }) => {
- 
-    const { billingDetails, setBillingDetails, fetchBooingDetails, fetchingAllBillings, allBills } = useBilling();
-    const { filteredHotels } = useContext(BookingListContext);
-    const [billID, setBillId] = useState();
     const [isLoading, setIsLoading] = useState(false);
-    // Effect to fetch billing details and set billID
-    useEffect(() => {
-        if (allBills.length > 0 && dataDefaulting.id) {
-            const matchingBilling = allBills.find(billing => billing.bookingId === dataDefaulting.id);
-            if (matchingBilling) {
-                setBillingDetails(matchingBilling);
-                setBillId(matchingBilling.id);
-                console.log("Matching data found:", matchingBilling);
-            }
-        }
-    }, [allBills, dataDefaulting.id]);
-
-    // Initial details and fallback values
-    const initialDetails = {
-        billingDate: new Date().toISOString().split('T')[0], // Set the billing date to today
-        finalAmount: dataDefaulting.totalAmount || 0, // Fallback to 0 if undefined
-        bookingAmount: dataDefaulting.AdvBookAmount || 0, // Fallback to 0 if undefined
-        paidAmount: billingDetails.paidAmount || 0, // Fallback to 0 if undefined
-        paymentStatus: billingDetails.paymentStatus || "Pending", // Default status
-        billId: billingDetails.billId
-    };
-
-    const [isEdit, setIsEdit] = useState(false);
-    const [openAmount, setOpenAmount] = useState(dataDefaulting.remainingAmount);
-
-    // Effect to handle remaining amount and payment status
-    useEffect(() => {
-        const finalAmount = Number(initialDetails.finalAmount) || 0;
-        const bookingAmount = Number(initialDetails.bookingAmount) || 0;
-        const paidAmount = Number(billingDetails.paidAmount) || 0;
-
-        const calculatedOpenAmount = finalAmount - bookingAmount - paidAmount;
-        setOpenAmount(calculatedOpenAmount);
-
-        if (calculatedOpenAmount === 0) {
-            setBillingDetails({ ...billingDetails, paymentStatus: "Fully Paid" });
-        } else if (calculatedOpenAmount < 0) {
-            setBillingDetails({ ...billingDetails, paymentStatus: "Over Paid" });
-        } else {
-            setBillingDetails({ ...billingDetails, paymentStatus: "Partially Paid" });
-        }
-    }, [billingDetails.paidAmount, initialDetails.finalAmount, initialDetails.bookingAmount]);
+    const [updatedData, setUpdatedData] = useState(dataDefaulting); // Local state to hold the current data
 
     // Mark as Fully Paid button handler
-    const handleMarkAsFullyPaid = async() => {
-      
-        const paidAmountToMarkFullyPaid = Number(openAmount)// Add the remaining amount to the paid amount
-        // setBillingDetails({
-        //     ...billingDetails,
-        //     paidAmount: paidAmountToMarkFullyPaid,
-        //     remainingAmount: 0,  // Since the amount is fully paid, set remaining amount to 0
-        //     paymentStatus: "Fully Paid"
-        // });
+    const handleMarkAsFullyPaid = async () => {
+        if (!dataDefaulting) {
+            Alert.alert("Error", "No billing data available.");
+            return;
+        }
 
+        const { remainingAmount, totalReceivedAmount } = dataDefaulting;
+
+        if (remainingAmount === 0) {
+            Alert.alert("Notification", "Already Fully Paid");
+            return;
+        }
+
+        const paidAmountToMarkFullyPaid = Number(remainingAmount) + Number(totalReceivedAmount);
 
         // Prepare updated billing details
-        const setUpdatedBillingDetails = {
-            ...billingDetails,
-            finalAmount: initialDetails.finalAmount,
-            bookingAmount: initialDetails.bookingAmount,
+        const updatedBillingDetails = {
+            ...dataDefaulting,
             paidAmount: paidAmountToMarkFullyPaid,
-            remainingAmount: 0,
+            remainingAmount: 0, // Fully paid means no remaining amount
             paymentStatus: "Fully Paid",
-            totalReceivedAmount: Number(paidAmountToMarkFullyPaid) + Number(initialDetails.bookingAmount), // Add totalReceivedAmount to the update
+            totalReceivedAmount: paidAmountToMarkFullyPaid,
         };
 
-        
-
         try {
-            if(billingDetails?.remainingAmount == 0){
-                Alert.alert("Notification", "Already Fully Paid");
-         
-            }else{
             setIsLoading(true);
-            // Call the updateDocument function with the appropriate parameters
-           
-            await updateDocument('billings', billID, setUpdatedBillingDetails);
-            console.log("Updated billing details:", setUpdatedBillingDetails); // Log updated details
+
+            if (!dataDefaulting.id) {
+                Alert.alert("Error", "Invalid Bill ID.");
+                setIsLoading(false);
+                return;
+            }
+
+            // Update document in Firebase
+            await updateDocument('billings', dataDefaulting.id, updatedBillingDetails);
+
+            console.log("Updated billing details:", updatedBillingDetails);
             setIsLoading(false);
             Alert.alert("Payment Status", "The amount has been marked as fully paid.");
-            // Alert.alert("Notification", "Payment updated successfully");
-             }
         } catch (error) {
             console.error("Failed to update document:", error);
-        }
-    
-        setIsEdit(false);
-
-      
-    };
-
-    // Create PDF function
-    const createPDF = async () => {
-        try {
-            const htmlContent = `
-            <h1 style="text-align: center; color: green;">Billing Details</h1>
-            <p><strong>Billing Date:</strong> ${billingDetails.billingDate}</p>
-            <p><strong>Payment Status:</strong> ${billingDetails.paymentStatus}</p>
-            <p><strong>Final Amount:</strong> ${billingDetails.finalAmount}</p>
-            <p><strong>Paid Amount:</strong> ${billingDetails.paidAmount}</p>
-            <p><strong>Remaining Amount:</strong> ${billingDetails.remainingAmount}</p>
-        `;
-
-            const options = {
-                html: htmlContent,
-                fileName: "BillingDetails",
-                directory: "Documents",
-            };
-
-            const file = await RNHTMLtoPDF.convert(options);
-            Alert.alert("PDF Generated", "The PDF has been created successfully.");
-            openPDF(file.filePath);
-        } catch (error) {
-            Alert.alert("Error", "Something went wrong while generating the PDF.");
+            setIsLoading(false);
+            Alert.alert("Error", "Failed to update payment status. Please try again.");
         }
     };
 
-    // Open the PDF file after creation
-    const openPDF = async (filePath) => {
-        try {
-            await FileViewer.open(filePath);
-        } catch (error) {
-            console.log("Error while opening PDF:", error);
-        }
-    };
-
-    // Effect to listen for updates in billing details
+    // Effect to listen for real-time updates in billing details
     useEffect(() => {
-        if (billID) { // Ensure billID is defined
-            const unsubscribe = onSnapshot(doc(db, 'billings', billID), (doc) => {
-                if (doc.exists()) {
-                    const data = doc.data();
-                    setBillingDetails(data);
-                    console.log("Current billing data: ", data);
+        if (dataDefaulting?.id) {
+            const unsubscribe = onSnapshot(doc(db, 'billings', dataDefaulting.id), (docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    const updatedData = docSnapshot.data();
+                    setUpdatedData(updatedData); // Update the local state with the new data
                 } else {
                     console.log("No such document!");
                 }
             });
 
+            // Cleanup the listener when the component unmounts or ID changes
             return () => unsubscribe();
         }
-    }, [billID]);
-  
+    }, [dataDefaulting?.id]);
+
     return (
         <>
-            <Icon
-                name="printer"
-                size={25}
-                color="#00509E"
-                style={{ marginRight: 60, position: "absolute", top: -115, right: -40 }}
-                onPress={createPDF} // Disable editing if fully paid
-            />
-            
             <Card style={styles.card}>
                 <Card.Content>
                     <View style={styles.row}>
                         <Text style={styles.itemText}>Billing Date</Text>
                         <Text style={styles.priceText}>
-                        {new Date().toLocaleString('default', { day: '2-digit', month: 'long', year: 'numeric' })}
-                      </Text>                   
-                       </View>
+                            {new Date().toLocaleString('default', { day: '2-digit', month: 'long', year: 'numeric' })}
+                        </Text>
+                    </View>
                 </Card.Content>
             </Card>
 
@@ -184,16 +92,16 @@ const BillingDetail = ({ dataDefaulting }) => {
                 <Card.Content>
                     <View style={styles.row}>
                         <Text style={styles.itemText}>Payment Status</Text>
-                        <Text style={styles.priceText}>{billingDetails.paymentStatus}</Text>
+                        <Text style={styles.priceText}>{updatedData.paymentStatus}</Text>
                     </View>
                 </Card.Content>
             </Card>
-            
+
             <Card style={styles.card}>
                 <Card.Content>
                     <View style={styles.row}>
                         <Text style={styles.itemText}>Final Amount</Text>
-                        <Text style={styles.priceText}>{initialDetails.finalAmount}</Text>
+                        <Text style={styles.priceText}>{updatedData.totalAmount}</Text>
                     </View>
                 </Card.Content>
             </Card>
@@ -202,7 +110,7 @@ const BillingDetail = ({ dataDefaulting }) => {
                 <Card.Content>
                     <View style={styles.row}>
                         <Text style={styles.itemText}>Booking Amount</Text>
-                        <Text style={styles.priceText}>{initialDetails.bookingAmount}</Text>
+                        <Text style={styles.priceText}>{updatedData.AdvBookAmount}</Text>
                     </View>
                 </Card.Content>
             </Card>
@@ -211,38 +119,23 @@ const BillingDetail = ({ dataDefaulting }) => {
                 <Card.Content>
                     <View style={styles.row}>
                         <Text style={styles.itemText}>Remaining Amount</Text>
-                        <Text style={styles.priceText}>{openAmount}</Text>
+                        <Text style={styles.priceText}>{updatedData.remainingAmount}</Text>
                     </View>
                 </Card.Content>
             </Card>
 
-          
-{/*
-    
-      <Card style={styles.card}>
-                <Card.Content>
-                    <View style={styles.row}>
-                        <Text style={styles.itemText}>Paid Amount</Text>
-                        <Text style={styles.priceText}>{billingDetails.paymentStatus === "Fully Paid" ? "Paid" : billingDetails.paidAmount}</Text>
-                    </View>
-                </Card.Content>
-            </Card>
-    */}
             <View style={styles.row}>
                 <Title style={styles.total}>Total Received</Title>
-                <Text style={styles.totalText}> {Number(billingDetails.paidAmount || 0) + Number(initialDetails.bookingAmount || 0)}</Text>
+                <Text style={styles.totalText}>{updatedData.totalReceivedAmount}</Text>
             </View>
 
-           
-                <TouchableOpacity style={styles.button} onPress={handleMarkAsFullyPaid}>
+            <TouchableOpacity style={styles.button} onPress={handleMarkAsFullyPaid}>
                 {isLoading ? (
-                    <ActivityIndicator size="small" color="#fff" />  // Show loader while signing up
-                  ) : (
+                    <ActivityIndicator size="small" color="#fff" />
+                ) : (
                     <Text style={styles.buttonText}>Mark as Fully Paid</Text>
-                  )
-                }
-                    </TouchableOpacity>
-           
+                )}
+            </TouchableOpacity>
         </>
     );
 };
@@ -256,7 +149,7 @@ const styles = StyleSheet.create({
         paddingTop: 5,
         marginBottom: 40,
         marginTop: 10,
-        fontWeight:"700"
+        fontWeight: "700"
     },
     total: {
         fontSize: width * 0.06,
@@ -265,7 +158,7 @@ const styles = StyleSheet.create({
         marginBottom: 40,
         marginTop: 10,
         paddingLeft: 10,
-        fontStyle:"normal",
+        fontStyle: "normal",
     },
     row: {
         display: "flex",
@@ -273,17 +166,17 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
     },
     card: {
-        marginBottom: height * 0.01, // 2% of the screen height
-        marginHorizontal: width * 0.00, // 5% of the screen width
+        marginBottom: height * 0.01,
+        marginHorizontal: width * 0.00,
         backgroundColor: "#ffff",
-        padding:height * 0,
+        padding: height * 0,
     },
     itemText: {
         fontSize: width * 0.04,
         color: "black",
         fontWeight: "600",
         paddingTop: 5,
-        fontStyle:"normal",
+        fontStyle: "normal",
     },
     priceText: {
         fontSize: width * 0.04,

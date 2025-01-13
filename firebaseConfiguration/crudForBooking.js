@@ -7,7 +7,9 @@ import {
   getDoc, 
   doc, 
   updateDoc, 
-  deleteDoc 
+  deleteDoc, 
+  query,
+  where
 } from 'firebase/firestore';
 
 // Create a new document in a collection
@@ -74,5 +76,33 @@ export const deleteDocument = async (collectionName, docId) => {
   } catch (error) {
     console.error("Error deleting document: ", error);
     throw error;
+  }
+};
+export const fetchDataBasedOnUserId = async (userId, collectionName) => {
+  try {
+    if (userId) {
+      console.log("Firebase User ID:", userId);
+
+      // Reference the Firestore collection you want to query
+      const collectionRef = collection(db, collectionName);
+
+      // Query Firestore collection based on userId
+      const q = query(collectionRef, where("userId", "==", userId));
+      const querySnapshot = await getDocs(q);
+
+      // Fetch and store the data
+      const data = [];
+      querySnapshot.forEach((doc) => {
+        data.push({ id: doc.id, ...doc.data() });
+      });
+
+      return data; // Return the resolved data
+    } else {
+      console.log("No user is signed in");
+      return []; // Return an empty array if no user is signed in
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return []; // Return an empty array if there is an error
   }
 };

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -15,8 +15,12 @@ import { BookingListContext } from "./BookingListContext";
 import { useBookings } from "../utility/useBookings";
 import { useBilling } from "../BillingDetails/BillingContext";
 import { readDocuments } from "../../firebaseConfiguration/crudForBooking";
-
+import { useAuth } from "../Authprovider.js/AuthProvider";
+import { auth, db } from "../../firebaseConfiguration/firebaseConfig";
+import { collection, getDocs, query, where,onSnapshot } from "firebase/firestore";
 const { width, height } = Dimensions.get("window"); // Get device width and height
+import { fetchDataBasedOnUserId } from "../../firebaseConfiguration/crudForBooking";
+
 
 const BookingList = ({ navigation }) => {
   const {
@@ -25,12 +29,14 @@ const BookingList = ({ navigation }) => {
     loading,
     handleSearch,
     handleCardPress,
-    user,
+
     billingDetails
    
   } = useContext(BookingListContext,useBilling);
 
-   const { formatDates } = useBookings();
+  // const { user, signOut } = useAuth();
+  
+  const { formatDates } = useBookings();
   
   // State for the selected filter
   const [filter, setFilter] = useState("all"); // Default filter is 'all'
@@ -40,14 +46,56 @@ const BookingList = ({ navigation }) => {
     setFilter(status);
   };
 
+const [billData, setBillData] = useState()
+const user = auth?.currentUser; // Get the currently signed-in user
+
+  useEffect(() => {
+
+    const fetchData = async () => {
+      if (user) {
+        const data = await fetchDataBasedOnUserId(user.uid, "billings"); // Await the data
+        setBillData(data)
+      } else {
+        console.log("No user signed in");
+      }
+    };
+
+    fetchData(); // Call the async function
+  }, []);
+
+  const unsubscribe = onSnapshot(
+     
+    query(collection(db, "billings"), where("userId", "==", user.uid)),
+    (snapshot) => {
+      const bookingsData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        userId: doc.data().userId,
+        ...doc.data(),
+    
+      }));
+
+
+   
+    }
+  );
+  
+  // Log the updated state when it changes
+useEffect(() => {
+  if (billData) {
+    console.log("---- Updated Bill Data ----");
+    console.log(billData);
+    console.log("---- End of Updated Bill Data ----");
+  }
+}, [billData]); // Runs whenever billData changes
+
   // Filter hotels based on the selected filter
   const filterHotels = () => {
     if (filter === "all") {
       console.log("-----filteredHotels-----");
-      console.log(filteredHotels);
-      return filteredHotels; // No filter, show all hotels
+      console.log(billingDetails);
+      return billData; // No filter, show all hotels
     }
-    return filteredHotels.filter(
+    return billData.filter(
       (hotel) => hotel.paymentStatus.toLowerCase() === filter.toLowerCase()
     );
   };
@@ -120,13 +168,37 @@ const BookingList = ({ navigation }) => {
             >
               {item.paymentStatus}
             </Text>
-            <Text style={styles.hotelPrice}>{item.totalAmount-item.paidAmount}</Text>
+            <Text style={styles.hotelPrice}>{item.totalReceivedAmount}</Text>
           </View>
         </View>
       </TouchableOpacity>
     );
   };
 
+ // Real-time listener for Firestore updates
+ useEffect(() => {
+  const unsubscribe = onSnapshot(
+    query(collection(db, "billings"), where("userId", "==", user.uid)),
+    (snapshot) => {
+      const bookingsData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        userId: doc.data().userId,
+        ...doc.data(),
+      }));
+      setBillData(bookingsData);
+    },
+    (error) => {
+      console.error("Error fetching data:", error);
+    }
+  );
+
+  // Cleanup the subscription on unmount
+  return () => {
+    unsubscribe();
+  };
+}, [user]);
+
+  
   return (
     <View style={styles.container}>
       <Appbar.Header style={{ backgroundColor: "#00509E" }}>

@@ -45,6 +45,7 @@ export const BillingProvider = ({ children }) => {
   useEffect(() => {
     fetchingAllBillings();
   }, []);
+  
   // Function to fetch booking details by ID
   const fetchBookingDetails = async (billId) => {
     try {
