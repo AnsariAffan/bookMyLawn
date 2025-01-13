@@ -80,7 +80,6 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <Image source={require('../assets/icon.webp')} style={styles.icon} />
-      <Text style={styles.title}>Book My Lawn</Text>
       <View style={{ width: width - 50, marginTop: 20 }}>
         <TextInput
           style={styles.input}
@@ -142,11 +141,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   icon: {
-    width: 150,
-    height: 150,
-    marginBottom: 10,
-    borderRadius: 30,
-  },
+  width: "100%",
+  height: 75, 
+  maxWidth: "100px", // Set the maximum width (adjust as per your requirement)
+  maxHeight: "10px", // Set the maximum height (adjust as per your requirement)
+  marginBottom: 50,
+  borderRadius: 30,
+  objectFit: "contain", // Ensures the image is scaled to fit within its container
+},
+
   title: {
     fontSize: 28,
     fontWeight: "bold",

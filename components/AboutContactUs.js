@@ -78,11 +78,14 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline', // Underline to indicate it's clickable
   },
   logo: {
-    marginTop: 10,
-    width: width -30, // Dynamic width based on screen size (90% of screen width)
-    height: height * 0.3, // Dynamic height based on screen size (30% of screen height)
-    marginBottom: 5,
+    width: "100%",
+    height: 75, // Maintain aspect ratio
+    maxWidth: "100px", // Set the maximum width (adjust as per your requirement)
+    maxHeight: "10px", // Set the maximum height (adjust as per your requirement)
+    marginBottom: 50,
+    marginTop:80,
     borderRadius: 30,
+    objectFit: "contain", // Ensures the image is scaled to fit within its container
   },
 });
 

@@ -15,11 +15,7 @@ const SplashScreen = ({ navigation }) => {
     <View style={styles.container}>
       {/* Splash Screen Content */}
       <Image source={require('../assets/icon.webp')} style={styles.logo} />
-      <Text style={
-        {fontSize: 28,
-    fontWeight: "bold",
-    color: "black"}
-      }>Book My Lawn</Text>
+     
     </View>
   );
 };
@@ -32,14 +28,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff", // You can change the background color here
   },
   logo: {
-  
-    width: 150,
-    height: 150,
-    marginBottom: 10,
+    width: "100%",
+    height: 75, // Maintain aspect ratio
+    maxWidth: "100px", // Set the maximum width (adjust as per your requirement)
+    maxHeight: "10px", // Set the maximum height (adjust as per your requirement)
+    marginBottom: 50,
+    marginTop:80,
     borderRadius: 30,
-
-}
-  
+    objectFit: "contain", // Ensures the image is scaled to fit within its container
+  },
 })
 
 export default SplashScreen;
