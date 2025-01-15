@@ -189,7 +189,7 @@ const Settings = ({ navigation }) => {
 
           {/* Password change dialog */}
           <Dialog visible={passwordDialogVisible} onDismiss={hidePasswordDialog}>
-            <Dialog.Title>Change Password</Dialog.Title>
+        
             <Dialog.Content>
               <TextInput
                 label="Current Password"

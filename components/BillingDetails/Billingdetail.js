@@ -79,11 +79,13 @@ const BillingDetail = ({ dataDefaulting }) => {
         <>
             <Card style={styles.card}>
                 <Card.Content>
+                
                     <View style={styles.row}>
                         <Text style={styles.itemText}>Billing Date</Text>
                         <Text style={styles.priceText}>
                             {new Date().toLocaleString('default', { day: '2-digit', month: 'long', year: 'numeric' })}
                         </Text>
+                       
                     </View>
                 </Card.Content>
             </Card>

@@ -1,29 +1,32 @@
 import React, { useState } from "react";
 import { Dimensions, TouchableOpacity } from "react-native";
 import { View, StyleSheet, Linking } from "react-native";
-import {
-  Appbar,
-  Text,
-  Card,
-  Title,
-} from "react-native-paper";
+import { Appbar, Text, Card, Title, Icon } from "react-native-paper";
 import UserDetail from "./UserDetail";
 // import BillingDetail from "./BillingDetail";
 import { BillingProvider } from "./BillingDetails/BillingContext";
 import BillingDetail from "./BillingDetails/Billingdetail";
-const { width,height } = Dimensions.get('window'); // Get device width
+import {  createPDF } from "./utility/createPDF";
+const { width, height } = Dimensions.get("window"); // Get device width
 
-const BookingDetails = ({ navigation,route }) => {
+const BookingDetails = ({ navigation, route }) => {
   const [activeTab, setActiveTab] = useState("billingDetails"); // State to manage active tab
 
+  const bdata = route.params.booking;
+  // console.log("--- data recevied in booking details page");
+  // console.log(bdata);
+  // console.log("--- data recevied in booking details page");
 
-const bdata = route.params.booking
-// console.log("--- data recevied in booking details page");
-// console.log(bdata);
-// console.log("--- data recevied in booking details page");
+  const handlePrint = async () => {
+    try {
+        await createPDF(); // Make sure it's awaited
+    } catch (error) {
+        console.error('Error creating PDF:', error);
+    }
+};
+
+
   return (
-
-
     <View style={styles.container}>
       <Appbar.Header style={{ backgroundColor: "#ffff" }}>
         <Appbar.BackAction
@@ -31,23 +34,24 @@ const bdata = route.params.booking
           onPress={() => navigation.goBack()}
         />
         <Appbar.Content
-          style={{ paddingLeft: 10,  fontWeight:"700" }}
+          style={{ paddingLeft: 10, fontWeight: "700" }}
           color="black"
           title="Details"
           subtitle="Step 2 of 3"
         />
-
-        
-     
-   
-       
+         <Appbar.Action
+                  icon="printer"
+                  onPress={handlePrint}
+                />
       </Appbar.Header>
 
       {/* Tabs for User Details and Billing Details */}
       <View style={styles.tabContainer}>
-       
         <TouchableOpacity
-          style={[styles.tab, activeTab === "billingDetails" && styles.activeTab]}
+          style={[
+            styles.tab,
+            activeTab === "billingDetails" && styles.activeTab,
+          ]}
           onPress={() => setActiveTab("billingDetails")}
         >
           <Text style={styles.tabText}>Billing Detail</Text>
@@ -58,24 +62,22 @@ const bdata = route.params.booking
         >
           <Text style={styles.tabText}>Booking Detail</Text>
         </TouchableOpacity>
+       
       </View>
 
-     
       <View style={styles.itemsContainer}>
         {activeTab === "userDetails" && ( // Render content based on active tab
           <>
-           <UserDetail dataDefaulting={bdata}/>
+            <UserDetail dataDefaulting={bdata} />
           </>
         )}
 
         {activeTab === "billingDetails" && ( // Empty for Billing Details
-       <BillingProvider>
-        <BillingDetail dataDefaulting={bdata}/>
-       </BillingProvider> 
+          <BillingProvider>
+            <BillingDetail dataDefaulting={bdata} />
+          </BillingProvider>
         )}
       </View>
-
-
     </View>
   );
 };
@@ -87,7 +89,7 @@ const styles = StyleSheet.create({
   },
   itemsContainer: {
     padding: 16,
-    backgroundColor:"#ffffff"
+    backgroundColor: "#ffffff",
   },
   tabContainer: {
     flexDirection: "row",
