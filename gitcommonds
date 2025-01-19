@@ -7,3 +7,18 @@ git add . && git commit -m "Add UI changes for dashboard and list card, update p
 
 
 ./gradlew assembleRelease
+
+npm version <type> [<message>]
+<type>: This is the version bump type. It can be one of the following:
+patch: Increment the patch version (e.g., 1.0.0 to 1.0.1).
+minor: Increment the minor version (e.g., 1.0.0 to 1.1.0).
+major: Increment the major version (e.g., 1.0.0 to 2.0.0).
+
+npm patch
+
+
+git add . 
+git commit -m "updated versionin Logic" 
+git push -u origin main 
+npm version patch 
+git push --tags
