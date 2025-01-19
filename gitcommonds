@@ -1,3 +1,11 @@
+git add . 
+git commit -m "updated versionin Logic" 
+git push -u origin main 
+npm version patch 
+git push --tags
+
+
+
 git add .
 git commit -m "added search icon & clear icon"
 git push -u origin main
@@ -17,8 +25,4 @@ major: Increment the major version (e.g., 1.0.0 to 2.0.0).
 npm patch
 
 
-git add . 
-git commit -m "updated versionin Logic" 
-git push -u origin main 
-npm version patch 
-git push --tags
+

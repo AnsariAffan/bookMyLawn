@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Linking, Dimensions } from 'react-native';
+import { version } from '../package.json'; // Import version from package.json
 
 // Get device dimensions
 const { width, height } = Dimensions.get('window');
@@ -43,6 +44,11 @@ const AboutContactUs = () => {
         {/* Email */}
         <Text style={styles.infoText}>Email: mohammadaffan777@gmail.com</Text>
       </View>
+
+      {/* Display App Version at the bottom */}
+      <View style={styles.versionContainer}>
+        <Text style={styles.versionText}>Version: {version}</Text>
+      </View>
     </ScrollView>
   );
 };
@@ -66,7 +72,7 @@ const styles = StyleSheet.create({
     fontSize: width * 0.04, // Dynamic font size based on screen width
     marginBottom: 10,
     color: '#555',
-    textAlign: "auto",
+    textAlign: 'auto',
   },
   infoText: {
     fontSize: width * 0.04, // Dynamic font size based on screen width
@@ -86,6 +92,19 @@ const styles = StyleSheet.create({
     marginTop:80,
     borderRadius: 30,
     objectFit: "contain", // Ensures the image is scaled to fit within its container
+  },
+  versionContainer: {
+    position: 'absolute', // Position it at the bottom
+    bottom: -40,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  versionText: {
+ 
+    fontSize: width * 0.04, // Dynamic font size based on screen width
+    color: '#333',
+    fontWeight: 'bold',
   },
 });
 
