@@ -104,13 +104,22 @@ export function useBookings() {
     }, {});
   };
 
-  const getUpcomingEventDates = (data) => {
-    const currentDate = new Date();
-    return data.filter(booking => {
+ const getUpcomingEventDates = (data) => {
+  const currentDate = new Date();
+  // Normalize the current date to midnight for accurate comparison
+  const currentDateNormalized = new Date(currentDate.setHours(0, 0, 0, 0));
+
+  return data
+    .filter(booking => {
       const eventDate = new Date(booking.dates[0]);
-      return eventDate > currentDate;
-    }).map(booking => booking.dates[0]);
-  };
+ 
+      // Normalize eventDate to midnight as well for accurate comparison
+      const eventDateNormalized = new Date(eventDate.setHours(0, 0, 0, 0));
+      return eventDateNormalized > currentDateNormalized; // Compare only the date part
+    })
+    .map(booking => booking.dates[0]);
+};
+
 
   const calculateCurrentMonthBookings = (data) => {
     const currentDate = new Date(); // Get the current date
@@ -140,16 +149,22 @@ export function useBookings() {
     const currentDate = new Date();
     // Set the current date to midnight to ignore the time portion
     currentDate.setHours(0, 0, 0, 0); // This will set the time to 00:00:00
-    
+  
     const currentMonth = currentDate.getMonth(); // Get the current month (0-based)
     const currentYear = currentDate.getFullYear(); // Get the current year
+    
+    console.log("Current Date (Midnight):", currentDate);
   
     // Filter bookings that are in the current month and occur after the current date (ignoring time)
     const upcomingDates = data.filter(booking => {
       const eventDate = new Date(booking.dates[0]); // Get the event date from the booking
+      eventDate.setHours(0, 0, 0, 0); // Set event date to midnight to ignore time
+  
       const eventMonth = eventDate.getMonth(); // Get the month of the booking (0-based)
       const eventYear = eventDate.getFullYear(); // Get the year of the booking
-      
+  
+      console.log("Checking Booking:", booking.dates[0], "Event Date:", eventDate);
+  
       // Ensure that we're in the correct month and year, and that the event date is in the future
       return (
         eventYear === currentYear && // Same year
@@ -157,9 +172,12 @@ export function useBookings() {
         eventDate > currentDate // Future date (ignoring the time part of the date)
       );
     });
-    
+  
+    console.log("Upcoming Dates:", upcomingDates);
     return upcomingDates.length; // Return the count of upcoming dates
   };
+  
+  
   
   // Function to format the dates into "Day Month Year" format
 const formatDates = (dates) => {
