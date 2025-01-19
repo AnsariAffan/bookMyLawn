@@ -12,7 +12,7 @@ import {
 import { Appbar, Avatar } from "react-native-paper";
 import { BookingListContext } from "./BookingListContext";
 import { useBookings } from "../utility/useBookings";
-
+import Icon from "react-native-vector-icons/MaterialIcons"; // Importing Material Icons
 const { width, height } = Dimensions.get("window");
  
 const BookingList = ({ navigation }) => {
@@ -99,12 +99,20 @@ const BookingList = ({ navigation }) => {
       </Appbar.Header>
 
       <View style={styles.containerTwo}>
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search"
-          value={search}
-          onChangeText={handleSearch}
-        />
+      <View style={styles.searchContainer}>
+  <Icon name="search" size={20} color="gray" style={styles.searchIcon} />
+  <TextInput
+    style={styles.searchBar}
+    placeholder="Search"
+    value={search}
+    onChangeText={handleSearch}
+  />
+  {search.length > 0 && (
+    <TouchableOpacity onPress={() => handleSearch("")} style={styles.clearIconContainer}>
+      <Icon name="clear" size={20} color="gray" />
+    </TouchableOpacity>
+  )}
+</View>
 
         <View style={styles.filterContainer}>
           <TouchableOpacity
@@ -272,6 +280,38 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
   },
+  // Inside styles
+searchContainer: {
+  flexDirection: "row",
+  alignItems: "center",
+  backgroundColor: "#ffffff",
+  paddingHorizontal: 10,
+  borderRadius: 10,
+  marginBottom: 20,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  elevation: 2,
+},
+
+searchIcon: {
+  marginRight: 10,
+},
+
+clearIconContainer: {
+  position: "absolute",
+  right: 10,
+  top: "50%",
+  transform: [{ translateY: -12 }],
+},
+
+searchBar: {
+  flex: 1,
+  paddingVertical: 10,
+  paddingHorizontal: 5,
+  fontSize: 16,
+},
 });
 
 export default BookingList;
