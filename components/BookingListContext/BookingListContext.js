@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState, useContext } from 'react';
-import { collection, onSnapshot } from 'firebase/firestore'; // Import necessary functions
+import { collection, onSnapshot, query, where } from 'firebase/firestore'; // Firebase imports
 import { db } from '../../firebaseConfiguration/firebaseConfig';
 import { useAuth } from '../Authprovider.js/AuthProvider';
 
@@ -9,102 +9,63 @@ export const BookingListProvider = ({ children }) => {
   const [search, setSearch] = useState("");
   const [filteredHotels, setFilteredHotels] = useState([]);
   const [hotels, setHotels] = useState([]);
-  const [billingDetails, setBillingDetails] = useState([]);
-  const [filteredBillings, setFilteredBillings] = useState([]);
+  const [billData, setBillData] = useState([]);
+  const [filter, setFilter] = useState("all"); // Default filter is 'all'
   const [loading, setLoading] = useState(true);
   const [selectedBooking, setSelectedBooking] = useState(null);
 
-  // Get the current logged-in user from AuthContext
-  const { user } = useAuth(); // Assuming you have a useAuth hook to access user data
+  const { user } = useAuth(); // Get current logged-in user
 
-  // Fetch bookings data
+  // Fetch data based on user
   useEffect(() => {
     if (!user) {
       setLoading(false);
-      return; // If no user is logged in, don't fetch the bookings
+      return;
     }
 
-    const unsubscribeHotels = onSnapshot(collection(db, "bookings"), (snapshot) => {
-      const fetchedHotels = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+    const unsubscribeBookings = onSnapshot(
+      query(collection(db, "billings"), where("userId", "==", user.uid)),
+      (snapshot) => {
+        const bookings = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setBillData(bookings);
+        setHotels(bookings); // Update both hotels and billData
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error fetching bookings: ", error);
+        setLoading(false);
+      }
+    );
 
-      // Filter hotels by current user
-      const userBookings = fetchedHotels.filter((hotel) => hotel.userId === user?.uid);
-      setHotels(userBookings); // Set the filtered user-specific hotels
-      setFilteredHotels(userBookings); // Also update the filtered hotels state
-      setLoading(false); // Set loading to false after fetching data
-    }, (error) => {
-      console.error("Error fetching bookings: ", error);
-      window.alert("Error fetching bookings: " + error.message);
-      setLoading(false); // Ensure loading is set to false on error
-    });
+    return () => unsubscribeBookings();
+  }, [user]);
 
-    // Cleanup listener for hotels on unmount
-    return () => unsubscribeHotels();
-  }, [user]); // Re-run when `user` changes
-
-  // Fetch billing data and update hotel payment status
+  // Filter hotels based on search and filter criteria
   useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return; // If no user is logged in, don't fetch the billings
+    let filtered = billData.filter((hotel) =>
+      hotel.name.toLowerCase().includes(search.toLowerCase())
+    );
+
+    if (filter !== "all") {
+      filtered = filtered.filter((hotel) =>
+        hotel.paymentStatus.toLowerCase() === filter.toLowerCase()
+      );
     }
 
-    const unsubscribeBillings = onSnapshot(collection(db, "billings"), (snapshot) => {
-      const fetchedBillings = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+    setFilteredHotels(filtered);
+  }, [search, filter, billData]);
 
-      setBillingDetails(fetchedBillings);
-
-      // Update hotels with billing info
-      setHotels((prevHotels) => {
-        const updatedHotels = prevHotels.map((hotel) => {
-          const billingInfo = fetchedBillings.find(billing => billing.bookingId === hotel.id);
-          return {
-            ...hotel,
-            paymentStatus: billingInfo ? billingInfo.paymentStatus : "",
-            totalAmount: billingInfo ? billingInfo.totalAmount : 0,
-          };
-        });
-
-        setFilteredHotels(updatedHotels); // Update filtered hotels
-        return updatedHotels;
-      });
-
-      setFilteredBillings(fetchedBillings);
-      setLoading(false); // Set loading to false after fetching billings
-    }, (error) => {
-      console.error("Error fetching billings: ", error);
-      window.alert("Error fetching billings: " + error.message);
-      setLoading(false); // Ensure loading is set to false on error
-    });
-
-    // Cleanup listener for billings on unmount
-    return () => unsubscribeBillings();
-  }, [user]); // Re-run when `user` changes
-
-  // Search filter handler
+  // Handle search text change
   const handleSearch = (text) => {
     setSearch(text);
-    const filtered = hotels.filter((hotel) =>
-      hotel.name.toLowerCase().includes(text.toLowerCase())
-    );
-    setFilteredHotels(filtered);
   };
 
-  // Filter billings based on payment status
-  const filterBillings = (criteria) => {
-    const filtered = billingDetails.filter((billing) =>
-      billing.paymentStatus.toLowerCase().includes(criteria.toLowerCase())
-    );
-    setFilteredBillings(filtered);
+  // Handle filter change
+  const handleFilterChange = (status) => {
+    setFilter(status);
   };
 
-  // Handle navigation to booking details page
+  // Handle card press for navigation
   const handleCardPress = (item, navigation) => {
     setSelectedBooking(item);
     navigation.navigate("BookingDetails", { booking: item });
@@ -114,19 +75,10 @@ export const BookingListProvider = ({ children }) => {
     <BookingListContext.Provider
       value={{
         search,
-        setSearch,
         filteredHotels,
-        setFilteredHotels,
-        hotels,
-        setHotels,
-        billingDetails,
-        filteredBillings,
-        filterBillings,
         loading,
-        setLoading,
-        selectedBooking,
-        setSelectedBooking,
         handleSearch,
+        handleFilterChange,
         handleCardPress,
       }}
     >
