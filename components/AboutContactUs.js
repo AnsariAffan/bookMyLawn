@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Linking, Dimensions } from 'react-native';
 import { version } from '../package.json'; // Import version from package.json
+import { Appbar } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 
 // Get device dimensions
 const { width, height } = Dimensions.get('window');
@@ -10,9 +12,19 @@ const AboutContactUs = () => {
   const handleCall = (phoneNumber) => {
     Linking.openURL(`tel:${phoneNumber}`);
   };
-
+  const navigation = useNavigation();
   return (
-    <ScrollView style={styles.container}>
+   <>
+    <Appbar.Header style={{ backgroundColor: "#00509E" }}>
+    <Appbar.BackAction
+      style={{ color: "#F5F5F5" }}
+      onPress={() => navigation.goBack()}
+    />
+    <Text style={{ fontSize: 20, fontWeight: "normal", color: "#ffff" }}>
+      About & Contact Us
+    </Text>
+  </Appbar.Header>
+  <ScrollView style={styles.container}>
       {/* About Us Section */}
       <View style={styles.section}>
         <Image source={require('../assets/icon.webp')} style={styles.logo} />
@@ -50,6 +62,7 @@ const AboutContactUs = () => {
         <Text style={styles.versionText}>Version: {version}</Text>
       </View>
     </ScrollView>
+    </>
   );
 };
 
@@ -88,14 +101,14 @@ const styles = StyleSheet.create({
     height: 75, // Maintain aspect ratio
     maxWidth: "100px", // Set the maximum width (adjust as per your requirement)
     maxHeight: "10px", // Set the maximum height (adjust as per your requirement)
-    marginBottom: 50,
-    marginTop:80,
+    marginBottom: 30,
+    marginTop:18,
     borderRadius: 30,
     objectFit: "contain", // Ensures the image is scaled to fit within its container
   },
   versionContainer: {
     position: 'absolute', // Position it at the bottom
-    bottom: height *-0.05,
+    bottom: height *-0.03,
     left: 0,
     right: 0,
     alignItems: 'center',
@@ -104,7 +117,7 @@ const styles = StyleSheet.create({
  
     fontSize: width * 0.04, // Dynamic font size based on screen width
     color: '#333',
-    fontWeight: 'bold',
+    fontWeight: 'normal',
   },
 });
 

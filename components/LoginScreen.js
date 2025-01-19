@@ -208,6 +208,6 @@ const styles = StyleSheet.create({
  
     fontSize: width * 0.04, // Dynamic font size based on screen width
     color: '#333',
-    fontWeight: 'bold',
+    fontWeight: 'normal',
   },
 });

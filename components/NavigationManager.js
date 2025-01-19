@@ -7,18 +7,11 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { View, Text } from 'react-native';
 
 // Import Screens
-import UserLocation from './UserLocation';
-import LawnSearch from './LawnSearch';
-import LawnProfile from './LawnProfile';
-import BookingScreen from './BookingScreen';
 import SplashScreen from './SplashScreen';
-import HomeScreen from './HomeScreen';
-import LoginChoice from './LoginChoice';
 import LoginScreen from './LoginScreen';
 
 
 import SuccessMessage from './SuccessMessage';
-import SignInWithPhoneNumber from './SignInwithPhoneNumber';
 
 import BookingDetails from './BookingDetails';
 import LawnOwnerDashboard from './BookingCalenderprovier/LawnOwnerDashboard';
@@ -46,14 +39,9 @@ const Tab = createBottomTabNavigator();
 
 const HomeStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="Home" component={HomeScreen} />
-    <Stack.Screen name="UserLocation" component={UserLocation} />
-    <Stack.Screen name="LawnSearch" component={LawnSearch} />
     <Stack.Screen name="Dashboard" component={Dashboard} />
     <Stack.Screen name="SuccessMessage" component={SuccessMessage} />
     <Stack.Screen name="BookingList" component={BookingList} />
-    <Stack.Screen name="LawnProfile" component={LawnProfile} options={{ title: 'Profile', headerShown: true }} />
-    <Stack.Screen name="BookingScreen" component={BookingScreen} options={{ title: 'Booking', headerShown: true }} />
     <Stack.Screen name="LoginScreen" component={LoginScreen} />
     <Stack.Screen name="AboutContactUs" component={AboutContactUs} />
 
@@ -115,11 +103,9 @@ export default function NavigationManager() {
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Splash" component={SplashScreen} />
             <Stack.Screen name="Dashboard" component={Dashboard} />
-       {/*  <Stack.Screen name="LoginChoice" component={LoginChoice} />*/}   
             <Stack.Screen name="LoginScreen" component={LoginScreen} />
             <Stack.Screen name="MainApp" component={MainApp} />
             <Stack.Screen name="SuccessMessage" component={SuccessMessage} />
-            <Stack.Screen name="SignInwithPhoneNumber" component={SignInWithPhoneNumber} />
             <Stack.Screen name="BookingList" component={BookingList} />
             <Stack.Screen name="BookingDetails" component={BookingDetails} />
             <Stack.Screen name="Settings" component={Settings} />

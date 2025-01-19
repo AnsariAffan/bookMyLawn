@@ -63,10 +63,7 @@ const BookingList = ({ navigation }) => {
           <View style={styles.hotelInfo}>
             <View style={styles.row}>
               <Text style={styles.hotelName}>{item.name}</Text>
-              <View style={styles.dateContainer}>
-                <Text style={styles.dateText}>{monthName}</Text>
-              </View>
-              <View style={styles.dateContainer}>
+             <View style={styles.dateContainer}>
               <Text style={styles.dateText}>
                 {formatDates(item.dates)}
               </Text>
@@ -160,12 +157,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#00509E",
-    paddingHorizontal: 0,
-    paddingTop: 0,
+
+
   },
   containerTwo: {
     backgroundColor: "#00509E",
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
     paddingBottom: 2,
   },
   containerThree: {
@@ -180,7 +177,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     padding: 10,
     borderRadius: 10,
-    marginBottom: 20,
+    marginBottom: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -224,6 +221,7 @@ const styles = StyleSheet.create({
     color: "black",
     marginLeft: 5,
     fontWeight: "bold",
+    marginTop:5
   },
   hotelPrice: {
     color: "#333333",

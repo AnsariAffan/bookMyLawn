@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     color: '#333', // Adjust the color to improve visibility
-    fontWeight: 'bold',
+    fontWeight: 'normal',
   },
 });
 
