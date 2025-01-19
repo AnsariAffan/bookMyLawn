@@ -136,7 +136,6 @@ export function useBookings() {
     }, 0);
   };
   
-
   const getUpcomingDatesInCurrentMonth = (data) => {
     const currentDate = new Date();
     // Set the current date to midnight to ignore the time portion
@@ -178,7 +177,6 @@ const formatDates = (dates) => {
       })
       .join(", "); // Join multiple dates with commas
   };
-
 
   // Function to set a new range of months
   const setMonthRange = (start, end) => {

@@ -4,3 +4,6 @@ git push -u origin main
 
 
 git add . && git commit -m "Add UI changes for dashboard and list card, update package.json scripts" && git push -u origin main
+
+
+./gradlew assembleRelease

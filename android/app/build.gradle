@@ -2,7 +2,6 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
-
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 
 /**
@@ -125,9 +124,6 @@ android {
     androidResources {
         ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~'
     }
-   
-
-
 }
 
 // Apply static values from `gradle.properties` to the `android.packagingOptions`
@@ -178,8 +174,3 @@ dependencies {
         implementation jscFlavor
     }
 }
-
-
-apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
-
-
