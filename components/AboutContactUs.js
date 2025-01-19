@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   },
   versionContainer: {
     position: 'absolute', // Position it at the bottom
-    bottom: -40,
+    bottom: height *-0.05,
     left: 0,
     right: 0,
     alignItems: 'center',

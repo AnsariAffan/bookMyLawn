@@ -4,6 +4,7 @@ import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ActivityInd
 import { Checkbox } from "react-native-paper"; // Import the Checkbox component from react-native-paper
 import { useAuth } from "./Authprovider.js/AuthProvider"; // Your custom AuthProvider
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { version } from '../package.json'; // Import version from package.json
 
 const { width, height } = Dimensions.get("window");
 
@@ -127,7 +128,10 @@ export default function LoginScreen() {
         </TouchableOpacity>
       )}
 
-        
+        {/* Display App Version at the bottom */}
+      <View style={styles.versionContainer}>
+      <Text style={styles.versionText}>Version: {version}</Text>
+    </View> 
     </View>
   );
 }
@@ -193,5 +197,17 @@ const styles = StyleSheet.create({
   switchText: {
     marginTop: 20,
     color: "#007bff",
+  }, versionContainer: {
+    position: 'absolute', // Position it at the bottom
+    bottom: height *0.01,  // 10% from the bottom of the screen
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  versionText: {
+ 
+    fontSize: width * 0.04, // Dynamic font size based on screen width
+    color: '#333',
+    fontWeight: 'bold',
   },
 });
