@@ -3,17 +3,12 @@ import {
   View,
   Text,
   ScrollView,
-  Image,
   StyleSheet,
   TouchableOpacity,
-  Modal,
-  Button,
   ActivityIndicator,
   Dimensions,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
-import { Calendar } from "react-native-calendars";
-import { useAuth } from "./Authprovider.js/AuthProvider";
 import { useBookings } from "./utility/useBookings";
 import { Avatar } from "react-native-paper";
 import { auth } from "../firebaseConfiguration/firebaseConfig";
@@ -22,8 +17,6 @@ import { useNavigation } from "@react-navigation/native";
 const { width, height } = Dimensions.get("window");
 
 const Dashboard = () => {
-
-  
   const {
     userBookings,
     totalRevenue,
@@ -34,6 +27,7 @@ const Dashboard = () => {
     loading,
     revenueByMonth,
     error,
+    openAmountSum
   } = useBookings();
 
   useEffect(() => {
@@ -49,6 +43,7 @@ const Dashboard = () => {
     );
     console.log("Loading State:", loading);
     console.log("Error State:", error);
+    console.log("openAmountSum:", openAmountSum);
   }, [
     userBookings,
     totalRevenue,
@@ -59,29 +54,13 @@ const Dashboard = () => {
     revenueByMonth,
     loading,
     error,
+    openAmountSum
   ]);
 
-  // const [bookingsData, setBookingsData] = useState([
-  //   10, 15, 20, 18, 30, 25, 40, 35, 28, 24, 22, 30,
-  // ]);
   const [revenueData, setRevenueData] = useState([
     5000, 2000, 8000, 7500, 10000, 9000, 12000, 11000, 9500, 8000, 6500, 7000,
   ]);
-  // const [filteredBookings, setFilteredBookings] = useState(bookingsData);
   const [filteredRevenue, setFilteredRevenue] = useState(revenueData);
-  // const [selectedFilter, setSelectedFilter] = useState("currentMonth");
-  // const [isModalVisible, setModalVisible] = useState(false);
-  // const [startDate, setStartDate] = useState(null);
-  // const [endDate, setEndDate] = useState(null);
-
-  // const currentMonth = new Date().getMonth();
-  // const currentYear = new Date().getFullYear();
-
-  // const [events, setEvents] = useState([
-  //   { title: "Wedding Anniversary", date: "2024-11-15" },
-  //   { title: "Corporate Event", date: "2024-11-20" },
-  //   { title: "Birthday Party", date: "2024-12-05" },
-  // ]);
 
   const renderUpcomingEvents = () => {
     // Log upcomingEventDates to ensure data is in the expected format
@@ -126,25 +105,23 @@ const Dashboard = () => {
     });
   };
 
-
   const navigation = useNavigation();
-  const [user, setUser] = useState(null);  // State to hold user data
-  const [image, setImage] = useState(null);  // State to hold user image
-  
+  const [user, setUser] = useState(null); // State to hold user data
+  const [image, setImage] = useState(null); // State to hold user image
+
   useEffect(() => {
     // Listen for changes to authentication state
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       if (currentUser) {
-        setUser(currentUser);  // Update user state when user data changes
-        setImage(currentUser.photoURL);  // Update image if changed
+        setUser(currentUser); // Update user state when user data changes
+        setImage(currentUser.photoURL); // Update image if changed
       } else {
-        setUser(null);  // Reset if user is logged out
+        setUser(null); // Reset if user is logged out
       }
     });
 
-    return unsubscribe;  // Cleanup the listener on unmount
-  }, []);  // Empty dependency array ensures this effect runs once when component mounts
-
+    return unsubscribe; // Cleanup the listener on unmount
+  }, []); // Empty dependency array ensures this effect runs once when component mounts
 
   useEffect(() => {
     // Fetch user data when the component mounts
@@ -167,41 +144,6 @@ const Dashboard = () => {
 
       {/* <Text style={{  }}>@Danish Lawn</Text> */}
 
-      {/* Filter Modal */}
-      {/*
-      <Modal
-        transparent={true}
-        visible={isModalVisible}
-        animationType="slide"
-        onRequestClose={() => setModalVisible(false)}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select Filter</Text>
-            <Button title="Current Month" onPress={filterCurrentMonth} />
-            <Button title="Year-wise" onPress={() => filterByYear(currentYear)} />
-            <Button title="Month Range" onPress={() => setStartDate(new Date())} />
-            {startDate && (
-              <Calendar
-                markedDates={{
-                  [startDate]: { selected: true, selectedColor: 'blue' },
-                  [endDate]: { selected: true, selectedColor: 'green' },
-                }}
-                onDayPress={(day) => {
-                  if (!startDate) {
-                    setStartDate(day.dateString);
-                  } else {
-                    setEndDate(day.dateString);
-                    filterMonthRange();
-                  }
-                }}
-              />
-            )}
-            <Button title="Reset Filters" onPress={resetFilters} />
-            <Button title="Close" onPress={() => setModalVisible(false)} />
-          </View>
-        </View>
-      </Modal>
-*/}
       {/* Show loader when data is loading */}
       {loading ? (
         <View style={styles.loaderContainer}>
@@ -209,45 +151,48 @@ const Dashboard = () => {
         </View>
       ) : (
         <>
-          {/* Bookings & Revenue Section */}
-          <View style={styles.sideBySideContainer}>
-            <View style={[styles.dataBox, { backgroundColor: "#ffff" }]}>
-              <View style={styles.revenueContainer}>
-                <Text style={styles.currencyText}>₹</Text>
-                <Text style={styles.dataText}>{totalRevenue}</Text>
-              </View>
-              <Text style={styles.dataLabel}>Total Revenue</Text>
+        <View style={styles.container}>
+        {/* Bookings & Revenue Section */}
+        <View style={styles.sideBySideContainer}>
+          <View style={[styles.dataBox, { backgroundColor: "#ffff",marginRight:5 }]}>
+            <View style={styles.revenueContainer}>
+              <Text style={styles.currencyText}>₹</Text>
+              <Text style={styles.dataText}>{totalRevenue}</Text>
             </View>
+            <Text style={styles.dataLabel}>Total Revenue</Text>
           </View>
-
-          {/* Total Bookings and Upcoming Events */}
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginTop: -15,
-              width: width / 1.1,
-            }}
-          >
-            <View style={[styles.dataBox2, { marginRight: 3 }]}>
-              <Text style={styles.dataText}>{currentMonthBookings}</Text>
-              <Text style={styles.dataLabel}>Total Bookings</Text>
+      
+          <View style={[styles.dataBox, { backgroundColor: "#ffff",marginLeft:5 }]}>
+            <View style={styles.revenueContainer}>
+              <Text style={styles.currencyText}>₹</Text>
+              <Text style={styles.dataText}>{openAmountSum}</Text>
             </View>
-
-            <View style={[styles.dataBox3, { marginLeft: 5 }]}>
-              <Text style={styles.dataText}>{upcomingDatesInCurrentMonth}</Text>
-              <Text style={styles.dataLabel}>Upcoming Events</Text>
-            </View>
+            <Text style={styles.dataLabel}>Open Amount</Text>
           </View>
-
-          {/* Upcoming Events Section */}
+        </View>
+      
+        {/* Total Bookings and Upcoming Events */}
+        <View style={styles.sideBySideContainer}>
+          <View style={[styles.dataBox2, { marginRight: 5 }]}>
+            <Text style={styles.dataText}>{currentMonthBookings}</Text>
+            <Text style={styles.dataLabel}>Total Bookings</Text>
+          </View>
+      
+          <View style={[styles.dataBox3, { marginLeft: 5 }]}>
+            <Text style={styles.dataText}>{upcomingDatesInCurrentMonth}</Text>
+            <Text style={styles.dataLabel}>Upcoming Events</Text>
+          </View>
+        </View>
+  {/* Upcoming Events Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Upcoming Events</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {renderUpcomingEvents()}
             </ScrollView>
           </View>
+  
+      </View>
+      
           {/* Revenue vs Time Graph */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Revenue vs Time (Monthly)</Text>
@@ -293,8 +238,9 @@ const Dashboard = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: width * 0.03, // Dynamic padding based on screen width
-    backgroundColor: "#F5F5F5",
+    padding: width * 0.02, // Dynamic padding based on screen width
+    backgroundColor: "#F5F5F5"
+
   },
   headerContainer: {
     flexDirection: "row",
@@ -302,16 +248,15 @@ const styles = StyleSheet.create({
     marginTop: height * 0.02, // Dynamic margin based on screen height
   },
   header: {
-    marginTop:height*0.02,
+    marginTop: height * 0.02,
     fontSize: width * 0.07, // Adjust font size based on screen width
     fontWeight: "bold",
   },
   dotsButton: {
-  
-    marginTop:height*0.02, // Dynamic margin
-    marginBottom:10
+    marginTop: height * 0.02, // Dynamic margin
+    marginBottom: 10,
   },
- 
+
   dataLabel2: {
     fontSize: width * 0.04, // Adjust font size based on screen width
     color: "gray",
@@ -342,7 +287,7 @@ const styles = StyleSheet.create({
   sideBySideContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: height * 0.03, // Dynamic margin bottom
+    marginBottom: height * 0.01, // Dynamic margin bottom
   },
   icon: {
     width: width * 0.12, // Dynamic width based on screen size
@@ -365,6 +310,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
+   
   },
   currencyText: {
     fontSize: width * 0.08, // Dynamic font size

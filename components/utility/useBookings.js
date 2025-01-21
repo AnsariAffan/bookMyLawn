@@ -16,6 +16,7 @@ export function useBookings() {
   // Add state for month range
   const [startMonth, setStartMonth] = useState(0); // January
   const [endMonth, setEndMonth] = useState(11); // December
+  const [openAmountSum, setOpenAmountSum] = useState(0);
 
   useEffect(() => {
     const db = getFirestore();
@@ -45,7 +46,7 @@ export function useBookings() {
       setUpcomingEventDates(getUpcomingEventDates(bookings));
       setCurrentMonthBookings(calculateCurrentMonthBookings(bookings));
       setUpcomingDatesInCurrentMonth(getUpcomingDatesInCurrentMonth(bookings));
-
+      setOpenAmountSum(calculateOpenAmountSum(bookings));
       setLoading(false); // Set loading to false once data is fetched
 
     }, (err) => {
@@ -202,6 +203,14 @@ const formatDates = (dates) => {
     setEndMonth(end);
   };
 
+  const calculateOpenAmountSum = (data) => {
+    return data.reduce((total, booking) => {
+      const remainingAmount = parseFloat(booking.remainingAmount) || 0; // Amount still pending
+      return total + remainingAmount; // Add the remaining amount to the total
+    }, 0);
+  };
+  
+
   return { 
     userBookings, 
     totalRevenue, 
@@ -213,6 +222,7 @@ const formatDates = (dates) => {
     loading, 
     error,
     setMonthRange, // Expose this function to allow setting a custom month range
-    formatDates
+    formatDates,
+    openAmountSum
   };
 }
