@@ -3,7 +3,7 @@ import { SafeAreaView, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, Avatar, TextInput, Dialog, Portal, Button, Provider } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Importing Material Icons
 import * as ImagePicker from 'expo-image-picker';
-import { updateProfile, updatePassword } from 'firebase/auth'; // Import Firebase methods
+import { updateProfile, updatePassword, getAuth } from 'firebase/auth'; // Import Firebase methods
 import { auth } from '../firebaseConfiguration/firebaseConfig';
 
 const Settings = ({ navigation }) => {
@@ -17,14 +17,22 @@ const Settings = ({ navigation }) => {
   const [newPassword, setNewPassword] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
 
-  // Fetch user details on component mount
+  // Combine authentication and user data fetching logic in useEffect
   useEffect(() => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      setUsername(currentUser.displayName || 'Username');
-      setEmail(currentUser.email || 'user@example.com');
-      setImage(currentUser.photoURL || null);
-    }
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUsername(user.displayName || 'Username');
+        setEmail(user.email || 'user@example.com');
+        setImage(user.photoURL || null);  // Update photoURL from Firebase
+      } else {
+        setUsername('');
+        setEmail('');
+        setImage(null);
+      }
+    });
+
+    // Cleanup listener on unmount
+    return unsubscribe;
   }, []);
 
   // Show dialog to edit username or email
@@ -50,7 +58,6 @@ const Settings = ({ navigation }) => {
     if (editType === 'username') {
       try {
         await updateProfile(auth.currentUser, { displayName: tempValue });
-
         const currentUser = auth.currentUser;
         setUsername(currentUser.displayName); // Update username in state
       } catch (error) {

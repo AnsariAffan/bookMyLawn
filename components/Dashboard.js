@@ -114,7 +114,7 @@ const Dashboard = () => {
     // Listen for changes to authentication state
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       if (currentUser) {
-        console.log(currentUser.photoURL);
+        // console.log(currentUser.photoURL);
         setUser(currentUser); // Update user state when user data changes
         setImage(currentUser.photoURL); // Update image if changed
       } else {
@@ -144,7 +144,11 @@ const Dashboard = () => {
           onPress={() => navigation.navigate("Settings")}
           style={styles.dotsButton}
         >
-          <Avatar.Image size={35} source={{ uri: image }} />
+        {image ? (
+        <Avatar.Image size={35} source={{ uri: image }} />
+      ) : (
+        <Avatar.Image size={35} source={require('../assets/icons/icon.png')} /> // Fallback image if no photoURL
+      )}
         </TouchableOpacity>
       </View>
 

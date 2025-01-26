@@ -179,7 +179,7 @@ export function useBookings() {
       );
     });
   
-    console.log("Upcoming Dates:", upcomingDates);
+   // console.log("Upcoming Dates:", upcomingDates);
     return upcomingDates.length; // Return the count of upcoming dates
   };
   
