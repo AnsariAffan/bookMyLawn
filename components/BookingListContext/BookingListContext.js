@@ -2,6 +2,7 @@ import React, { createContext, useEffect, useState, useContext } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore'; // Firebase imports
 import { db } from '../../firebaseConfiguration/firebaseConfig';
 import { useAuth } from '../Authprovider.js/AuthProvider';
+import { onBillingDataChange } from '../../firebaseConfiguration/FirebaseCrud';
 
 export const BookingListContext = createContext();
 
@@ -16,30 +17,42 @@ export const BookingListProvider = ({ children }) => {
 
   const { user } = useAuth(); // Get current logged-in user
 
-  // Fetch data based on user
   useEffect(() => {
     if (!user) {
       setLoading(false);
       return;
     }
-
-    const unsubscribeBookings = onSnapshot(
-      query(collection(db, "billings"), where("userId", "==", user.uid)),
-      (snapshot) => {
-        const bookings = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setBillData(bookings);
-        setHotels(bookings); // Update both hotels and billData
-        setLoading(false);
-      },
-      (error) => {
-        console.error("Error fetching bookings: ", error);
-        setLoading(false);
+  
+    // Real-time listener for billings data specific to the logged-in user
+    const handleBillingDataChange = (billingData) => {
+      console.log("====Billing Data for User=====");
+      console.log(billingData);
+      console.log("==========================");
+  
+      // Process the billing data and set it to both billData and hotels
+      if (billingData) {
+        const updatedBillData = Object.values(billingData).map((billingItem) => ({
+          id: billingItem.bookingId, // Assuming bookingId is present
+          ...billingItem,
+        }));
+        setBillData(updatedBillData);
+        setHotels(updatedBillData); // Update both hotels and billData
+      } else {
+        setBillData([]);
+        setHotels([]);
       }
-    );
-
-    return () => unsubscribeBookings();
+      setLoading(false); // Stop loading once data is fetched
+    };
+  
+    // Start listening for changes in the client's billing data in real-time
+    onBillingDataChange(user.displayName, handleBillingDataChange);
+  
+    // Cleanup listener when the component unmounts or the user changes
+    return () => {
+      // Remove the listener if needed (cleanup)
+    };
   }, [user]);
-
+  
   // Filter hotels based on search and filter criteria
   useEffect(() => {
     let filtered = billData.filter((hotel) =>
@@ -68,6 +81,8 @@ export const BookingListProvider = ({ children }) => {
   // Handle card press for navigation
   const handleCardPress = (item, navigation) => {
     setSelectedBooking(item);
+    console.log("item.key");
+    console.log(item.key);
     navigation.navigate("BookingDetails", { booking: item });
   };
 

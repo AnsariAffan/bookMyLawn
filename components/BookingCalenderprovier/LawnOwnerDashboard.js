@@ -45,32 +45,40 @@ const LawnOwnerDashboard = () => {
 // console.log(bookings);
 // console.log("----Booking----");
 
-  const handleDayPress = (day) => {
-    // Check if the date is originally booked (not a user-selected date)
-    const isOriginallyBooked = bookings.some((booking) =>
-      booking.dates.includes(day.dateString)
-    );
-  
-    if (isOriginallyBooked) {
-      Alert.alert("Validation", `Selcted date is already booked.`);
-      return;
-    }
-  
-    const updatedMarkedDates = { ...markedDates };
-  
+const handleDayPress = (day) => {
+  console.log("Checking if date is already booked...");
+  console.log(markedDates);
+
+  // Extract all booked dates from markedDates
+  const bookedDates = Object.keys(markedDates).filter(
+    (key) => markedDates[key]?.customStyles?.container?.backgroundColor === "lightpink" // Assuming booked dates are marked red
+  );
+
+  const isOriginallyBooked = bookedDates.includes(day.dateString);
+
+  if (isOriginallyBooked) {
+    Alert.alert("Validation", `Selected date is already booked.`);
+    return; // Don't allow selecting or unselecting a booked date
+  }
+
+  // Update markedDates without affecting booked dates
+  setMarkedDates((prevMarkedDates) => {
+    const updatedMarkedDates = { ...prevMarkedDates };
+
+    // Only allow user to unselect or select non-booked dates
     if (selectedDates.includes(day.dateString)) {
+      // Remove date from selectedDates and unmark the date
       setSelectedDates(selectedDates.filter((date) => date !== day.dateString));
       delete updatedMarkedDates[day.dateString]; // Remove the marking
-      setRemark("");
+      setRemark(""); // Optionally reset remark
     } else {
+      // Add date to selectedDates and mark it (only if it's not booked)
       setSelectedDates([...selectedDates, day.dateString]);
       setRemark(""); // Reset remark for simplicity
       updatedMarkedDates[day.dateString] = {
         customStyles: {
           container: {
-             backgroundColor: "lightblue", // blue color for selecting date
-           
-            
+            backgroundColor: "lightblue", // Blue color for selected date
           },
           text: {
             color: "#000",
@@ -78,56 +86,59 @@ const LawnOwnerDashboard = () => {
         },
       };
     }
-    setMarkedDates(updatedMarkedDates); // Use setMarkedDates from context
-  };
-  
 
-  useEffect(() => {
-    if (!user.id) return; // Ensure a user is logged in
+    return updatedMarkedDates;
+  });
+};
+
+
+
+  // useEffect(() => {
+  //   if (!user.id) return; // Ensure a user is logged in
   
-    // Query Firestore for bookings specific to the logged-in user
-    const unsubscribe = onSnapshot(
-      query(
-        collection(db, "bookings"),
-        where("userId", "==", user.id) // Filter by userId
-      ),
-      (snapshot) => {
-        const bookings = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+  //   // Query Firestore for bookings specific to the logged-in user
+  //   const unsubscribe = onSnapshot(
+  //     query(
+  //       collection(db, "bookings"),
+  //       where("userId", "==", user.id) // Filter by userId
+  //     ),
+  //     (snapshot) => {
+  //       const bookings = snapshot.docs.map((doc) => ({
+  //         id: doc.id,
+  //         ...doc.data(),
+  //       }));
   
-        console.log("====Bookings for User=====");
-        console.log(bookings);
-        console.log("==========================");
+  //       console.log("====Bookings for User=====");
+  //       console.log(bookings);
+  //       console.log("==========================");
   
-        // Update markedDates based on the filtered bookings
-        if (bookings.length === 0) {
-          setMarkedDates({});
-        } else {
-          const updatedMarkedDates = {};
-          bookings.forEach((booking) => {
-            booking.dates.forEach((date) => {
-              updatedMarkedDates[date] = {
-                customStyles: {
-                  container: {
-                    backgroundColor: "purple", // Red for booked dates
-                  },
-                  text: {
-                    color: "#000",
-                  },
-                },
-              };
-            });
-          });
-          setMarkedDates(updatedMarkedDates);
-        }
-      }
-    );
+  //       // Update markedDates based on the filtered bookings
+  //       if (bookings.length === 0) {
+  //         setMarkedDates({});
+  //       } else {
+  //         const updatedMarkedDates = {};
+  //         bookings.forEach((booking) => {
+  //           booking.dates.forEach((date) => {
+  //             updatedMarkedDates[date] = {
+  //               customStyles: {
+  //                 container: {
+  //                   backgroundColor: "purple", // Red for booked dates
+  //                 },
+  //                 text: {
+  //                   color: "#000",
+  //                 },
+  //               },
+  //             };
+  //           });
+  //         });
+  //         setMarkedDates(updatedMarkedDates);
+  //       }
+  //     }
+  //   );
   
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, [user?.id]); // Re-run effect when loggedInUserId changes
+  //   // Cleanup subscription on unmount
+  //   return () => unsubscribe();
+  // }, [user?.id]); // Re-run effect when loggedInUserId changes
   
   
 

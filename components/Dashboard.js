@@ -13,6 +13,7 @@ import { useBookings } from "./utility/useBookings";
 import { Avatar } from "react-native-paper";
 import { auth } from "../firebaseConfiguration/firebaseConfig";
 import { useNavigation } from "@react-navigation/native";
+
 // Get device dimensions
 const { width, height } = Dimensions.get("window");
 
@@ -113,6 +114,7 @@ const Dashboard = () => {
     // Listen for changes to authentication state
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       if (currentUser) {
+        console.log(currentUser.photoURL);
         setUser(currentUser); // Update user state when user data changes
         setImage(currentUser.photoURL); // Update image if changed
       } else {
@@ -125,10 +127,14 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Fetch user data when the component mounts
-    if (user && user.photoURL) {
-      setImage(user?.photoURL); // Set the user's photo URL if available
+    if (user && currentUser.photoURL) {
+      setImage(currentUser.photoURL); // Set the user's photo URL if available
     }
   }, []);
+
+
+
+  
 
   return (
     <ScrollView style={styles.container}>

@@ -86,7 +86,11 @@ const Settings = ({ navigation }) => {
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const selectedImage = result.assets[0].uri;
+
+        // Update the state with the selected image
         setImage(selectedImage);
+
+        // Update the photoURL in Firebase
         await updateProfile(auth.currentUser, { photoURL: selectedImage });
       } else {
         console.log('Image selection was canceled.');

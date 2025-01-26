@@ -5,12 +5,13 @@ import { createBooking } from "../../firebaseConfiguration/crudForBooking";
 import { db } from "../../firebaseConfiguration/firebaseConfig";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { AuthContext, useAuth } from "../Authprovider.js/AuthProvider";
+import { onBillingDataChange, saveBillingData } from "../../firebaseConfiguration/FirebaseCrud";
 
 export const BookingContext = createContext();
 
 export const BookingProvider = ({ children }) => {
   const [bookings, setBookings] = useState([]);
-  const [markedDates, setMarkedDates] = useState({});
+  const [markedDates, setMarkedDates] = useState({});  // Stores booked dates
   const [selectedDates, setSelectedDates] = useState([]);
   const [newBooking, setNewBooking] = useState({
     name: "",
@@ -34,36 +35,22 @@ export const BookingProvider = ({ children }) => {
   // Get user data from Auth context
   const { user, signOut } = useAuth();
 
-  // Firestore listener to fetch data only when the user is logged in
+  // Real-time listener for billing data specific to the logged-in user
   useEffect(() => {
     if (!user || !user?.uid) {
-      // If no user is logged in, reset bookings and marked dates
       setBookings([]);
       setMarkedDates({});
-      return;  // Don't fetch any bookings if the user is not logged in
+      return;
     }
-  
-    // Firestore query to fetch bookings for the logged-in user
-    console.log(user?.uid);
-    const unsubscribe = onSnapshot(
-     
-      query(collection(db, "bookings"), where("userId", "==", user?.uid)),
-      (snapshot) => {
-        const bookingsData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          userId: doc.data().userId,
-          ...doc.data(),
-      
-        }));
-  
-        // Set the bookings data for the logged-in user
-        console.log(bookingsData);
-        setBookings(bookingsData);
-  
-        // Create an updated markedDates object for the calendar
+
+    const handleBillingDataChange = (billingData) => {
+      if (!billingData) {
+        setMarkedDates({});
+      } else {
         const updatedMarkedDates = {};
-        bookingsData.forEach((booking) => {
-          booking.dates.forEach((date) => {
+        
+        Object.values(billingData).forEach((billingItem) => {
+          billingItem.dates.forEach((date) => {
             updatedMarkedDates[date] = {
               customStyles: {
                 container: {
@@ -76,18 +63,23 @@ export const BookingProvider = ({ children }) => {
             };
           });
         });
-        
-        // Set markedDates so that it updates the calendar
         setMarkedDates(updatedMarkedDates);
       }
-    );
-  
-    // Cleanup the listener when the component unmounts or the user changes
-    return () => unsubscribe();
-  }, [user?.uid]); // Depend on user.uid to re-run the effect when user changes
-  // Depend on user.uid to re-run the effect when user changes
+    };
 
-  
+    // Listen for changes in the client's billing data
+    onBillingDataChange(user.displayName, handleBillingDataChange);
+
+    return () => {
+      // Cleanup logic if needed
+    };
+  }, [user?.uid]);
+
+  // Function to validate if selected date is already booked
+  const isDateBooked = (date) => {
+    return markedDates[date] !== undefined;
+  };
+
   // Function to format selected dates
   const formatSelectedDates = () => {
     const groupedByMonth = selectedDates.reduce((acc, date) => {
@@ -106,48 +98,39 @@ export const BookingProvider = ({ children }) => {
   // Function to handle booking submission
   const handleBookingSubmit = async () => {
     try {
-      // Validate inputs
       if (!newBooking.name || !newBooking.contact || !newBooking.address) {
         alert("Please fill in all fields.");
         return;
       }
 
-      // Set loading to true before making the API call
       setLoading(true);
 
-      // Prepare the booking data
       const bookingData = {
         ...newBooking,
         dates: selectedDates,
-        status: "Approved", // Default status
+        status: "Approved",
         remainingAmount: newBooking.totalAmount - newBooking.AdvBookAmount,
         paymentStatus: newBooking.AdvBookAmount.length > 0 ? "Partially Paid" : "Not Paid",
-        userId: user?.uid, // Add the userId to the booking data
+        userId: user?.uid,
         totalReceivedAmount:newBooking.AdvBookAmount
       };
 
-      // Save the booking data to Firestore and get the booking ID
-      const bookingId = await createBooking("bookings", bookingData);
+      //const bookingId = await createBooking("bookings", bookingData);
 
-      // Create billing data with the bookingId
       const billingData = {
         ...bookingData,
-        bookingId: bookingId, // Include the booking ID in the billing data
+       // bookingId: bookingId,
       };
 
-      // Save the billing data to Firestore
-      createBooking("billings", billingData);
+      saveBillingData(user.displayName, billingData);
+     // createBooking("billings", billingData);
 
-      // Show success message
       setSuccessMessage("Booking confirmed for " + formatSelectedDates());
       setShowSuccessMessage(true);
-      setModalVisible(false); // Close the modal
+      setModalVisible(false);
+      
+      navigation.navigate("SuccessMessage", { date: formatSelectedDates() });
 
-      // Navigate to SuccessMessage screen
-      const date = formatSelectedDates(); // Adjust this if needed to match your date format
-      navigation.navigate("SuccessMessage", { date });
-
-      // Reset the newBooking state
       setNewBooking({
         name: "",
         contact: "",
@@ -160,7 +143,6 @@ export const BookingProvider = ({ children }) => {
     } catch (error) {
       console.error("Error creating booking:", error);
     } finally {
-      // Set loading to false once the request is complete
       setLoading(false);
     }
   };
@@ -169,7 +151,7 @@ export const BookingProvider = ({ children }) => {
     <BookingContext.Provider
       value={{
         bookings,
-        markedDates,
+        markedDates,           // Expose markedDates for validation
         selectedDates,
         setSelectedDates,
         newBooking,
@@ -182,7 +164,8 @@ export const BookingProvider = ({ children }) => {
         setRemark,
         successMessage,
         showSuccessMessage,
-        setMarkedDates, // Allow setting marked dates externally
+        setMarkedDates,       // Allow setting marked dates externally
+        isDateBooked,         // Expose the validation function
       }}
     >
       {children}

@@ -27,6 +27,10 @@ const BookingList = ({ navigation }) => {
   const { formatDates } = useBookings();
  const [filter,setfilter]= useState('all')
 
+//  console.log("filteredHotels");
+//  console.log(filteredHotels);
+//  console.log("filteredHotels");
+
   const renderHotelItem = ({ item }) => {
     const monthCollection = [
       "January", "February", "March", "April", "May", "June", "July",
@@ -53,8 +57,9 @@ const BookingList = ({ navigation }) => {
       <TouchableOpacity
         style={[styles.button, { width: width - 30 }]}
         onPress={() => handleCardPress(item, navigation)}
+       
       >
-        <View style={styles.hotelCard}>
+        <View style={styles.hotelCard}  >
           <Avatar.Text
             size={40}
             label={item.name.slice(0, 2).toUpperCase()}
@@ -145,8 +150,9 @@ const BookingList = ({ navigation }) => {
         <FlatList
           data={filteredHotels}
           renderItem={renderHotelItem}
-          keyExtractor={(item) => item.id}
+          key={(item) => item.id}
           style={styles.hotelList}
+     
         />
       </View>
     </View>
