@@ -25,10 +25,7 @@ export const BookingListProvider = ({ children }) => {
   
     // Real-time listener for billings data specific to the logged-in user
     const handleBillingDataChange = (billingData) => {
-      console.log("====Billing Data for User=====");
-      console.log(billingData);
-      console.log("==========================");
-  
+   
       // Process the billing data and set it to both billData and hotels
       if (billingData) {
         const updatedBillData = Object.values(billingData).map((billingItem) => ({
@@ -66,6 +63,7 @@ export const BookingListProvider = ({ children }) => {
     }
 
     setFilteredHotels(filtered);
+   
   }, [search, filter, billData]);
 
   // Handle search text change
@@ -75,7 +73,9 @@ export const BookingListProvider = ({ children }) => {
 
   // Handle filter change
   const handleFilterChange = (status) => {
+    console.log(status);
     setFilter(status);
+   
   };
 
   // Handle card press for navigation
@@ -86,6 +86,8 @@ export const BookingListProvider = ({ children }) => {
     navigation.navigate("BookingDetails", { booking: item });
   };
 
+
+  
   return (
     <BookingListContext.Provider
       value={{
@@ -95,6 +97,7 @@ export const BookingListProvider = ({ children }) => {
         handleSearch,
         handleFilterChange,
         handleCardPress,
+        filter
       }}
     >
       {children}

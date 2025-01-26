@@ -1,10 +1,7 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, { createContext, useState, useEffect} from "react";
 import moment from "moment";
 import { useNavigation } from "@react-navigation/native";
-import { createBooking } from "../../firebaseConfiguration/crudForBooking";
-import { db } from "../../firebaseConfiguration/firebaseConfig";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
-import { AuthContext, useAuth } from "../Authprovider.js/AuthProvider";
+import { useAuth } from "../Authprovider.js/AuthProvider";
 import { onBillingDataChange, saveBillingData } from "../../firebaseConfiguration/FirebaseCrud";
 
 export const BookingContext = createContext();
@@ -115,7 +112,6 @@ export const BookingProvider = ({ children }) => {
         totalReceivedAmount:newBooking.AdvBookAmount
       };
 
-      //const bookingId = await createBooking("bookings", bookingData);
 
       const billingData = {
         ...bookingData,
@@ -123,7 +119,7 @@ export const BookingProvider = ({ children }) => {
       };
 
       saveBillingData(user.displayName, billingData);
-     // createBooking("billings", billingData);
+ 
 
       setSuccessMessage("Booking confirmed for " + formatSelectedDates());
       setShowSuccessMessage(true);

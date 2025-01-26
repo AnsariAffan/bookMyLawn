@@ -2,31 +2,11 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Linking, TouchableOpacity, Dimensions } from "react-native";
 import { Card, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons"; 
-import { readDocuments } from "../firebaseConfiguration/crudForBooking";
 
 const { width, height } = Dimensions.get("window");
 
 const UserDetail = ({ dataDefaulting }) => {
   const [details, setDetails] = useState({ filteredHotels: [], hotels: [], loading: true });
-
-  useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const fetchedHotels = await readDocuments("bookings");
-        setDetails({
-          filteredHotels: fetchedHotels,
-          hotels: fetchedHotels,
-          loading: false,
-        });
-      } catch (error) {
-        console.error("Error fetching bookings: ", error);
-        window.alert("Error fetching bookings: ", error);
-        setDetails((prevState) => ({ ...prevState, loading: false }));
-      }
-    };
-
-    fetchBookings();
-  }, []);
 
   const handlePress = () => {
     Linking.openURL(`tel:${dataDefaulting.contact}`);

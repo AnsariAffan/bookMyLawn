@@ -23,9 +23,7 @@ export function useBookings() {
     const auth = getAuth();
   
     const loggedInUserId = auth.currentUser ? auth.currentUser?.uid : null;
-  console.log("loggedInUserId");
-  console.log( auth.currentUser.displayName);
-  console.log("loggedInUserId");
+
     // If no user is logged in, set error and stop loading
     if (!loggedInUserId) {
       setError("No user is logged in.");

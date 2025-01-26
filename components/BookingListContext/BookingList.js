@@ -23,13 +23,11 @@ const BookingList = ({ navigation }) => {
     handleSearch,
     handleFilterChange,
     handleCardPress,
+    filter
   } = useContext(BookingListContext);
   const { formatDates } = useBookings();
- const [filter,setfilter]= useState('all')
 
-//  console.log("filteredHotels");
-//  console.log(filteredHotels);
-//  console.log("filteredHotels");
+
 
   const renderHotelItem = ({ item }) => {
     const monthCollection = [
@@ -117,25 +115,26 @@ const BookingList = ({ navigation }) => {
 </View>
 
         <View style={styles.filterContainer}>
-          <TouchableOpacity
-            style={[styles.filterButton, filter === "all" && styles.selectedFilter]}
-            onPress={() => handleFilterChange("all")}
-          >
-            <Text style={styles.filterButtonText}>All</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.filterButton, filter === "fully paid" && styles.selectedFilter]}
-            onPress={() => handleFilterChange("fully paid")}
-          >
-            <Text style={styles.filterButtonText}>Fully Paid</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.filterButton, filter === "partially paid" && styles.selectedFilter]}
-            onPress={() => handleFilterChange("partially paid")}
-          >
-            <Text style={styles.filterButtonText}>Partially Paid</Text>
-          </TouchableOpacity>
-        </View>
+  <TouchableOpacity
+    style={[styles.filterButton, filter === "all" && styles.selectedFilter]}
+    onPress={() => handleFilterChange("all")}
+  >
+    <Text style={styles.filterButtonText}>All</Text>
+  </TouchableOpacity>
+  <TouchableOpacity
+    style={[styles.filterButton, filter === "fully paid" && styles.selectedFilter]}
+    onPress={() => handleFilterChange("fully paid")}
+  >
+    <Text style={styles.filterButtonText}>Fully Paid</Text>
+  </TouchableOpacity>
+  <TouchableOpacity
+    style={[styles.filterButton, filter === "partially paid" && styles.selectedFilter]}
+    onPress={() => handleFilterChange("partially paid")}
+  >
+    <Text style={styles.filterButtonText}>Partially Paid</Text>
+  </TouchableOpacity>
+</View>
+
       </View>
 
       {loading && (

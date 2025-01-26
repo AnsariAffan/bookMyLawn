@@ -32,19 +32,19 @@ const Dashboard = () => {
   } = useBookings();
 
   useEffect(() => {
-    console.log("User Bookings:", userBookings);
-    console.log("Revenue By Month:", revenueByMonth);
-    console.log("Total Revenue:", totalRevenue);
-    console.log("Bookings By Month:", bookingsByMonth);
-    console.log("Upcoming Event Dates:", upcomingEventDates);
-    console.log("Current Month Bookings:", currentMonthBookings);
-    console.log(
-      "Upcoming Dates In Current Month:",
-      upcomingDatesInCurrentMonth
-    );
-    console.log("Loading State:", loading);
-    console.log("Error State:", error);
-    console.log("openAmountSum:", openAmountSum);
+    // console.log("User Bookings:", userBookings);
+    // console.log("Revenue By Month:", revenueByMonth);
+    // console.log("Total Revenue:", totalRevenue);
+    // console.log("Bookings By Month:", bookingsByMonth);
+    // console.log("Upcoming Event Dates:", upcomingEventDates);
+    // console.log("Current Month Bookings:", currentMonthBookings);
+    // console.log(
+    //   "Upcoming Dates In Current Month:",
+    //   upcomingDatesInCurrentMonth
+    // );
+    // console.log("Loading State:", loading);
+    // console.log("Error State:", error);
+    // console.log("openAmountSum:", openAmountSum);
   }, [
     userBookings,
     totalRevenue,

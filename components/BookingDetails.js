@@ -2,10 +2,7 @@ import React, { useState } from "react";
 import { Dimensions, TouchableOpacity } from "react-native";
 import { View, StyleSheet, Linking } from "react-native";
 import { Appbar, Text, Card, Title, Icon } from "react-native-paper";
-import UserDetail from "./UserDetail";
-// import BillingDetail from "./BillingDetail";
-import { BillingProvider } from "./BillingDetails/BillingContext";
-import BillingDetail from "./BillingDetails/Billingdetail";
+import UserDetail from "./UserDetail";import BillingDetail from "./BillingDetails/Billingdetail";
 import {  createPDF } from "./utility/createPDF";
 const { width, height } = Dimensions.get("window"); // Get device width
 
@@ -13,9 +10,6 @@ const BookingDetails = ({ navigation, route }) => {
   const [activeTab, setActiveTab] = useState("billingDetails"); // State to manage active tab
 
   const bdata = route.params.booking;
-  // console.log("--- data recevied in booking details page");
-  // console.log(bdata);
-  // console.log("--- data recevied in booking details page");
 
   const handlePrint = async () => {
     try {
@@ -73,9 +67,9 @@ const BookingDetails = ({ navigation, route }) => {
         )}
 
         {activeTab === "billingDetails" && ( // Empty for Billing Details
-          <BillingProvider>
+   
             <BillingDetail dataDefaulting={bdata} />
-          </BillingProvider>
+        
         )}
       </View>
     </View>

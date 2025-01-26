@@ -1,10 +1,10 @@
-// LawnOwnerDashboard.js
-import React, { useContext, useEffect } from "react";
+
+import React, { useContext } from "react";
 import {
   View,
   Text,
   TextInput,
-  Button,
+ 
   StyleSheet,
   ScrollView,
   TouchableOpacity,
@@ -17,13 +17,11 @@ import { Picker } from "@react-native-picker/picker";
 import { ActivityIndicator, Appbar, Checkbox, Icon } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { BookingContext } from "./BookingContext"; // Import your context
-import { collection, doc, Firestore, onSnapshot } from "firebase/firestore";
-import { db } from "../../firebaseConfiguration/firebaseConfig";
-import { AuthContext, useAuth } from "../Authprovider.js/AuthProvider";
+import {  useAuth } from "../Authprovider.js/AuthProvider";
 
 const LawnOwnerDashboard = () => {
   const {
-    bookings,
+ 
     markedDates,
     selectedDates,
     setSelectedDates,
@@ -41,9 +39,7 @@ const LawnOwnerDashboard = () => {
  // Get user data from Auth context
  const { user, signOut } = useAuth();
   const navigation = useNavigation();
-// console.log("----Booking----");
-// console.log(bookings);
-// console.log("----Booking----");
+
 
 const handleDayPress = (day) => {
   console.log("Checking if date is already booked...");
@@ -93,52 +89,6 @@ const handleDayPress = (day) => {
 
 
 
-  // useEffect(() => {
-  //   if (!user.id) return; // Ensure a user is logged in
-  
-  //   // Query Firestore for bookings specific to the logged-in user
-  //   const unsubscribe = onSnapshot(
-  //     query(
-  //       collection(db, "bookings"),
-  //       where("userId", "==", user.id) // Filter by userId
-  //     ),
-  //     (snapshot) => {
-  //       const bookings = snapshot.docs.map((doc) => ({
-  //         id: doc.id,
-  //         ...doc.data(),
-  //       }));
-  
-  //       console.log("====Bookings for User=====");
-  //       console.log(bookings);
-  //       console.log("==========================");
-  
-  //       // Update markedDates based on the filtered bookings
-  //       if (bookings.length === 0) {
-  //         setMarkedDates({});
-  //       } else {
-  //         const updatedMarkedDates = {};
-  //         bookings.forEach((booking) => {
-  //           booking.dates.forEach((date) => {
-  //             updatedMarkedDates[date] = {
-  //               customStyles: {
-  //                 container: {
-  //                   backgroundColor: "purple", // Red for booked dates
-  //                 },
-  //                 text: {
-  //                   color: "#000",
-  //                 },
-  //               },
-  //             };
-  //           });
-  //         });
-  //         setMarkedDates(updatedMarkedDates);
-  //       }
-  //     }
-  //   );
-  
-  //   // Cleanup subscription on unmount
-  //   return () => unsubscribe();
-  // }, [user?.id]); // Re-run effect when loggedInUserId changes
   
   
 
