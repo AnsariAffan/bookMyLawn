@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import {
   View,
   Text,
@@ -9,13 +9,16 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
-import { Appbar, Avatar } from "react-native-paper";
+import { Appbar, Avatar, useTheme } from "react-native-paper";
 import { BookingListContext } from "./BookingListContext";
 import { useBookings } from "../utility/useBookings";
-import Icon from "react-native-vector-icons/MaterialIcons"; // Importing Material Icons
+import Icon from "react-native-vector-icons/MaterialIcons";
+
 const { width, height } = Dimensions.get("window");
- 
+
 const BookingList = ({ navigation }) => {
+  const theme = useTheme(); // Use the theme
+
   const {
     search,
     filteredHotels,
@@ -23,135 +26,147 @@ const BookingList = ({ navigation }) => {
     handleSearch,
     handleFilterChange,
     handleCardPress,
-    filter
+    filter,
   } = useContext(BookingListContext);
+
   const { formatDates } = useBookings();
 
-
-
   const renderHotelItem = ({ item }) => {
-    const monthCollection = [
-      "January", "February", "March", "April", "May", "June", "July",
-      "August", "September", "October", "November", "December",
-    ];
-
-    const monthIndex = parseInt(item.dates[0].split("-")[1], 10);
-    const monthName = monthCollection[monthIndex - 1];
-
     const getBadgeStyle = (status) => {
       switch (status.toLowerCase()) {
         case "fully paid":
-          return { backgroundColor: "green" };
+          return { backgroundColor: theme.colors.accent }; // Use theme color
         case "partially paid":
-          return { backgroundColor: "orange" };
+          return { backgroundColor: theme.colors.error }; // Use theme color
         case "unpaid":
-          return { backgroundColor: "red" };
+          return { backgroundColor: "#F44336" }; // Keep as is or add to theme
         default:
-          return { backgroundColor: "grey" };
+          return { backgroundColor: "#9E9E9E" }; // Keep as is or add to theme
       }
     };
 
     return (
       <TouchableOpacity
-        style={[styles.button, { width: width - 30 }]}
+        style={[styles.hotelCard, { backgroundColor: theme.colors.surface }]} // Use theme color
         onPress={() => handleCardPress(item, navigation)}
-       
       >
-        <View style={styles.hotelCard}  >
-          <Avatar.Text
-            size={40}
-            label={item.name.slice(0, 2).toUpperCase()}
-            style={{ marginTop: 12, marginLeft: 5 }}
-          />
-          <View style={styles.hotelInfo}>
-            <View style={styles.row}>
-              <Text style={styles.hotelName}>{item.name}</Text>
-             <View style={styles.dateContainer}>
-              <Text style={styles.dateText}>
-                {formatDates(item.dates)}
-              </Text>
-            </View>
-            </View>
-          </View>
-          <View style={{ marginRight: 2, marginTop: 5 }}>
-            <Text
-              style={[styles.bookingStatus, getBadgeStyle(item.paymentStatus)]}
-            >
-              {item.paymentStatus}
-            </Text>
-            <Text style={styles.hotelPrice}>{item.totalReceivedAmount}</Text>
-          </View>
+        <Avatar.Text
+          size={40}
+          label={item.name.slice(0, 2).toUpperCase()}
+          style={[styles.avatar, { backgroundColor: theme.colors.primary }]} // Use theme color
+          color="#FFFFFF"
+        />
+        <View style={styles.hotelInfo}>
+          <Text style={[styles.hotelName, { color: theme.colors.text }]}>{item.name}</Text> 
+          <Text style={[styles.dateText, { color: theme.colors.placeholder }]}>{formatDates(item.dates)}</Text> 
         </View>
-      </TouchableOpacity>
+        <View style={styles.statusContainer}>
+          <Text
+            style={[styles.bookingStatus, getBadgeStyle(item.paymentStatus)]}
+          >
+            {item.paymentStatus}
+          </Text>
+          <Text style={[styles.hotelPrice, { color: theme.colors.primary }]}>${item.totalReceivedAmount}</Text> 
+          </View>
+          </TouchableOpacity>
     );
   };
 
   return (
-    <View style={styles.container}>
-      <Appbar.Header style={{ backgroundColor: "#00509E" }}>
-        <Appbar.BackAction
-          style={{ color: "#F5F5F5" }}
-          onPress={() => navigation.goBack()}
-        />
-        <Text style={{ fontSize: 20, fontWeight: "normal", color: "#ffff" }}>
-          Bookings
-        </Text>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}> 
+      <Appbar.Header style={[styles.header, { backgroundColor: theme.colors.primary }]}>
+      
+        <Text style={[styles.headerTitle, { color: theme.colors.surface }]}>Bookings List</Text> 
       </Appbar.Header>
 
-      <View style={styles.containerTwo}>
-      <View style={styles.searchContainer}>
-  <Icon name="search" size={20} color="gray" style={styles.searchIcon} />
-  <TextInput
-    style={styles.searchBar}
-    placeholder="Search"
-    value={search}
-    onChangeText={handleSearch}
-  />
-  {search.length > 0 && (
-    <TouchableOpacity onPress={() => handleSearch("")} style={styles.clearIconContainer}>
-      <Icon name="clear" size={20} color="gray" />
-    </TouchableOpacity>
-  )}
-</View>
+      <View style={[styles.contentContainer, { backgroundColor: theme.colors.background }]}> 
+        <View style={[styles.searchContainer, { backgroundColor: theme.colors.surface }]}> 
+          <Icon name="search" size={20} color={theme.colors.placeholder} style={styles.searchIcon} /> 
+          <TextInput
+            style={[styles.searchBar, { color: theme.colors.text }]}
+            placeholder="Search"
+            placeholderTextColor={theme.colors.placeholder}
+            value={search}
+            onChangeText={handleSearch}
+          />
+
+          {search.length > 0 && (
+            <TouchableOpacity onPress={() => handleSearch("")} style={styles.clearIconContainer}>
+              <Icon name="clear" size={20} color={theme.colors.placeholder} /> 
+            </TouchableOpacity>
+          )}
+        </View>
 
         <View style={styles.filterContainer}>
-  <TouchableOpacity
-    style={[styles.filterButton, filter === "all" && styles.selectedFilter]}
-    onPress={() => handleFilterChange("all")}
-  >
-    <Text style={styles.filterButtonText}>All</Text>
-  </TouchableOpacity>
-  <TouchableOpacity
-    style={[styles.filterButton, filter === "fully paid" && styles.selectedFilter]}
-    onPress={() => handleFilterChange("fully paid")}
-  >
-    <Text style={styles.filterButtonText}>Fully Paid</Text>
-  </TouchableOpacity>
-  <TouchableOpacity
-    style={[styles.filterButton, filter === "partially paid" && styles.selectedFilter]}
-    onPress={() => handleFilterChange("partially paid")}
-  >
-    <Text style={styles.filterButtonText}>Partially Paid</Text>
-  </TouchableOpacity>
-</View>
+        <TouchableOpacity
+        style={[
+          styles.filterButton,
+          filter === "all" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }],
+          filter !== "all" && { backgroundColor: theme.colors.surface }
+        ]}
+        onPress={() => handleFilterChange("all")}
+      >
+        <Text
+          style={[
+            styles.filterButtonText,
+            { color: filter === "all" ? theme.colors.onPrimary : theme.colors.text }
+          ]}
+        >
+          All
+        </Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity
+        style={[
+          styles.filterButton,
+          filter === "fully paid" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }],
+          filter !== "fully paid" && { backgroundColor: theme.colors.surface }
+        ]}
+        onPress={() => handleFilterChange("fully paid")}
+      >
+        <Text
+          style={[
+            styles.filterButtonText,
+            { color: filter === "fully paid" ? theme.colors.onPrimary : theme.colors.text }
+          ]}
+        >
+          Fully Paid
+        </Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity
+        style={[
+          styles.filterButton,
+          filter === "partially paid" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }],
+          filter !== "partially paid" && { backgroundColor: theme.colors.surface }
+        ]}
+        onPress={() => handleFilterChange("partially paid")}
+      >
+        <Text
+          style={[
+            styles.filterButtonText,
+            { color: filter === "partially paid" ? theme.colors.onPrimary : theme.colors.text }
+          ]}
+        >
+          Partially Paid
+        </Text>
+      </TouchableOpacity>
+      
+        </View>
 
-      </View>
+        {loading && (
+          <ActivityIndicator
+            size="large"
+            color={theme.colors.primary} // Use theme color
+            style={styles.loadingIndicator}
+          />
+        )}
 
-      {loading && (
-        <ActivityIndicator
-          size="large"
-          color="black"
-          style={styles.loadingIndicator}
-        />
-      )}
-
-      <View style={styles.containerThree}>
         <FlatList
           data={filteredHotels}
           renderItem={renderHotelItem}
-          key={(item) => item.id}
-          style={styles.hotelList}
-     
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.hotelList}
         />
       </View>
     </View>
@@ -161,160 +176,102 @@ const BookingList = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#00509E",
-
-
   },
-  containerTwo: {
-    backgroundColor: "#00509E",
-    paddingHorizontal: 15,
-    paddingBottom: 2,
+  header: {
+    elevation: 0,
   },
-  containerThree: {
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginLeft: 10,
+  },
+  contentContainer: {
     flex: 1,
-    paddingTop: 20,
-    paddingHorizontal: 15,
-    backgroundColor: "#F5F5F5",
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
-  searchBar: {
-    backgroundColor: "#ffffff",
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    marginBottom: 16,
     elevation: 2,
   },
-  hotelList: {
-    width: "100%",
+  searchIcon: {
+    marginRight: 8,
   },
-  hotelCard: {
-    flexDirection: "row",
-    borderRadius: 15,
-    paddingVertical: 8,
-    paddingHorizontal: 5,
-    marginBottom: 0,
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
-    height: height * 0.10,
-  },
-  dateContainer: {
-    display: "flex",
-    flexDirection: "row",
-    marginLeft: 4,
-  },
-  dateText: {
-    fontSize: 15,
-    fontWeight: "normal",
-    color: "grey",
-  },
-  hotelInfo: {
+  searchBar: {
     flex: 1,
-    justifyContent: "center",
-    marginLeft: 5,
+    paddingVertical: 12,
+    fontSize: 16,
   },
-  hotelName: {
-    fontSize: 15,
-    color: "black",
-    marginLeft: 5,
-    fontWeight: "bold",
-    marginTop:5
-  },
-  hotelPrice: {
-    color: "#333333",
-    fontSize: 18,
-    fontWeight: "normal",
-  },
-  bookingStatus: {
-    fontSize: width * 0.03,
-    color: "white",
-    fontWeight: "700",
-    paddingVertical: 2,
-    paddingHorizontal: 3,
-    borderRadius: 15,
-    textAlign: "center",
-    overflow: "hidden",
-    marginBottom: 10,
-  },
-  loadingIndicator: {
-    position: "absolute",
-    top: 50,
-    right: 10,
-    zIndex: 2,
-  },
-  row: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  button: {
-    width: width - 30,
-    alignSelf: "center",
-    height: height * 0.11,
+  clearIconContainer: {
+    padding: 8,
   },
   filterContainer: {
     flexDirection: "row",
-    justifyContent: "space-evenly",
-    marginTop: -10,
+    justifyContent: "space-between",
+    marginBottom: 16,
   },
   filterButton: {
-    width: width * 0.3,
-    backgroundColor: "#fff",
-    paddingVertical: 8,
-    paddingHorizontal: 5,
-    borderRadius: 10,
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#00509E",
+    marginHorizontal: 4,
+    elevation: 2,
   },
   selectedFilter: {
-    backgroundColor: "lightblue",
+    // backgroundColor is now set dynamically
+    color:"black"
   },
   filterButtonText: {
-    color: "black",
-    fontSize: 12,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "600",
   },
-  // Inside styles
-searchContainer: {
-  flexDirection: "row",
-  alignItems: "center",
-  backgroundColor: "#ffffff",
-  paddingHorizontal: 10,
-  borderRadius: 10,
-  marginBottom: 20,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  elevation: 2,
-},
-
-searchIcon: {
-  marginRight: 10,
-},
-
-clearIconContainer: {
-  position: "absolute",
-  right: 10,
-  top: "50%",
-  transform: [{ translateY: -12 }],
-},
-
-searchBar: {
-  flex: 1,
-  paddingVertical: 10,
-  paddingHorizontal: 5,
-  fontSize: 16,
-},
+  hotelCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 12,
+    padding: 15,
+    marginBottom: 12,
+    elevation: 2,
+  },
+  avatar: {
+    marginRight: 16,
+  },
+  hotelInfo: {
+    flex: 1,
+  },
+  hotelName: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  dateText: {
+    fontSize: 14,
+  },
+  statusContainer: {
+    alignItems: "flex-end",
+  },
+  bookingStatus: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#FFFFFF",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  hotelPrice: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  loadingIndicator: {
+    marginTop: 20,
+  },
 });
 
 export default BookingList;

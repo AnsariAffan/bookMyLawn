@@ -2,7 +2,7 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
-import { Provider as PaperProvider } from "react-native-paper";
+import { DefaultTheme,Provider as PaperProvider } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { View, Text } from "react-native";
 
@@ -100,9 +100,35 @@ const MainApp = ({ route }) => {
   );
 };
 
+const customTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: "#ffffff", // White background
+    text: "#000000", // Black text
+    primary: "#6200ee", // Primary color (optional, adjust as needed)
+    accent: "#03dac4", // Accent color (optional, adjust as needed)
+  },
+};
+
+
+const blackTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: '#000000', // Black background
+    text: '#ffffff',       // White text
+    primary: '#BB86FC',    // Primary color
+    accent: '#03DAC6',     // Accent color
+    surface: '#121212',    // Surface color
+    placeholder: '#888888', // Placeholder text color
+    backdrop: '#000000',   // Backdrop color
+  },
+};
+
 export default function NavigationManager() {
   return (
-    <PaperProvider>
+    <PaperProvider theme={customTheme}>
       <AuthProvider>
         <NavigationContainer>
           <BookingListProvider>

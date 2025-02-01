@@ -11,7 +11,7 @@ const bookingDate = route.params?.date
       <View style={styles.iconContainer}>
         <IconButton
           icon="check-circle"
-          color="#4CAF50"
+          color="green"
           size={100}
         />
       </View>

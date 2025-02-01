@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Text, Avatar, TextInput, Dialog, Portal, Button, Provider } from 'react-native-paper';
+import { SafeAreaView, View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { Text, Avatar, TextInput, Dialog, Portal, Button, Provider, useTheme } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Importing Material Icons
 import * as ImagePicker from 'expo-image-picker';
 import { updateProfile, updatePassword, getAuth } from 'firebase/auth'; // Import Firebase methods
 import { auth } from '../firebaseConfiguration/firebaseConfig';
+import { version } from '../package.json';
 
 const Settings = ({ navigation }) => {
   const [image, setImage] = useState(null);
@@ -16,6 +17,7 @@ const Settings = ({ navigation }) => {
   const [passwordDialogVisible, setPasswordDialogVisible] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
+  const theme = useTheme();
 
   // Combine authentication and user data fetching logic in useEffect
   useEffect(() => {
@@ -139,48 +141,50 @@ const Settings = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.profileContainer}>
-        <TouchableOpacity onPress={pickImage}>
-          {image ? (
-            <Avatar.Image size={100} source={{ uri: image }} />
-          ) : (
-            <Avatar.Icon size={100} icon="account" />
-          )}
-        </TouchableOpacity>
-        <Text style={styles.username}>{username}</Text>
-        <Text style={styles.email}>{email}</Text>
-      </View>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.profileContainer}>
+          <TouchableOpacity onPress={pickImage}>
+            {image ? (
+              <Avatar.Image size={120} source={{ uri: image }} style={styles.avatar} />
+            ) : (
+              <Avatar.Icon size={120} icon="account" style={styles.avatar} />
+            )}
+          </TouchableOpacity>
+          <Text style={[styles.username, { color: theme.colors.text }]}>{username}</Text>
+          <Text style={[styles.email, { color: theme.colors.text }]}>{email}</Text>
+        </View>
 
-      <View style={styles.section}>
-        <TouchableOpacity style={styles.item} onPress={() => showDialog('username')}>
-          <View style={styles.iconTextContainer}>
-            <Icon name="edit" size={24} color="#333" style={styles.icon} />
-            <Text style={styles.title}>Change Username</Text>
-          </View>
-        </TouchableOpacity>
+        <View style={styles.section}>
+          <TouchableOpacity style={styles.item} onPress={() => showDialog('username')}>
+            <View style={styles.iconTextContainer}>
+              <Icon name="edit" size={24} color={theme.colors.text} style={styles.icon} />
+              <Text style={[styles.title, { color: theme.colors.text }]}>Change Username</Text>
+            </View>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.item} onPress={showPasswordDialog}>
-          <View style={styles.iconTextContainer}>
-            <Icon name="lock" size={24} color="#333" style={styles.icon} />
-            <Text style={styles.title}>Change Password</Text>
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.item} onPress={showPasswordDialog}>
+            <View style={styles.iconTextContainer}>
+              <Icon name="lock" size={24} color={theme.colors.text} style={styles.icon} />
+              <Text style={[styles.title, { color: theme.colors.text }]}>Change Password</Text>
+            </View>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('AboutContactUs')}>
-          <View style={styles.iconTextContainer}>
-            <Icon name="info" size={24} color="#333" style={styles.icon} />
-            <Text style={styles.title}>Contact Us & About Us</Text>
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('AboutContactUs')}>
+            <View style={styles.iconTextContainer}>
+              <Icon name="info" size={24} color={theme.colors.text} style={styles.icon} />
+              <Text style={[styles.title, { color: theme.colors.text }]}>Contact Us & About Us</Text>
+            </View>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.item} onPress={handleLogout}>
-          <View style={styles.iconTextContainer}>
-            <Icon name="exit-to-app" size={24} color="#333" style={styles.icon} />
-            <Text style={styles.title}>Logout</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={styles.item} onPress={handleLogout}>
+            <View style={styles.iconTextContainer}>
+              <Icon name="exit-to-app" size={24} color={theme.colors.text} style={styles.icon} />
+              <Text style={[styles.title, { color: theme.colors.text }]}>Logout</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
 
       <Portal>
         <Dialog visible={visible} onDismiss={hideDialog}>
@@ -190,6 +194,7 @@ const Settings = ({ navigation }) => {
               label={`New ${editType.charAt(0).toUpperCase() + editType.slice(1)}`}
               value={tempValue}
               onChangeText={(text) => setTempValue(text)}
+              mode="outlined"
             />
           </Dialog.Content>
           <Dialog.Actions>
@@ -206,12 +211,14 @@ const Settings = ({ navigation }) => {
               secureTextEntry
               value={currentPassword}
               onChangeText={(text) => setCurrentPassword(text)}
+              mode="outlined"
             />
             <TextInput
               label="New Password"
               secureTextEntry
               value={newPassword}
               onChangeText={(text) => setNewPassword(text)}
+              mode="outlined"
             />
           </Dialog.Content>
           <Dialog.Actions>
@@ -219,6 +226,7 @@ const Settings = ({ navigation }) => {
             <Button onPress={handleChangePassword}>Save</Button>
           </Dialog.Actions>
         </Dialog>
+        
       </Portal>
     </SafeAreaView>
   );
@@ -227,43 +235,56 @@ const Settings = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 15,
-    backgroundColor: 'white',
+  },
+  versionContainer: {
+    position: "absolute",
+    bottom: 20,
+    alignItems: "center",
+  },
+  versionText: {
+    fontSize: 12,
+    color: "#fff",
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    padding: 20,
   },
   profileContainer: {
     alignItems: 'center',
-    marginTop: 100,
-    marginBottom: 40,
+    marginTop: 40,
+    marginBottom: 20,
+  },
+  avatar: {
+    marginBottom: 10,
+    backgroundColor: '#e1e1e1',
   },
   username: {
     marginTop: 10,
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: 'black',
   },
   email: {
     fontSize: 16,
-    color: 'black',
   },
   section: {
     marginTop: 20,
     paddingTop: 10,
   },
   item: {
-    paddingVertical: 10,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e1e1e1',
   },
   iconTextContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   icon: {
-    fontSize: 24, // Adjust the size of the icon
-    marginRight: 10,
+    marginRight: 15,
   },
   title: {
     fontSize: 16,
-    color: '#333', // Adjust the color to improve visibility
-    fontWeight: 'normal',
+    fontWeight: '500',
   },
 });
 

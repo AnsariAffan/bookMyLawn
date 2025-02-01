@@ -1,5 +1,5 @@
 git add . 
-git commit -m "updated versionin Logic" 
+git commit -m "New UI changes for entire app 1feb2025" 
 git push -u origin main 
 npm version patch 
 git push --tags
