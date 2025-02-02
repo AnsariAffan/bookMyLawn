@@ -34,13 +34,15 @@ const Dashboard = () => {
     revenueByMonth,
     error,
     openAmountSum,
+    totalReceivedAmounts
   } = useBookings();
+console.log(totalReceivedAmounts);
 
   const [revenueData, setRevenueData] = useState([
     4000, 2000, 8000, 7500, 10000, 9000, 12000, 11000, 9500, 8000, 6500, 7000,
   ]);
 
-  const [filteredRevenue, setFilteredRevenue] = useState(revenueData);
+  // const [filteredRevenue, setFilteredRevenue] = useState(totalReceivedAmounts);
 
   const navigation = useNavigation();
   const [user, setUser] = useState(null);
@@ -232,7 +234,7 @@ const Dashboard = () => {
                 "Nov",
                 "Dec",
               ],
-              datasets: [{ data: filteredRevenue, strokeWidth: 1 }],
+              datasets: [{ data: totalReceivedAmounts, strokeWidth: 1 }],
             }}
             width={width - 12}
             height={200}
