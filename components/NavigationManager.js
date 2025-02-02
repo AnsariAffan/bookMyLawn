@@ -2,7 +2,7 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
-import { DefaultTheme,Provider as PaperProvider } from "react-native-paper";
+import { DefaultTheme, Provider as PaperProvider } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { View, Text } from "react-native";
 
@@ -22,6 +22,7 @@ import { AuthProvider } from "./Authprovider.js/AuthProvider";
 import Settings from "./Settings";
 import Dashboard from "./Dashboard";
 import AboutContactUs from "./AboutContactUs";
+import { BillingDataProvider } from "./utility/DataFilterOnDashboard/BillingDataContext";
 
 // Dummy Components for other tabs
 const TheatresScreen = () => (
@@ -41,6 +42,7 @@ const HomeStack = () => (
     <Stack.Screen name="BookingList" component={BookingList} />
     <Stack.Screen name="LoginScreen" component={LoginScreen} />
     <Stack.Screen name="AboutContactUs" component={AboutContactUs} />
+    <Stack.Screen name="BookingDetails" component={BookingDetails} />
   </Stack.Navigator>
 );
 
@@ -111,18 +113,17 @@ const customTheme = {
   },
 };
 
-
 const blackTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: '#000000', // Black background
-    text: '#ffffff',       // White text
-    primary: '#BB86FC',    // Primary color
-    accent: '#03DAC6',     // Accent color
-    surface: '#121212',    // Surface color
-    placeholder: '#888888', // Placeholder text color
-    backdrop: '#000000',   // Backdrop color
+    background: "#000000", // Black background
+    text: "#ffffff", // White text
+    primary: "#BB86FC", // Primary color
+    accent: "#03DAC6", // Accent color
+    surface: "#121212", // Surface color
+    placeholder: "#888888", // Placeholder text color
+    backdrop: "#000000", // Backdrop color
   },
 };
 
@@ -130,32 +131,34 @@ export default function NavigationManager() {
   return (
     <PaperProvider theme={customTheme}>
       <AuthProvider>
-        <NavigationContainer>
-          <BookingListProvider>
-            <BookingProvider>
-              <Stack.Navigator screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="Splash" component={SplashScreen} />
-                <Stack.Screen name="Dashboard" component={Dashboard} />
-                <Stack.Screen name="LoginScreen" component={LoginScreen} />
-                <Stack.Screen name="MainApp" component={MainApp} />
-                <Stack.Screen
-                  name="SuccessMessage"
-                  component={SuccessMessage}
-                />
-                <Stack.Screen name="BookingList" component={BookingList} />
-                <Stack.Screen
-                  name="BookingDetails"
-                  component={BookingDetails}
-                />
-                <Stack.Screen name="Settings" component={Settings} />
-                <Stack.Screen
-                  name="AboutContactUs"
-                  component={AboutContactUs}
-                />
-              </Stack.Navigator>
-            </BookingProvider>
-          </BookingListProvider>
-        </NavigationContainer>
+        <BillingDataProvider>
+          <NavigationContainer>
+            <BookingListProvider>
+              <BookingProvider>
+                <Stack.Navigator screenOptions={{ headerShown: false }}>
+                  <Stack.Screen name="Splash" component={SplashScreen} />
+                  <Stack.Screen name="Dashboard" component={Dashboard} />
+                  <Stack.Screen name="LoginScreen" component={LoginScreen} />
+                  <Stack.Screen name="MainApp" component={MainApp} />
+                  <Stack.Screen
+                    name="SuccessMessage"
+                    component={SuccessMessage}
+                  />
+                  <Stack.Screen name="BookingList" component={BookingList} />
+                  <Stack.Screen
+                    name="BookingDetails"
+                    component={BookingDetails}
+                  />
+                  <Stack.Screen name="Settings" component={Settings} />
+                  <Stack.Screen
+                    name="AboutContactUs"
+                    component={AboutContactUs}
+                  />
+                </Stack.Navigator>
+              </BookingProvider>
+            </BookingListProvider>
+          </NavigationContainer>
+        </BillingDataProvider>
       </AuthProvider>
     </PaperProvider>
   );

@@ -37,6 +37,7 @@ export function useBookings() {
     const unsubscribe = onBillingDataChange(auth.currentUser.displayName, (data) => {
       if (data) {
         const bookings = Object.values(data); // Convert the data object into an array
+    
         setUserBookings(bookings);
   
         // Calculate necessary data
@@ -169,7 +170,7 @@ export function useBookings() {
       const eventMonth = eventDate.getMonth(); // Get the month of the booking (0-based)
       const eventYear = eventDate.getFullYear(); // Get the year of the booking
   
-      console.log("Checking Booking:", booking.dates[0], "Event Date:", eventDate);
+      // console.log("Checking Booking:", booking.dates[0], "Event Date:", eventDate);
   
       // Ensure that we're in the correct month and year, and that the event date is in the future
       return (

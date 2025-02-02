@@ -15,7 +15,7 @@ export const BookingListProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [selectedBooking, setSelectedBooking] = useState(null);
 
-  const { user } = useAuth(); // Get current logged-in user
+  const  {user}  = useAuth(); // Get current logged-in user
 
   useEffect(() => {
     if (!user) {

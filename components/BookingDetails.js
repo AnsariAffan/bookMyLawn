@@ -9,7 +9,7 @@ const { width, height } = Dimensions.get("window"); // Get device width
 const BookingDetails = ({ navigation, route }) => {
   const [activeTab, setActiveTab] = useState("billingDetails"); // State to manage active tab
 
-  const bdata = route.params.booking;
+  const bdata = route?.params?.booking;
 
   const handlePrint = async () => {
     try {

@@ -66,7 +66,7 @@ const BookingList = ({ navigation }) => {
           >
             {item.paymentStatus}
           </Text>
-          <Text style={[styles.hotelPrice, { color: theme.colors.primary }]}>${item.totalReceivedAmount}</Text> 
+          <Text style={[styles.hotelPrice, { color: theme.colors.primary }]}>₹{item.totalReceivedAmount}</Text> 
           </View>
           </TouchableOpacity>
     );
