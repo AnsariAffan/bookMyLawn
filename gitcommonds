@@ -5,7 +5,6 @@ npm version patch
 git push --tags
 
 
-
 git add .
 git commit -m "added search icon & clear icon"
 git push -u origin main
@@ -26,3 +25,4 @@ npm patch
 
 
 
+node_modules/@react-native/gradle-plugin/gradle/libs.versions.toml

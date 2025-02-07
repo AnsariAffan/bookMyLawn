@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
       setUser(user);
       setLoading(false);
     });
-    return () => unsubscribe();
+    return () => unsubscribe
   }, []);
 
   const signIn = async (email, password) => {
