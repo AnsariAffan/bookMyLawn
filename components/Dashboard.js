@@ -239,7 +239,7 @@ const Dashboard = () => {
               datasets: [{ data: totalReceivedAmounts, strokeWidth: 1 }],
             }}
             width={width - 12}
-            height={200}
+            height={220}
             chartConfig={{
               backgroundColor: theme.colors.primary,
               backgroundGradientFrom: theme.colors.primary,

@@ -35,7 +35,7 @@ const Tab = createBottomTabNavigator();
 const HomeStack = () => (
   <Stack.Navigator
     screenOptions={{
-      headerShown: true, // Show the header
+      headerShown: false, // Show the header
       headerStyle: {
         backgroundColor: "#fff", // Background color of the header
         elevation: 5, // Shadow for Android
@@ -53,7 +53,7 @@ const HomeStack = () => (
       name="Dashboard"
       component={Dashboard}
       options={{
-        headerShown: true, // Ensure header is shown for this screen
+        headerShown: false, // Ensure header is shown for this screen
         headerTitle: "Dashboard", // Set a title for the header
       }}
     />
@@ -66,13 +66,13 @@ const HomeStack = () => (
 );
 
 const LawnOwnerStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: true, unmountOnBlur: true }}>
+  <Stack.Navigator screenOptions={{ headerShown: false, unmountOnBlur: true }}>
     <Stack.Screen
       name="LawnOwnerDashboard"
       component={LawnOwnerDashboard}
+      headerShown={false}
       options={{
-        title: "Dashboard",
-        headerLeft: () => <View />,
+    
         headerStyle: {
           backgroundColor: "#fff", // Background color for header
           elevation: 5, // Shadow for Android
@@ -80,6 +80,7 @@ const LawnOwnerStack = () => (
           shadowOffset: { width: 0, height: 2 }, // Vertical shadow offset
           shadowOpacity: 0.25, // Shadow opacity
           shadowRadius: 5, // Shadow spread radius
+       
         },
       }}
     />
@@ -90,6 +91,7 @@ const MainApp = ({ route }) => {
   const isLawnOwner = route.params?.isLawnOwner;
 
   const getScreenComponent = (screenName) => {
+    
     const screens = {
       Home: isLawnOwner ? Dashboard : HomeStack,
       Booking: isLawnOwner ? LawnOwnerStack : TheatresScreen,
@@ -202,7 +204,7 @@ export default function NavigationManager() {
               <BookingProvider>
                 <Stack.Navigator screenOptions={{ headerShown: false }}>
                   <Stack.Screen name="Splash" component={SplashScreen} />
-                  <Stack.Screen name="Dashboard" component={Dashboard} />
+                  <Stack.Screen name="Dashboard" component={Dashboard}  />
                   <Stack.Screen name="LoginScreen" component={LoginScreen} />
                   <Stack.Screen name="MainApp" component={MainApp} />
                   <Stack.Screen
