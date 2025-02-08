@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
     // Ensure cleanup function is valid and unsubscribe is defined
     return () => {
       if (unsubscribe) {
-        unsubscribe(); // Call unsubscribe only if it exists
+        unsubscribe // Call unsubscribe only if it exists
       }
     };
   }, []); // Empty dependency array to ensure it runs only once on mount/unmount

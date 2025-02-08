@@ -57,8 +57,12 @@ const BookingList = ({ navigation }) => {
           color="#FFFFFF"
         />
         <View style={styles.hotelInfo}>
-          <Text style={[styles.hotelName, { color: theme.colors.text }]}>{item.name}</Text> 
-          <Text style={[styles.dateText, { color: theme.colors.placeholder }]}>{formatDates(item.dates)}</Text> 
+          <Text style={[styles.hotelName, { color: theme.colors.text }]}>
+            {item.name}
+          </Text>
+          <Text style={[styles.dateText, { color: theme.colors.placeholder }]}>
+            {formatDates(item.dates)}
+          </Text>
         </View>
         <View style={styles.statusContainer}>
           <Text
@@ -66,22 +70,23 @@ const BookingList = ({ navigation }) => {
           >
             {item.paymentStatus}
           </Text>
-          <Text style={[styles.hotelPrice, { color: theme.colors.primary }]}>₹{item.totalReceivedAmount}</Text> 
-          </View>
-          </TouchableOpacity>
+          <Text style={[styles.hotelPrice, { color: theme.colors.primary }]}>
+            ₹{item.totalReceivedAmount}
+          </Text>
+        </View>
+      </TouchableOpacity>
     );
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}> 
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header style={[styles.header, { backgroundColor: theme.colors.primary }]}>
-      
-        <Text style={[styles.headerTitle, { color: theme.colors.surface }]}>Bookings List</Text> 
+        <Text style={[styles.headerTitle, { color: theme.colors.surface }]}>Bookings List</Text>
       </Appbar.Header>
 
-      <View style={[styles.contentContainer, { backgroundColor: theme.colors.background }]}> 
-        <View style={[styles.searchContainer, { backgroundColor: theme.colors.surface }]}> 
-          <Icon name="search" size={20} color={theme.colors.placeholder} style={styles.searchIcon} /> 
+      <View style={[styles.contentContainer, { backgroundColor: theme.colors.background }]}>
+        <View style={[styles.searchContainer, { backgroundColor: theme.colors.surface }]}>
+          <Icon name="search" size={20} color={theme.colors.placeholder} style={styles.searchIcon} />
           <TextInput
             style={[styles.searchBar, { color: theme.colors.text }]}
             placeholder="Search"
@@ -92,66 +97,65 @@ const BookingList = ({ navigation }) => {
 
           {search.length > 0 && (
             <TouchableOpacity onPress={() => handleSearch("")} style={styles.clearIconContainer}>
-              <Icon name="clear" size={20} color={theme.colors.placeholder} /> 
+              <Icon name="clear" size={20} color={theme.colors.placeholder} />
             </TouchableOpacity>
           )}
         </View>
 
         <View style={styles.filterContainer}>
-        <TouchableOpacity
-        style={[
-          styles.filterButton,
-          filter === "all" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }],
-          filter !== "all" && { backgroundColor: theme.colors.surface }
-        ]}
-        onPress={() => handleFilterChange("all")}
-      >
-        <Text
-          style={[
-            styles.filterButtonText,
-            { color: filter === "all" ? theme.colors.onPrimary : theme.colors.text }
-          ]}
-        >
-          All
-        </Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity
-        style={[
-          styles.filterButton,
-          filter === "fully paid" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }],
-          filter !== "fully paid" && { backgroundColor: theme.colors.surface }
-        ]}
-        onPress={() => handleFilterChange("fully paid")}
-      >
-        <Text
-          style={[
-            styles.filterButtonText,
-            { color: filter === "fully paid" ? theme.colors.onPrimary : theme.colors.text }
-          ]}
-        >
-          Fully Paid
-        </Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity
-        style={[
-          styles.filterButton,
-          filter === "partially paid" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }],
-          filter !== "partially paid" && { backgroundColor: theme.colors.surface }
-        ]}
-        onPress={() => handleFilterChange("partially paid")}
-      >
-        <Text
-          style={[
-            styles.filterButtonText,
-            { color: filter === "partially paid" ? theme.colors.onPrimary : theme.colors.text }
-          ]}
-        >
-          Partially Paid
-        </Text>
-      </TouchableOpacity>
-      
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              filter === "all" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }],
+              filter !== "all" && { backgroundColor: theme.colors.surface },
+            ]}
+            onPress={() => handleFilterChange("all")}
+          >
+            <Text
+              style={[
+                styles.filterButtonText,
+                { color: filter === "all" ? theme.colors.onPrimary : theme.colors.text },
+              ]}
+            >
+              All
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              filter === "fully paid" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }],
+              filter !== "fully paid" && { backgroundColor: theme.colors.surface },
+            ]}
+            onPress={() => handleFilterChange("fully paid")}
+          >
+            <Text
+              style={[
+                styles.filterButtonText,
+                { color: filter === "fully paid" ? theme.colors.onPrimary : theme.colors.text },
+              ]}
+            >
+              Fully Paid
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              filter === "partially paid" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }],
+              filter !== "partially paid" && { backgroundColor: theme.colors.surface },
+            ]}
+            onPress={() => handleFilterChange("partially paid")}
+          >
+            <Text
+              style={[
+                styles.filterButtonText,
+                { color: filter === "partially paid" ? theme.colors.onPrimary : theme.colors.text },
+              ]}
+            >
+              Partially Paid
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {loading && (
@@ -184,6 +188,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "600",
     marginLeft: 10,
+    fontFamily: "Roboto", // Standard font family
   },
   contentContainer: {
     flex: 1,
@@ -205,6 +210,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
+    fontFamily: "Roboto", // Standard font family
   },
   clearIconContainer: {
     padding: 8,
@@ -224,12 +230,12 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   selectedFilter: {
-    // backgroundColor is now set dynamically
-    color:"black"
+    backgroundColor: "#6200EE", // Use theme color
   },
   filterButtonText: {
     fontSize: 14,
     fontWeight: "600",
+    fontFamily: "Roboto", // Standard font family
   },
   hotelCard: {
     flexDirection: "row",
@@ -249,16 +255,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 4,
+    fontFamily: "Roboto", // Standard font family
   },
   dateText: {
     fontSize: 14,
+    fontFamily: "Roboto", // Standard font family
   },
   statusContainer: {
     alignItems: "flex-end",
   },
   bookingStatus: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "bold",
     color: "#FFFFFF",
     paddingVertical: 4,
     paddingHorizontal: 8,
@@ -268,6 +276,7 @@ const styles = StyleSheet.create({
   hotelPrice: {
     fontSize: 16,
     fontWeight: "600",
+    fontFamily: "Roboto", // Standard font family
   },
   loadingIndicator: {
     marginTop: 20,

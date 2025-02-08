@@ -93,7 +93,9 @@ const Billingdetail = ({ dataDefaulting }) => {
    <Card style={[styles.card, { backgroundColor: theme.colors.background }]}>
    <Card.Content>
      <Text style={styles.header}>User Details</Text>
+     
      <View style={styles.detailsContainer}>
+     
        <View style={styles.detailRow}>
          <Icon name="account" size={20} style={styles.icon} />
          <Text style={styles.label}>Name:</Text>
@@ -122,24 +124,27 @@ const Billingdetail = ({ dataDefaulting }) => {
           <Text style={styles.header}>Billing Details</Text>
           <View style={styles.detailsContainer}>
         
+        
+          <View style={styles.detailRow}>
+          <Text style={styles.label}>Payment Status:</Text>
+          <Text
+            style={[
+              styles.value,
+              billingData.paymentStatus === "Fully Paid"
+                ? styles.paid
+                : styles.unpaid,
+            ]}
+          >
+            {billingData.paymentStatus}
+          </Text>
+        </View>
+
             <View style={styles.detailRow}>
             <Text style={styles.label}>Booking Date</Text>
             <Text style={styles.value}>{billingData.dates}</Text>
           </View>
 
-            <View style={styles.detailRow}>
-              <Text style={styles.label}>Payment Status:</Text>
-              <Text
-                style={[
-                  styles.value,
-                  billingData.paymentStatus === "Fully Paid"
-                    ? styles.paid
-                    : styles.unpaid,
-                ]}
-              >
-                {billingData.paymentStatus}
-              </Text>
-            </View>
+        
         
             
             <View style={styles.detailRow}>
@@ -154,8 +159,9 @@ const Billingdetail = ({ dataDefaulting }) => {
               <Text style={styles.label}>Remaining Amount:</Text>
               <Text style={styles.value}>{billingData.remainingAmount}</Text>
             </View>
-            
+            <Text style={styles.label}>----------------------------------------------------------------------------------</Text>
             <View style={styles.detailRow}>
+          
               <Text style={styles.label}>Total Received:</Text>
               <Text style={styles.value}>{billingData.totalReceivedAmount}</Text>
             </View>
