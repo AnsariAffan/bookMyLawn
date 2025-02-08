@@ -1,5 +1,5 @@
 git add . 
-git commit -m "Dashboard gtrph logic implemented on 2 feb 2025" 
+git commit -m "Enhance navigation bar UI" 
 git push -u origin main 
 npm version patch 
 git push --tags
@@ -25,4 +25,5 @@ npm patch
 
 
 
-node_modules/@react-native/gradle-plugin/gradle/libs.versions.toml
+Open emulator 
+C:\Users\Admin\AppData\Local\Android\Sdk\emulator\emulator -avd Pixel_3a_API_26 -no-snapshot-load

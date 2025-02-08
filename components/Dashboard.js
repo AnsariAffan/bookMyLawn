@@ -36,11 +36,6 @@ const Dashboard = () => {
     openAmountSum,
     totalReceivedAmounts
   } = useBookings();
-console.log(totalReceivedAmounts);
-
-  const [revenueData, setRevenueData] = useState([
-    4000, 2000, 8000, 7500, 10000, 9000, 12000, 11000, 9500, 8000, 6500, 7000,
-  ]);
 
   // const [filteredRevenue, setFilteredRevenue] = useState(totalReceivedAmounts);
 
@@ -50,17 +45,24 @@ console.log(totalReceivedAmounts);
   const theme = useTheme(); // Use the theme
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+    // Ensure auth is defined and onAuthStateChanged exists
+    const unsubscribe = auth?.onAuthStateChanged((currentUser) => {
       if (currentUser) {
         setUser(currentUser);
+        console.log(currentUser);
         setImage(currentUser.photoURL);
       } else {
         setUser(null);
       }
     });
 
-    return unsubscribe;
-  }, []);
+    // Return the unsubscribe function to clean up
+    return () => {
+      if (unsubscribe) {
+        unsubscribe(); // Make sure unsubscribe is called properly
+      }
+    };
+  }, []); // Empty dependency array to run the effect only once (on mount/unmount)
 
   useEffect(() => {
     if (user && user.photoURL) {
@@ -258,8 +260,9 @@ console.log(totalReceivedAmounts);
 
 const styles = StyleSheet.create({
   container: {
+
     flex: 1,
-    padding: width * 0.01,
+    paddingInline: width * 0.01,
   },
   loaderContainer: {
     justifyContent: "center",
@@ -267,7 +270,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   profileContainer: {
-    marginTop: 20, // Optional: gives space from the top
+    marginTop: 5, // Optional: gives space from the top
     marginLeft: 5,
   },
   headerContainer: {
@@ -281,7 +284,7 @@ const styles = StyleSheet.create({
     fontSize: width * 0.06,
     fontWeight: "bold",
     paddingLeft: 5,
-    marginTop: 20,
+    marginTop: 5,
   },
   sideBySideContainer: {
     flexDirection: "row",
@@ -334,7 +337,7 @@ const styles = StyleSheet.create({
     marginBottom: height * 0,
   },
   eventCard: {
-    padding: width * 0.03,
+    padding: width * 0.02,
     margin: width * 0.02,
     borderRadius: 12,
     shadowColor: "#000",
@@ -344,11 +347,11 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   eventTitle: {
-    fontSize: width * 0.05,
-    fontWeight: "bold",
+    fontSize: width * 0.04,
+    fontWeight: "normal",
   },
   eventDate: {
-    fontSize: width * 0.04,
+    fontSize: width * 0.03,
   },
 });
 

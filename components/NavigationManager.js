@@ -4,20 +4,17 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { DefaultTheme, Provider as PaperProvider } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { View, Text } from "react-native";
+import { View, Text, StyleSheet, SafeAreaView } from "react-native";
 
 // Import Screens
 import SplashScreen from "./SplashScreen";
 import LoginScreen from "./LoginScreen";
-
 import SuccessMessage from "./SuccessMessage";
-
 import BookingDetails from "./BookingDetails";
 import LawnOwnerDashboard from "./BookingCalenderprovier/LawnOwnerDashboard";
 import { BookingListProvider } from "./BookingListContext/BookingListContext";
 import { BookingProvider } from "./BookingCalenderprovier/BookingContext";
 import BookingList from "./BookingListContext/BookingList";
-// import { BillingProvider } from './BillingDetails/BillingContext';
 import { AuthProvider } from "./Authprovider.js/AuthProvider";
 import Settings from "./Settings";
 import Dashboard from "./Dashboard";
@@ -26,7 +23,7 @@ import { BillingDataProvider } from "./utility/DataFilterOnDashboard/BillingData
 
 // Dummy Components for other tabs
 const TheatresScreen = () => (
-  <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+  <View style={styles.screen}>
     <Text>Theatres Screen</Text>
   </View>
 );
@@ -36,8 +33,30 @@ const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const HomeStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="Dashboard" component={Dashboard} />
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: true, // Show the header
+      headerStyle: {
+        backgroundColor: "#fff", // Background color of the header
+        elevation: 5, // Shadow for Android
+        shadowColor: "#000", // Shadow color for iOS
+        shadowOffset: { width: 0, height: 2 }, // Horizontal and vertical offset of the shadow
+        shadowOpacity: 0.25, // Opacity of the shadow
+        shadowRadius: 5, // Radius of the shadow (how far it spreads)
+      },
+      headerTitleStyle: {
+        fontWeight: "bold", // Optional, for customizing the header title
+      },
+    }}
+  >
+    <Stack.Screen
+      name="Dashboard"
+      component={Dashboard}
+      options={{
+        headerShown: true, // Ensure header is shown for this screen
+        headerTitle: "Dashboard", // Set a title for the header
+      }}
+    />
     <Stack.Screen name="SuccessMessage" component={SuccessMessage} />
     <Stack.Screen name="BookingList" component={BookingList} />
     <Stack.Screen name="LoginScreen" component={LoginScreen} />
@@ -47,11 +66,22 @@ const HomeStack = () => (
 );
 
 const LawnOwnerStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false, unmountOnBlur: true }}>
+  <Stack.Navigator screenOptions={{ headerShown: true, unmountOnBlur: true }}>
     <Stack.Screen
       name="LawnOwnerDashboard"
       component={LawnOwnerDashboard}
-      options={{ title: "Dashboard", headerLeft: () => <View /> }}
+      options={{
+        title: "Dashboard",
+        headerLeft: () => <View />,
+        headerStyle: {
+          backgroundColor: "#fff", // Background color for header
+          elevation: 5, // Shadow for Android
+          shadowColor: "#000", // Shadow color for iOS
+          shadowOffset: { width: 0, height: 2 }, // Vertical shadow offset
+          shadowOpacity: 0.25, // Shadow opacity
+          shadowRadius: 5, // Shadow spread radius
+        },
+      }}
     />
   </Stack.Navigator>
 );
@@ -72,7 +102,7 @@ const MainApp = ({ route }) => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: false,
+        headerShown: false, // No header shown for bottom tab navigator
         tabBarIcon: ({ color, size }) => {
           const icons = {
             Home: "home",
@@ -88,8 +118,34 @@ const MainApp = ({ route }) => {
             />
           );
         },
+        tabBarStyle: {
+          backgroundColor: "#fff", // White background
+          position: "absolute", // Position tab bar at the bottom
+          bottom: 0, // Stick to the bottom
+          left: 0,
+          right: 0,
+          borderTopWidth: 0, // No border on top of the tab bar
+          height: 65, // Height of the tab bar
+          borderRadius: 35, // Rounded corners for the tab bar
+          marginBottom: 10, // Floating effect with space at the bottom
+          marginHorizontal: 15, // Horizontal margin for spacing
+          elevation: 10, // Shadow for Android
+          shadowColor: "#000", // Shadow color for iOS
+          shadowOffset: { width: 0, height: 5 }, // Vertical offset of the shadow
+          shadowOpacity: 0.3, // Opacity of the shadow
+          shadowRadius: 10, // Radius of the shadow (how far it spreads)
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: "bold",
+          marginBottom: 10,
+        },
+        tabBarActiveTintColor: "#6200ee", // Active tab color
+        tabBarInactiveTintColor: "#888888", // Inactive tab color
+        tabBarIconStyle: {
+          marginBottom: -5, // Space between icon and label
+        },
       })}
-      tabBarOptions={{ activeTintColor: "#00509E", inactiveTintColor: "gray" }}
     >
       {["Home", "Booking", "List", "Settings"].map((screenName) => (
         <Tab.Screen
@@ -108,8 +164,8 @@ const customTheme = {
     ...DefaultTheme.colors,
     background: "#ffffff", // White background
     text: "#000000", // Black text
-    primary: "#6200ee", // Primary color (optional, adjust as needed)
-    accent: "#03dac4", // Accent color (optional, adjust as needed)
+    primary: "#6200ee", // Primary color
+    accent: "#03dac4", // Accent color
   },
 };
 
@@ -126,6 +182,15 @@ const blackTheme = {
     backdrop: "#000000", // Backdrop color
   },
 };
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5", // Screen background color
+  },
+});
 
 export default function NavigationManager() {
   return (

@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Make sure `onAuthStateChanged` is called correctly and `auth` is defined
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         storeUserInformation(user); // Store user information when the user is authenticated
@@ -23,8 +24,14 @@ export const AuthProvider = ({ children }) => {
       setUser(user);
       setLoading(false);
     });
-    return () => unsubscribe
-  }, []);
+
+    // Ensure cleanup function is valid and unsubscribe is defined
+    return () => {
+      if (unsubscribe) {
+        unsubscribe(); // Call unsubscribe only if it exists
+      }
+    };
+  }, []); // Empty dependency array to ensure it runs only once on mount/unmount
 
   const signIn = async (email, password) => {
     try {

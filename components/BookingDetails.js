@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { Dimensions, TouchableOpacity } from "react-native";
 import { View, StyleSheet, Linking } from "react-native";
 import { Appbar, Text, Card, Title, Icon } from "react-native-paper";
-import UserDetail from "./UserDetail";import BillingDetail from "./BillingDetails/Billingdetail";
-import {  createPDF } from "./utility/createPDF";
+import UserDetail from "./UserDetail";
+import BillingDetail from "./BillingDetails/Billingdetail";
+import { createPDF } from "./utility/createPDF";
 const { width, height } = Dimensions.get("window"); // Get device width
 
 const BookingDetails = ({ navigation, route }) => {
@@ -13,12 +14,11 @@ const BookingDetails = ({ navigation, route }) => {
 
   const handlePrint = async () => {
     try {
-        await createPDF(); // Make sure it's awaited
+      await createPDF(); // Make sure it's awaited
     } catch (error) {
-        console.error('Error creating PDF:', error);
+      console.error("Error creating PDF:", error);
     }
-};
-
+  };
 
   return (
     <View style={styles.container}>
@@ -33,44 +33,10 @@ const BookingDetails = ({ navigation, route }) => {
           title="Details"
           subtitle="Step 2 of 3"
         />
-         <Appbar.Action
-                  icon="printer"
-                  onPress={handlePrint}
-                />
+        <Appbar.Action icon="printer" onPress={handlePrint} />
       </Appbar.Header>
-
-      {/* Tabs for User Details and Billing Details */}
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            activeTab === "billingDetails" && styles.activeTab,
-          ]}
-          onPress={() => setActiveTab("billingDetails")}
-        >
-          <Text style={styles.tabText}>Billing Detail</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === "userDetails" && styles.activeTab]}
-          onPress={() => setActiveTab("userDetails")}
-        >
-          <Text style={styles.tabText}>Booking Detail</Text>
-        </TouchableOpacity>
-       
-      </View>
-
       <View style={styles.itemsContainer}>
-        {activeTab === "userDetails" && ( // Render content based on active tab
-          <>
-            <UserDetail dataDefaulting={bdata} />
-          </>
-        )}
-
-        {activeTab === "billingDetails" && ( // Empty for Billing Details
-   
-            <BillingDetail dataDefaulting={bdata} />
-        
-        )}
+        <BillingDetail dataDefaulting={bdata} />
       </View>
     </View>
   );
@@ -82,7 +48,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
   },
   itemsContainer: {
-    padding: 16,
+    marginTop:15,
+    padding: 10,
     backgroundColor: "#ffffff",
   },
   tabContainer: {

@@ -21,7 +21,7 @@ const Settings = ({ navigation }) => {
 
   // Combine authentication and user data fetching logic in useEffect
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth?.onAuthStateChanged((user) => {
       if (user) {
         setUsername(user.displayName || 'Username');
         setEmail(user.email || 'user@example.com');
@@ -34,7 +34,7 @@ const Settings = ({ navigation }) => {
     });
 
     // Cleanup listener on unmount
-    return unsubscribe;
+    return unsubscribe();
   }, []);
 
   // Show dialog to edit username or email
