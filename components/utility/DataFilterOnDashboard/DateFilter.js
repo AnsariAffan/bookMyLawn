@@ -22,13 +22,13 @@ const DateFilter = () => {
   // Fetch data for the current month on component mount
   useEffect(() => {
     if (user?.displayName) {
-      onBillingDataChange(user.displayName, handleBillingDataUpdate);
+      onBillingDataChange(user?.displayName, handleBillingDataUpdate);
     }
   }, [user]);
 
   const handleBillingDataUpdate = (billingData) => {
     if (billingData) {
-      const { filteredData, totalRemainingAmount, totalReceivedAmount, totalBookings, upcomingDatesCount } = filterBillingDataByMonthYear(billingData, selectedDate.month, selectedDate.year);
+      const { filteredData, totalRemainingAmount, totalReceivedAmount, totalBookings, upcomingDatesCount } = filterBillingDataByMonthYear(billingData, selectedDate?.month, selectedDate?.year);
 
       setBillingData({
         filteredData,
@@ -39,6 +39,7 @@ const DateFilter = () => {
       });
       setTotalUpcomingDates(upcomingDatesCount); // Update the state with the count of upcoming dates
     } else {
+
       console.log('No billing data available.');
     }
   };

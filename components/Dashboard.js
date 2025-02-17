@@ -43,7 +43,7 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [image, setImage] = useState(null);
   const theme = useTheme(); // Use the theme
-
+console.log(totalReceivedAmounts);
   useEffect(() => {
     // Ensure auth is defined and onAuthStateChanged exists
     const unsubscribe = auth?.onAuthStateChanged((currentUser) => {
@@ -219,6 +219,8 @@ const Dashboard = () => {
         <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
           Revenue vs Time (Monthly)
         </Text>
+       { 
+        totalReceivedAmounts.length == 0 ?"":
         <TouchableOpacity>
           <LineChart
             data={{
@@ -253,6 +255,7 @@ const Dashboard = () => {
             style={{ marginVertical: 8, borderRadius: 16 }}
           />
         </TouchableOpacity>
+       }
       </View>
     </ScrollView>
   );

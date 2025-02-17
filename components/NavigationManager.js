@@ -88,7 +88,7 @@ const LawnOwnerStack = () => (
 );
 
 const MainApp = ({ route }) => {
-  const isLawnOwner = route.params?.isLawnOwner;
+  const isLawnOwner = route?.params?.isLawnOwner;
 
   const getScreenComponent = (screenName) => {
     

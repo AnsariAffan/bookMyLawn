@@ -1,33 +1,33 @@
-import { doc, setDoc, getDoc } from "firebase/firestore";
-import { db } from "../../firebaseConfiguration/firebaseConfig";
+import { getDatabase, ref, set, get } from "firebase/database";
 
-// Function to store user information in Firestore
+// Function to store user information in Firebase Realtime Database under userInfo
 export const storeUserInformation = async (user) => {
-  const userDoc = doc(db, "users", user.uid);
+  // Define the path to store user info under 'userInfo' node
+  const dbRef = ref(getDatabase(), "userInfo/" + user.uid);
 
-  // Get the user document to check if it already exists
-  const docSnap = await getDoc(userDoc);
+  // Get the user data to check if the user already exists
+  try {
+    const snapshot = await get(dbRef);
+    
+    if (!snapshot.exists()) {
+      // User does not exist, so add user information
+      const userData = {
+        uid: user?.uid,
+        email: user.email,
+        displayName: user.displayName || 'BookMyLawn', // Set displayName once, won't change later
+        photoURL: user.photoURL || '',
+        emailVerified: user.emailVerified,
+        phoneNumber: user.phoneNumber || '',
+        createdAt: new Date().toISOString(), // Only set createdAt once, when the user is first created
+      };
 
-  // If the document doesn't exist, we will add the user data
-  if (!docSnap.exists()) {
-    const userData = {
-      uid: user?.uid,
-      email: user.email,
-      displayName: user.displayName || 'BookMyLawn', // Set displayName once, won't change later
-      photoURL: user.photoURL || '',
-      emailVerified: user.emailVerified,
-      phoneNumber: user.phoneNumber || '',
-      createdAt: new Date(), // Only set createdAt once, when the user is first created
-    };
-
-    try {
-      // Store the user data in Firestore (create a new document)
-      await setDoc(userDoc, userData);
-      console.log("User information stored successfully");
-    } catch (error) {
-      console.error("Error storing user information: ", error);
+      // Store the user data in Realtime Database under 'userInfo' node
+      await set(dbRef, userData);
+      console.log("User information stored successfully in Realtime Database under 'userInfo'");
+    } else {
+      console.log("User already exists in Realtime Database, not updating");
     }
-  } else {
-    console.log("User already exists in Firestore, not updating");
+  } catch (error) {
+    console.error("Error storing user information in Realtime Database: ", error);
   }
 };
