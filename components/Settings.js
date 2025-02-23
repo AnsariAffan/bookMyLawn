@@ -19,24 +19,20 @@ const Settings = ({ navigation }) => {
   const [currentPassword, setCurrentPassword] = useState('');
   const theme = useTheme();
 
-  // Combine authentication and user data fetching logic in useEffect
-  useEffect(() => {
-    const unsubscribe = auth?.onAuthStateChanged((user) => {
-      if (user) {
-        setUsername(user.displayName || 'Username');
-        setEmail(user.email || 'user@example.com');
-        setImage(user.photoURL || null);  // Update photoURL from Firebase
-      } else {
-        setUsername('');
-        setEmail('');
-        setImage(null);
-      }
-    });
 
-    // Cleanup listener on unmount
-    return unsubscribe();
-  }, []);
-
+      // Ensure auth is defined and onAuthStateChanged exists
+      const unsubscribe = auth?.onAuthStateChanged((user) => {
+        if (user) {
+          setUsername(user?.displayName || 'Username');
+          setEmail(user?.email || 'user@example.com');
+          setImage(user?.photoURL || null);  // Update photoURL from Firebase
+        } else {
+          setUsername('');
+          setEmail('');
+          setImage(null);
+        }
+      });
+  
   // Show dialog to edit username or email
   const showDialog = (type) => {
     setEditType(type);
@@ -151,9 +147,9 @@ const Settings = ({ navigation }) => {
               <Avatar.Icon size={120} icon="account" style={styles.avatar} />
             )}
           </TouchableOpacity>
-          <Text style={[styles.username, { color: theme.colors.text }]}>{username}</Text>
-          <Text style={[styles.email, { color: theme.colors.text }]}>{email}</Text>
-        </View>
+          <Text style={[styles.username, { color: '#000000' }]}>{username}</Text>
+          <Text style={[styles.email, { color: '#000000' }]}>{email}</Text>
+             </View>
 
         <View style={styles.section}>
           <TouchableOpacity style={styles.item} onPress={() => showDialog('username')}>
@@ -262,6 +258,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 22,
     fontWeight: 'bold',
+  
   },
   email: {
     fontSize: 16,

@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingTop:12,
-    paddingLeft:60
+    paddingLeft:70
   },
   calendarButton: {
     flexDirection: 'row',
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectedMonthText: {
-    fontSize: 16,
+    fontSize: 15,
     marginBottom: 10,
   },
   upcomingDatesContainer: {

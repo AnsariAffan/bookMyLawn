@@ -84,9 +84,15 @@ const LawnOwnerDashboard = () => {
     <LinearGradient colors={["#E5F1FB", "#FFFFFF"]} style={[styles.gradientContainer, { backgroundColor: theme.colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <Appbar.Header style={[styles.header, { backgroundColor: theme.colors.primary }]}>
-          <Text style={[styles.headerTitle, { color: theme.colors.surface }]}>Bookings</Text>
-        </Appbar.Header>
-
+               <Appbar.Action
+                 icon="arrow-left"
+                 onPress={() => navigation.goBack()}
+                 color={theme.colors.surface}
+               />
+               <Text style={[styles.headerTitle, { color: theme.colors.surface }]}>Bookings Calendar</Text>
+               {/* Added space to balance the header */}
+               <View style={{ width: 56 }} />
+             </Appbar.Header>
         <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
           <Calendar
             minDate={moment().format("YYYY-MM-DD")}
@@ -259,9 +265,12 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 22, // Increased font size for better readability
     fontWeight: "600",
     marginLeft: 10,
+    fontFamily: "Roboto", // Standard font family
+    flex: 1,
+    textAlign: 'center', // Center-align title
   },
   remarkContainer: {
     marginTop: 20,
@@ -278,6 +287,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "400",
   },
+ 
   button: {
     paddingVertical: 15,
     borderRadius: 25,

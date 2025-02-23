@@ -57,9 +57,7 @@ const BookingList = ({ navigation }) => {
           color="#FFFFFF"
         />
         <View style={styles.hotelInfo}>
-          <Text style={[styles.hotelName, { color: theme.colors.text }]}>
-            {item.name}
-          </Text>
+          <Text style={[styles.hotelName, { color: theme.colors.text }]}>{item.name}</Text>
           <Text style={[styles.dateText, { color: theme.colors.placeholder }]}>
             {formatDates(item.dates)}
           </Text>
@@ -80,11 +78,20 @@ const BookingList = ({ navigation }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      {/* Updated Header */}
       <Appbar.Header style={[styles.header, { backgroundColor: theme.colors.primary }]}>
+        <Appbar.Action
+          icon="arrow-left"
+          onPress={() => navigation.goBack()}
+          color={theme.colors.surface}
+        />
         <Text style={[styles.headerTitle, { color: theme.colors.surface }]}>Bookings List</Text>
+        {/* Added space to balance the header */}
+        <View style={{ width: 56 }} />
       </Appbar.Header>
 
       <View style={[styles.contentContainer, { backgroundColor: theme.colors.background }]}>
+        {/* Search and Filter Section */}
         <View style={[styles.searchContainer, { backgroundColor: theme.colors.surface }]}>
           <Icon name="search" size={20} color={theme.colors.placeholder} style={styles.searchIcon} />
           <TextInput
@@ -102,62 +109,43 @@ const BookingList = ({ navigation }) => {
           )}
         </View>
 
+        {/* Filter Buttons */}
         <View style={styles.filterContainer}>
           <TouchableOpacity
-            style={[
-              styles.filterButton,
-              filter === "all" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }],
-              filter !== "all" && { backgroundColor: theme.colors.surface },
-            ]}
+            style={[styles.filterButton, filter === "all" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }], filter !== "all" && { backgroundColor: theme.colors.surface }]}
             onPress={() => handleFilterChange("all")}
           >
             <Text
-              style={[
-                styles.filterButtonText,
-                { color: filter === "all" ? theme.colors.onPrimary : theme.colors.text },
-              ]}
+              style={[styles.filterButtonText, { color: filter === "all" ? theme.colors.onPrimary : theme.colors.text }]}
             >
               All
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[
-              styles.filterButton,
-              filter === "fully paid" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }],
-              filter !== "fully paid" && { backgroundColor: theme.colors.surface },
-            ]}
+            style={[styles.filterButton, filter === "fully paid" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }], filter !== "fully paid" && { backgroundColor: theme.colors.surface }]}
             onPress={() => handleFilterChange("fully paid")}
           >
             <Text
-              style={[
-                styles.filterButtonText,
-                { color: filter === "fully paid" ? theme.colors.onPrimary : theme.colors.text },
-              ]}
+              style={[styles.filterButtonText, { color: filter === "fully paid" ? theme.colors.onPrimary : theme.colors.text }]}
             >
               Fully Paid
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[
-              styles.filterButton,
-              filter === "partially paid" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }],
-              filter !== "partially paid" && { backgroundColor: theme.colors.surface },
-            ]}
+            style={[styles.filterButton, filter === "partially paid" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }], filter !== "partially paid" && { backgroundColor: theme.colors.surface }]}
             onPress={() => handleFilterChange("partially paid")}
           >
             <Text
-              style={[
-                styles.filterButtonText,
-                { color: filter === "partially paid" ? theme.colors.onPrimary : theme.colors.text },
-              ]}
+              style={[styles.filterButtonText, { color: filter === "partially paid" ? theme.colors.onPrimary : theme.colors.text }]}
             >
               Partially Paid
             </Text>
           </TouchableOpacity>
         </View>
 
+        {/* Loading Indicator */}
         {loading && (
           <ActivityIndicator
             size="large"
@@ -166,6 +154,7 @@ const BookingList = ({ navigation }) => {
           />
         )}
 
+        {/* FlatList to Render Hotels */}
         <FlatList
           data={filteredHotels}
           renderItem={renderHotelItem}
@@ -182,13 +171,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    elevation: 0,
+    elevation: 4, // Slight shadow for the header
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 22, // Increased font size for better readability
     fontWeight: "600",
     marginLeft: 10,
     fontFamily: "Roboto", // Standard font family
+    flex: 1,
+    textAlign: 'center', // Center-align title
   },
   contentContainer: {
     flex: 1,

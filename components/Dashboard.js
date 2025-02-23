@@ -34,22 +34,19 @@ const Dashboard = () => {
     revenueByMonth,
     error,
     openAmountSum,
-    totalReceivedAmounts
+    totalReceivedAmounts,
   } = useBookings();
-
-  // const [filteredRevenue, setFilteredRevenue] = useState(totalReceivedAmounts);
 
   const navigation = useNavigation();
   const [user, setUser] = useState(null);
   const [image, setImage] = useState(null);
   const theme = useTheme(); // Use the theme
-console.log(totalReceivedAmounts);
+
   useEffect(() => {
     // Ensure auth is defined and onAuthStateChanged exists
     const unsubscribe = auth?.onAuthStateChanged((currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        console.log(currentUser);
         setImage(currentUser.photoURL);
       } else {
         setUser(null);
@@ -72,7 +69,6 @@ console.log(totalReceivedAmounts);
 
   const renderUpcomingEvents = () => {
     return billingDataState.filteredData.map((event, index) => {
-   
       return (
         <TouchableOpacity
           key={index}
@@ -86,11 +82,19 @@ console.log(totalReceivedAmounts);
               { backgroundColor: theme.colors.surface },
             ]}
           >
-            <Text style={[styles.eventTitle, { color: theme.colors.text }]}>
+            <Text
+              style={[
+                styles.eventTitle,
+                { color: theme.colors.text },
+              ]}
+            >
               {event.dates}
             </Text>
             <Text
-              style={[styles.eventDate, { color: theme.colors.placeholder }]}
+              style={[
+                styles.eventDate,
+                { color: theme.colors.placeholder },
+              ]}
             >
               {event.paymentStatus}
             </Text>
@@ -102,17 +106,18 @@ console.log(totalReceivedAmounts);
 
   if (loading) {
     return (
-      <>
-        <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-        </View>
-      </>
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
     );
   }
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      style={[
+        styles.container,
+        { backgroundColor: theme.colors.background },
+      ]}
     >
       <View style={styles.headerContainer}>
         {/* Profile Picture on the Left */}
@@ -145,10 +150,7 @@ console.log(totalReceivedAmounts);
           <TouchableOpacity style={styles.boxContainer}>
             <LinearGradient
               colors={["#6C63FF", "#8E85FF"]}
-              style={[
-                styles.dataBox,
-                { backgroundColor: theme.colors.primary },
-              ]}
+              style={[styles.dataBox, { backgroundColor: theme.colors.primary }]}
             >
               <View style={styles.revenueContainer}>
                 <Text style={styles.currencyText}>₹</Text>
@@ -219,43 +221,44 @@ console.log(totalReceivedAmounts);
         <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
           Revenue vs Time (Monthly)
         </Text>
-       { 
-        totalReceivedAmounts.length == 0 ?"":
-        <TouchableOpacity>
-          <LineChart
-            data={{
-              labels: [
-                "Jan",
-                "Feb",
-                "Mar",
-                "Apr",
-                "May",
-                "Jun",
-                "Jul",
-                "Aug",
-                "Sep",
-                "Oct",
-                "Nov",
-                "Dec",
-              ],
-              datasets: [{ data: totalReceivedAmounts, strokeWidth: 1 }],
-            }}
-            width={width - 12}
-            height={220}
-            chartConfig={{
-              backgroundColor: theme.colors.primary,
-              backgroundGradientFrom: theme.colors.primary,
-              backgroundGradientTo: theme.colors.primary,
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              style: { borderRadius: 16 },
-              propsForDots: { r: "6", strokeWidth: "2", stroke: "#FFA726" },
-            }}
-            style={{ marginVertical: 8, borderRadius: 16 }}
-          />
-        </TouchableOpacity>
-       }
+        {totalReceivedAmounts.length > 0 ? (
+          <TouchableOpacity>
+            <LineChart
+              data={{
+                labels: [
+                  "Jan",
+                  "Feb",
+                  "Mar",
+                  "Apr",
+                  "May",
+                  "Jun",
+                  "Jul",
+                  "Aug",
+                  "Sep",
+                  "Oct",
+                  "Nov",
+                  "Dec",
+                ],
+                datasets: [{ data: totalReceivedAmounts, strokeWidth: 1 }],
+              }}
+              width={width - 12}
+              height={220}
+              chartConfig={{
+                backgroundColor: theme.colors.primary,
+                backgroundGradientFrom: theme.colors.primary,
+                backgroundGradientTo: theme.colors.primary,
+                decimalPlaces: 0,
+                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                style: { borderRadius: 16 },
+                propsForDots: { r: "6", strokeWidth: "2", stroke: "#FFA726" },
+              }}
+              style={{ marginVertical: 8, borderRadius: 16 }}
+            />
+          </TouchableOpacity>
+        ) : (
+          <Text style={styles.noDataText}>No data available</Text>
+        )}
       </View>
     </ScrollView>
   );
@@ -263,7 +266,6 @@ console.log(totalReceivedAmounts);
 
 const styles = StyleSheet.create({
   container: {
-
     flex: 1,
     paddingInline: width * 0.01,
   },
@@ -355,6 +357,12 @@ const styles = StyleSheet.create({
   },
   eventDate: {
     fontSize: width * 0.03,
+  },
+  noDataText: {
+    fontSize: width * 0.04,
+    fontWeight: "normal",
+    textAlign: "center",
+    marginTop: height * 0.02,
   },
 });
 
