@@ -2,10 +2,9 @@ import React, { useContext } from "react";
 import {
   View,
   Text,
+  TextInput,
   StyleSheet,
   FlatList,
-  TextInput,
-  ActivityIndicator,
   TouchableOpacity,
   Dimensions,
 } from "react-native";
@@ -13,12 +12,12 @@ import { Appbar, Avatar, useTheme } from "react-native-paper";
 import { BookingListContext } from "./BookingListContext";
 import { useBookings } from "../utility/useBookings";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { useBillingData } from "../utility/DataFilterOnDashboard/BillingDataContext";
 
 const { width, height } = Dimensions.get("window");
 
 const BookingList = ({ navigation }) => {
   const theme = useTheme(); // Use the theme
-
   const {
     search,
     filteredHotels,
@@ -29,13 +28,17 @@ const BookingList = ({ navigation }) => {
     filter,
   } = useContext(BookingListContext);
 
-  const { formatDates } = useBookings();
+  const { billingDataState } = useBillingData(); // Access the billing data from context
 
-  const renderHotelItem = ({ item }) => {
+  const renderCoinItem = ({ item }) => {
+    const totalAmount = item.totalAmount;
+    const totalReceivedAmount = item.totalReceivedAmount;
+    const remainingAmount = totalAmount - totalReceivedAmount;
+
     const getBadgeStyle = (status) => {
-      switch (status.toLowerCase()) {
+      switch (status?.toLowerCase()) {
         case "fully paid":
-          return { backgroundColor: theme.colors.accent }; // Use theme color
+          return { backgroundColor: "#4DB6AC" }; // Use theme color
         case "partially paid":
           return { backgroundColor: theme.colors.error }; // Use theme color
         case "unpaid":
@@ -44,124 +47,216 @@ const BookingList = ({ navigation }) => {
           return { backgroundColor: "#9E9E9E" }; // Keep as is or add to theme
       }
     };
-
+    // console.log(item);
     return (
       <TouchableOpacity
-        style={[styles.hotelCard, { backgroundColor: theme.colors.surface }]} // Use theme color
+        style={[styles.coinCard]}
         onPress={() => handleCardPress(item, navigation)}
       >
         <Avatar.Text
           size={40}
           label={item.name.slice(0, 2).toUpperCase()}
-          style={[styles.avatar, { backgroundColor: theme.colors.primary }]} // Use theme color
-          color="#FFFFFF"
+          style={{ backgroundColor: theme.colors.secondary }} // Use theme color
         />
-        <View style={styles.hotelInfo}>
-          <Text style={[styles.hotelName, { color: theme.colors.text }]}>{item.name}</Text>
-          <Text style={[styles.dateText, { color: theme.colors.placeholder }]}>
-            {formatDates(item.dates)}
-          </Text>
+        <View style={styles.coinInfo}>
+          <View>
+            <Text style={[styles.coinName, { color: "#333333" }]}>
+              {item.name}
+            </Text>
+            <Text style={{ color: "#333333", marginLeft: 8, paddingTop: 5 }}>
+              {item.dates}
+            </Text>
+          </View>
+
+          {/*
+            <View style={styles.amountContainer}>
+            <Text style={[styles.priceText, { color: "#666666" }]}>
+              $
+              {totalAmount.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </Text>
+            <View style={styles.amountDetails}>
+              <Text
+                style={[
+                  styles.bookingStatus,
+                  getBadgeStyle(item.paymentStatus),
+                ]}
+              >
+                {item.paymentStatus}
+              </Text>
+
+              <View Style={{display:"flex",flexDirection:"column"}}>
+              <Text
+                style={[
+                  styles.amountText,
+                  { color: "#4CAF50" }, // Green for positive amounts
+                ]}
+              >
+                +
+                {totalReceivedAmount.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </Text>
+              <Text
+                style={[
+                  styles.amountText,
+                  { color: "red" }, // Red for negative amounts
+                ]}
+              >
+                -
+                {remainingAmount.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </Text>
+              </View>
+              
+            </View>
+          </View>
+            */}
         </View>
-        <View style={styles.statusContainer}>
+        <View style={{width:98,paddingRight:5}}>
           <Text
             style={[styles.bookingStatus, getBadgeStyle(item.paymentStatus)]}
           >
             {item.paymentStatus}
           </Text>
-          <Text style={[styles.hotelPrice, { color: theme.colors.primary }]}>
-            ₹{item.totalReceivedAmount}
+          <Text style={{ color: "#333333", marginLeft: 8, paddingTop: 5,textAlign:"right",paddingRight:5,fontWeight:"bold" }}>
+            {item.totalAmount}
           </Text>
+
+          <View style={{ display: "flex", flexDirection: "row" }}>
+            <Text
+              style={[
+                styles.amountText,
+                { color: "#4CAF50" }, // Green for positive amounts
+              ]}
+            >
+              +
+              {totalReceivedAmount.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </Text>
+            <Text> | </Text>
+
+            <Text
+              style={[
+                styles.amountText,
+                { color: "red" }, // Red for negative amounts
+              ]}
+            >
+              -
+              {remainingAmount.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </Text>
+          </View>
         </View>
       </TouchableOpacity>
     );
   };
-
+  console.log("---billingDataState----");
+  console.log(billingDataState);
+  console.log("----billingDataState---");
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {/* Updated Header */}
-      <Appbar.Header style={[styles.header, { backgroundColor: theme.colors.primary }]}>
-        <Appbar.Action
-          icon="arrow-left"
-          onPress={() => navigation.goBack()}
-          color={theme.colors.surface}
+    <View style={[styles.contentContainer, { backgroundColor: "#fff" }]}>
+      <View style={styles.portfolioSummary}>
+        <Text style={styles.value}>Portfolio</Text>
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search"
+        
+          value={search}
+          onChangeText={handleSearch}
         />
-        <Text style={[styles.headerTitle, { color: theme.colors.surface }]}>Bookings List</Text>
-        {/* Added space to balance the header */}
-        <View style={{ width: 56 }} />
-      </Appbar.Header>
 
-      <View style={[styles.contentContainer, { backgroundColor: theme.colors.background }]}>
-        {/* Search and Filter Section */}
-        <View style={[styles.searchContainer, { backgroundColor: theme.colors.surface }]}>
-          <Icon name="search" size={20} color={theme.colors.placeholder} style={styles.searchIcon} />
-          <TextInput
-            style={[styles.searchBar, { color: theme.colors.text }]}
-            placeholder="Search"
-            placeholderTextColor={theme.colors.placeholder}
-            value={search}
-            onChangeText={handleSearch}
-          />
-
-          {search.length > 0 && (
-            <TouchableOpacity onPress={() => handleSearch("")} style={styles.clearIconContainer}>
-              <Icon name="clear" size={20} color={theme.colors.placeholder} />
-            </TouchableOpacity>
-          )}
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-around",
+          }}
+        >
+          <Text style={styles.holdingValue}>Recevied</Text>
+          <Text style={styles.holdingValue}>|</Text>
+          <Text style={styles.holdingValue}>Unpaid</Text>
+        </View>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-around",
+          }}
+        >
+          <Text style={styles.holdingValues}>
+            {billingDataState.totalReceivedAmount}
+          </Text>
+          <Text style={styles.holdingValue}></Text>
+          <Text style={styles.holdingValues}>
+            {billingDataState.totalRemainingAmount}
+          </Text>
         </View>
 
-        {/* Filter Buttons */}
-        <View style={styles.filterContainer}>
-          <TouchableOpacity
-            style={[styles.filterButton, filter === "all" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }], filter !== "all" && { backgroundColor: theme.colors.surface }]}
-            onPress={() => handleFilterChange("all")}
-          >
-            <Text
-              style={[styles.filterButtonText, { color: filter === "all" ? theme.colors.onPrimary : theme.colors.text }]}
-            >
-              All
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.filterButton, filter === "fully paid" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }], filter !== "fully paid" && { backgroundColor: theme.colors.surface }]}
-            onPress={() => handleFilterChange("fully paid")}
-          >
-            <Text
-              style={[styles.filterButtonText, { color: filter === "fully paid" ? theme.colors.onPrimary : theme.colors.text }]}
-            >
-              Fully Paid
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.filterButton, filter === "partially paid" && [styles.selectedFilter, { backgroundColor: theme.colors.primary }], filter !== "partially paid" && { backgroundColor: theme.colors.surface }]}
-            onPress={() => handleFilterChange("partially paid")}
-          >
-            <Text
-              style={[styles.filterButtonText, { color: filter === "partially paid" ? theme.colors.onPrimary : theme.colors.text }]}
-            >
-              Partially Paid
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Loading Indicator */}
-        {loading && (
-          <ActivityIndicator
-            size="large"
-            color={theme.colors.primary} // Use theme color
-            style={styles.loadingIndicator}
-          />
-        )}
-
-        {/* FlatList to Render Hotels */}
-        <FlatList
-          data={filteredHotels}
-          renderItem={renderHotelItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.hotelList}
-        />
+        {/*
+        <Text style={styles.holdingValue}>Portfolio</Text>
+        <Text style={styles.value}>${billingDataState?.totalReceivedAmount} +50%</Text>
+        <Text style={styles.investedValue}>Remaining Amount</Text>
+        <Text style={styles.availableUSD}>${billingDataState.totalRemainingAmount} |100 %</Text>
+     */}
       </View>
+
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            filter === "all" && styles.selectedFilter,
+          ]}
+          onPress={() => handleFilterChange("all")}
+        >
+          <Text style={styles.filterButtonText}>All</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            filter === "partially paid" && styles.selectedFilter,
+          ]}
+          onPress={() => handleFilterChange("partially paid")}
+        >
+          <Text style={styles.filterButtonText}>Partially Paid</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            filter === "fully paid" && styles.selectedFilter,
+          ]}
+          onPress={() => handleFilterChange("fully paid")}
+        >
+          <Text style={styles.filterButtonText}>Fully Paid</Text>
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        data={filteredHotels.map((hotel) => ({
+          name: hotel.name,
+          totalAmount: hotel.totalAmount,
+          totalReceivedAmount: hotel.totalReceivedAmount,
+          remainingAmount: hotel.remainingAmount,
+          paymentStatus: hotel.paymentStatus,
+          address: hotel.address,
+          contact: hotel.contact,
+          dates: hotel.dates,
+          AdvBookAmount: hotel.AdvBookAmount,
+          id: hotel.id,
+        }))}
+        renderItem={renderCoinItem}
+        // keyExtractor={(item) => item.name}
+        contentContainerStyle={styles.coinList}
+      />
     </View>
   );
 };
@@ -171,110 +266,158 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    elevation: 4, // Slight shadow for the header
-    shadowColor: 'black',
+    elevation: 4,
+    shadowColor: "black",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 8,
+    backgroundColor: "#009688",
   },
   headerTitle: {
-    fontSize: 22, // Increased font size for better readability
+    fontSize: 22,
     fontWeight: "600",
     marginLeft: 10,
-    fontFamily: "Roboto", // Standard font family
+    fontFamily: "Roboto",
     flex: 1,
-    textAlign: 'center', // Center-align title
-  },
-  contentContainer: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 16,
-  },
-  searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    marginBottom: 16,
-    elevation: 2,
-  },
-  searchIcon: {
-    marginRight: 8,
+    textAlign: "center",
+    color: "#FFFFFF",
   },
   searchBar: {
-    flex: 1,
-    paddingVertical: 12,
-    fontSize: 16,
-    fontFamily: "Roboto", // Standard font family
+    backgroundColor: "#FFFFFF", // White background
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    borderColor: "#CCCCCC", // Light black border
+    borderWidth: 1,
+    marginRight: 0,
+    marginBottom: 5,
   },
-  clearIconContainer: {
-    padding: 8,
+  searchIcon: {
+    marginLeft: 10,
+    marginRight: 10,
+    color: "#999999", // Light black color for the icon
   },
   filterContainer: {
     flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
     justifyContent: "space-between",
-    marginBottom: 16,
   },
   filterButton: {
-    flex: 1,
     paddingVertical: 12,
+    paddingHorizontal: 35,
     borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    marginHorizontal: 4,
-    elevation: 2,
+    marginRight: 8,
+    backgroundColor: "#E0F2F1",
   },
   selectedFilter: {
-    backgroundColor: "#6200EE", // Use theme color
-  },
-  filterButtonText: {
-    fontSize: 14,
-    fontWeight: "600",
-    fontFamily: "Roboto", // Standard font family
-  },
-  hotelCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 12,
-    elevation: 2,
-  },
-  avatar: {
-    marginRight: 16,
-  },
-  hotelInfo: {
-    flex: 1,
-  },
-  hotelName: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
-    fontFamily: "Roboto", // Standard font family
-  },
-  dateText: {
-    fontSize: 14,
-    fontFamily: "Roboto", // Standard font family
-  },
-  statusContainer: {
-    alignItems: "flex-end",
+    backgroundColor: "#4DB6AC",
   },
   bookingStatus: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "bold",
-    color: "#FFFFFF",
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    color: "#fff",
+    padding: 4,
     borderRadius: 12,
-    marginBottom: 8,
+    textAlign:"center"
   },
-  hotelPrice: {
+  filterButtonText: {
+    fontSize: 12,
+    color: "black",
+  },
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingTop: 40,
+  },
+  portfolioSummary: {
+    backgroundColor: "#4DB6AC",
+    borderRadius: 30,
+    padding: 15,
+  },
+  holdingValue: {
+    fontSize: 15,
+    fontWeight: "600",
+    marginBottom: 4,
+    marginTop: 4,
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  holdingValues: {
+    fontSize: 15,
+    fontWeight: "600",
+    marginBottom: 4,
+    marginTop: 4,
+    color: "#fff",
+  },
+  value: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#009688",
+    color: "#fff",
+    marginTop: 0,
+    marginBottom: 5,
+  },
+  investedValue: {
     fontSize: 16,
     fontWeight: "600",
-    fontFamily: "Roboto", // Standard font family
+    marginTop: 8,
+    color: "#fff",
   },
-  loadingIndicator: {
+  availableUSD: {
+    fontSize: 14,
+    color: "#666666666",
+    color: "#fff",
+  },
+  coinCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 10,
+    marginBottom: 5,
+    elevation: 0.8,
+    height: 80, // Set a fixed height for the card
+    paddingLeft: 10,
+  },
+  avatar: {
+    marginRight: 10,
+  },
+  coinInfo: {
+    flex: 1,
+    // backgroundColor:"#fff",
+  },
+
+  coinName: {
+    fontSize: 17,
+    fontWeight: "600",
+    fontWeight: "bold",
+    marginLeft: 10,
+  },
+  priceText: {
+    fontSize: 14,
+    paddingBottom: 15,
+    marginLeft: 10,
+  },
+  amountContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  amountDetails: {
+    flexDirection: "column",
+    alignItems: "flex-end",
+  },
+  amountText: {
+    fontSize: 14,
+  },
+  coinList: {
     marginTop: 20,
+  },
+  icon: {
+    marginLeft: 10,
   },
 });
 

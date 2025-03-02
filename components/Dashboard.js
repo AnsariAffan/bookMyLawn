@@ -54,11 +54,11 @@ const Dashboard = () => {
     });
 
     // Return the unsubscribe function to clean up
-    return () => {
-      if (unsubscribe) {
-        unsubscribe(); // Make sure unsubscribe is called properly
-      }
-    };
+    // return () => {
+    //   if (unsubscribe) {
+    //     unsubscribe // Make sure unsubscribe is called properly
+    //   }
+    // };
   }, []); // Empty dependency array to run the effect only once (on mount/unmount)
 
   useEffect(() => {

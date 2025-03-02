@@ -64,7 +64,7 @@ export function useBookings() {
       setLoading(false); // Set loading to false after processing data
     });
 
-    return () => unsubscribe() // Cleanup subscription on unmount
+    return () => unsubscribe // Cleanup subscription on unmount
   }, [startMonth, endMonth]);
 
   // Function to calculate total revenue

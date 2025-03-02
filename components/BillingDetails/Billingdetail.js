@@ -26,6 +26,9 @@ import {
 const { width } = Dimensions.get("window");
 
 const Billingdetail = ({ dataDefaulting }) => {
+  console.log("---dataDefaulting-----");
+  console.log(dataDefaulting);
+  console.log("---dataDefaulting-----");
   const theme = useTheme();
   const { user } = useAuth();
   const [billingData, setBillingData] = useState(dataDefaulting);
@@ -35,14 +38,17 @@ const Billingdetail = ({ dataDefaulting }) => {
 
   useEffect(() => {
     if (billingData?.id) {
-      const unsubscribe = onBillingDataChange(user.displayName, (updatedData) => {
-        if (updatedData) {
-          const newData = updatedData[billingData.id];
-          if (newData) {
-            setBillingData((prev) => ({ ...prev, ...newData }));
+      const unsubscribe = onBillingDataChange(
+        user.displayName,
+        (updatedData) => {
+          if (updatedData) {
+            const newData = updatedData[billingData.id];
+            if (newData) {
+              setBillingData((prev) => ({ ...prev, ...newData }));
+            }
           }
         }
-      });
+      );
       return () => unsubscribe;
     }
   }, [billingData?.id]);
@@ -69,7 +75,11 @@ const Billingdetail = ({ dataDefaulting }) => {
 
     try {
       setLoading(true);
-      await updateBillingData(user.displayName, billingData.id, updatedDetails);
+      await updateBillingData(
+        user?.displayName,
+        billingData?.id,
+        updatedDetails
+      );
       setDialogMessage("Payment marked as fully paid successfully.");
     } catch (error) {
       setDialogMessage("Failed to update payment status. Please try again.");
@@ -86,67 +96,61 @@ const Billingdetail = ({ dataDefaulting }) => {
     }
   };
 
+  const repeatHyphens = Math.floor(width / 5.2); // 10px width per hyphen (adjust as needed)
+  const hyphenString = "-".repeat(repeatHyphens);
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {/* User Details Section */}
+      <Card style={[styles.card, { backgroundColor: theme.colors.background }]}>
+        <Card.Content>
+          <Text style={styles.header}>User Details</Text>
 
-   {/* User Details Section */}
-   <Card style={[styles.card, { backgroundColor: theme.colors.background }]}>
-   <Card.Content>
-     <Text style={styles.header}>User Details</Text>
-     
-     <View style={styles.detailsContainer}>
-     
-       <View style={styles.detailRow}>
-         <Icon name="account" size={20} style={styles.icon} />
-         <Text style={styles.label}>Name:</Text>
-         <Text style={styles.value}>{dataDefaulting.name}</Text>
-       </View>
-       <View style={styles.detailRow}>
-         <Icon name="map-marker" size={20} style={styles.icon} />
-         <Text style={styles.label}>Address:</Text>
-         <Text style={styles.value}>{dataDefaulting.address}</Text>
-       </View>
-       <TouchableOpacity onPress={handleContactPress}>
-         <View style={styles.detailRow}>
-           <Icon name="phone" size={20} style={styles.icon} />
-           <Text style={styles.label}>Contact:</Text>
-           <Text style={styles.value}>{dataDefaulting.contact}</Text>
-         </View>
-       </TouchableOpacity>
-     </View>
-   </Card.Content>
- </Card>
-
+          <View style={styles.detailsContainer}>
+            <View style={styles.detailRow}>
+              <Icon name="account" size={20} style={styles.icon} />
+              <Text style={styles.label}>Name:</Text>
+              <Text style={styles.value}>{dataDefaulting.name}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Icon name="map-marker" size={20} style={styles.icon} />
+              <Text style={styles.label}>Address:</Text>
+              <Text style={styles.value}>{dataDefaulting.address}</Text>
+            </View>
+            <TouchableOpacity onPress={handleContactPress}>
+              <View style={styles.detailRow}>
+                <Icon name="phone" size={20} style={styles.icon} />
+                <Text style={styles.label}>Contact:</Text>
+                <Text style={styles.value}>{dataDefaulting.contact}</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </Card.Content>
+      </Card>
 
       {/* Billing Details Section */}
       <Card style={[styles.card, { backgroundColor: theme.colors.background }]}>
         <Card.Content>
           <Text style={styles.header}>Billing Details</Text>
           <View style={styles.detailsContainer}>
-        
-        
-          <View style={styles.detailRow}>
-          <Text style={styles.label}>Payment Status:</Text>
-          <Text
-            style={[
-              styles.value,
-              billingData.paymentStatus === "Fully Paid"
-                ? styles.paid
-                : styles.unpaid,
-            ]}
-          >
-            {billingData.paymentStatus}
-          </Text>
-        </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.label}>Payment Status:</Text>
+              <Text
+                style={[
+                  styles.value,
+                  billingData.paymentStatus === "Fully Paid"
+                    ? styles.paid
+                    : styles.unpaid,
+                ]}
+              >
+                {billingData.paymentStatus}
+              </Text>
+            </View>
 
             <View style={styles.detailRow}>
-            <Text style={styles.label}>Booking Date</Text>
-            <Text style={styles.value}>{billingData.dates}</Text>
-          </View>
+              <Text style={styles.label}>Booking Date</Text>
+              <Text style={styles.value}>{billingData.dates}</Text>
+            </View>
 
-        
-        
-            
             <View style={styles.detailRow}>
               <Text style={styles.label}>Total Amount:</Text>
               <Text style={styles.value}>{billingData.totalAmount}</Text>
@@ -159,11 +163,14 @@ const Billingdetail = ({ dataDefaulting }) => {
               <Text style={styles.label}>Remaining Amount:</Text>
               <Text style={styles.value}>{billingData.remainingAmount}</Text>
             </View>
-            <Text style={styles.label}>----------------------------------------------------------------------------------</Text>
+            <View>
+              <Text style={styles.label}>{hyphenString}</Text>
+            </View>
             <View style={styles.detailRow}>
-          
               <Text style={styles.label}>Total Received:</Text>
-              <Text style={styles.value}>{billingData.totalReceivedAmount}</Text>
+              <Text style={styles.value}>
+                {billingData.totalReceivedAmount}
+              </Text>
             </View>
           </View>
         </Card.Content>
@@ -180,9 +187,11 @@ const Billingdetail = ({ dataDefaulting }) => {
         )}
       </TouchableOpacity>
 
-   
       <Portal>
-        <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
+        <Dialog
+          visible={dialogVisible}
+          onDismiss={() => setDialogVisible(false)}
+        >
           <Dialog.Title>Notification</Dialog.Title>
           <Dialog.Content>
             <Text>{dialogMessage}</Text>
@@ -198,7 +207,7 @@ const Billingdetail = ({ dataDefaulting }) => {
 
 const styles = StyleSheet.create({
   container: {
-padding:5,
+    padding: 5,
     backgroundColor: "#f9f9f9",
   },
   card: {
@@ -220,10 +229,11 @@ padding:5,
     alignItems: "center",
     marginVertical: 6,
   },
-  label: {
-    fontSize: 14,
-    color: "#666",
-    flex: 1,
+ label: {
+    fontSize: 16, // Adjust font size based on your design
+    flexShrink: 0, // Prevent shrinking of the text
+    whiteSpace: 'nowrap', // Ensure no wrapping (works better in web but can help in some cases)
+    textAlign: 'left', // Make sure text aligns left
   },
   value: {
     fontSize: 14,
@@ -233,10 +243,9 @@ padding:5,
   },
   icon: {
     marginRight: 10,
-    color: "#666",
+    color: "#4DB6AC",
   },
   button: {
-   
     padding: 12,
     borderRadius: 8,
     alignItems: "center",

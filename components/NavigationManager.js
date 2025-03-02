@@ -142,7 +142,7 @@ const MainApp = ({ route }) => {
           fontWeight: "bold",
           marginBottom: 10,
         },
-        tabBarActiveTintColor: "#6200ee", // Active tab color
+        tabBarActiveTintColor: "#4DB6AC", // Active tab color
         tabBarInactiveTintColor: "#888888", // Inactive tab color
         tabBarIconStyle: {
           marginBottom: -5, // Space between icon and label
@@ -166,7 +166,7 @@ const customTheme = {
     ...DefaultTheme.colors,
     background: "#ffffff", // White background
     text: "#000000", // Black text
-    primary: "#6200ee", // Primary color
+    primary: "#4DB6AC", // Primary color
     accent: "#03dac4", // Accent color
   },
 };

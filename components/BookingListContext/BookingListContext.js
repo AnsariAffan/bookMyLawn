@@ -28,7 +28,7 @@ export const BookingListProvider = ({ children }) => {
    
       // Process the billing data and set it to both billData and hotels
       if (billingData) {
-        const updatedBillData = Object.values(billingData).map((billingItem) => ({
+        const updatedBillData = Object?.values(billingData).map((billingItem) => ({
           id: billingItem.bookingId, // Assuming bookingId is present
           ...billingItem,
         }));
@@ -42,7 +42,7 @@ export const BookingListProvider = ({ children }) => {
     };
   
     // Start listening for changes in the client's billing data in real-time
-    onBillingDataChange(user.displayName, handleBillingDataChange);
+    onBillingDataChange(user?.displayName, handleBillingDataChange);
   
     // Cleanup listener when the component unmounts or the user changes
     return () => {
@@ -52,7 +52,7 @@ export const BookingListProvider = ({ children }) => {
   
   // Filter hotels based on search and filter criteria
   useEffect(() => {
-    let filtered = billData.filter((hotel) =>
+    let filtered = billData?.filter((hotel) =>
       hotel.name.toLowerCase().includes(search.toLowerCase())
     );
 

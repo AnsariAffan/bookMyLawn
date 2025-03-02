@@ -33,7 +33,7 @@ const BookingDetails = ({ navigation, route }) => {
           title="Details"
           subtitle="Step 2 of 3"
         />
-        <Appbar.Action icon="printer" onPress={handlePrint} />
+        <Appbar.Action icon="printer" onPress={handlePrint} color="#4DB6AC" />
       </Appbar.Header>
       <View style={styles.itemsContainer}>
         <BillingDetail dataDefaulting={bdata} />
