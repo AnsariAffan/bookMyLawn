@@ -43,7 +43,7 @@ const LawnOwnerDashboard = () => {
 
   const handleDayPress = (day) => {
     const bookedDates = Object.keys(markedDates).filter(
-      (key) => markedDates[key]?.customStyles?.container?.backgroundColor === "lightpink"
+      (key) => markedDates[key]?.customStyles?.container?.backgroundColor === "#4DB6AC"
     );
 
     const isOriginallyBooked = bookedDates.includes(day.dateString);
@@ -93,6 +93,8 @@ const LawnOwnerDashboard = () => {
                {/* Added space to balance the header */}
                <View style={{ width: 56 }} />
              </Appbar.Header>
+
+           
         <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
           <Calendar
             minDate={moment().format("YYYY-MM-DD")}
@@ -108,17 +110,32 @@ const LawnOwnerDashboard = () => {
               textDayHeaderFontWeight: "bold",
             }}
           />
-
+          <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-evenly" ,borderRadius:10,borderColor:"#fff", borderWidth: 1,margin:10,padding:10,marginTop:10,backgroundColor:"#fff"}}>
+          <View>
+            <Text style={{textAlign:"center"}}>From Date</Text>
+            <TextInput
+              value={selectedDates[0] || ''}
+              editable={false}
+              style={{ fontSize: 20, fontWeight: "bold" }}
+            />
+          </View>
+    
+          <View style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            <Text style={{ fontSize: 24, fontWeight: "bold" }}>|</Text>
+          </View>
+          <View>
+            <Text style={{textAlign:"center"}}>To Date</Text>
+            <TextInput 
+              value={selectedDates[1] || ''}
+              editable={false}
+              style={{ fontSize: 20, fontWeight: "bold" }}
+            />
+          </View>
+    
+        </View>
+    
           {loading && <ActivityIndicator style={styles.loadingIndicator} animating={loading} color={theme.colors.primary} />}
 
-          <View style={styles.remarkContainer}>
-            {selectedDates.length > 0 ? (
-              <Text style={[styles.remarkText, { color: theme.colors.text }]}>Selected Dates: {selectedDates.join(", ")}</Text>
-            ) : (
-              <Text style={[styles.remarkText, { color: theme.colors.text }]}>Select a date to view details</Text>
-            )}
-            {remark && <Text style={[styles.remarkText, { color: theme.colors.text }]}>Remark: {remark}</Text>}
-          </View>
 
           <TouchableOpacity
             style={[styles.button, { backgroundColor: theme.colors.primary }]}
@@ -134,6 +151,9 @@ const LawnOwnerDashboard = () => {
             <Text style={styles.buttonText}>Book Now</Text>
           </TouchableOpacity>
 
+
+
+          
           {/* Booking Modal */}
           <Modal
             transparent={true}

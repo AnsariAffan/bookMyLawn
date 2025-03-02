@@ -1,5 +1,5 @@
 git add . 
-git commit -m "Login Changes related to new user" 
+git commit -m "Calendar UI change" 
 git push -u origin main 
 npm version patch 
 git push --tags

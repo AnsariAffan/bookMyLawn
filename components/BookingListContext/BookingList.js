@@ -194,11 +194,11 @@ const BookingList = ({ navigation }) => {
           }}
         >
           <Text style={styles.holdingValues}>
-            {billingDataState.totalReceivedAmount}
+            + {billingDataState.totalReceivedAmount}
           </Text>
           <Text style={styles.holdingValue}></Text>
           <Text style={styles.holdingValues}>
-            {billingDataState.totalRemainingAmount}
+           - {billingDataState.totalRemainingAmount}
           </Text>
         </View>
 

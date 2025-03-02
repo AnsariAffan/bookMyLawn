@@ -51,7 +51,7 @@ export const BookingProvider = ({ children }) => {
             updatedMarkedDates[date] = {
               customStyles: {
                 container: {
-                  backgroundColor: "lightpink", // Color for booked dates
+                  backgroundColor: "#4DB6AC", // Color for booked dates
                 },
                 text: {
                   color: "#000",
