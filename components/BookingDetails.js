@@ -4,7 +4,7 @@ import { View, StyleSheet, Linking } from "react-native";
 import { Appbar, Text, Card, Title, Icon } from "react-native-paper";
 import UserDetail from "./UserDetail";
 import BillingDetail from "./BillingDetails/Billingdetail";
-import { createPDF } from "./utility/createPDF";
+// import { createPDF } from "./utility/handleExportPrint";
 const { width, height } = Dimensions.get("window"); // Get device width
 
 const BookingDetails = ({ navigation, route }) => {
@@ -14,7 +14,7 @@ const BookingDetails = ({ navigation, route }) => {
 
   const handlePrint = async () => {
     try {
-      await createPDF(); // Make sure it's awaited
+      // await createPDF(); // Make sure it's awaited
     } catch (error) {
       console.error("Error creating PDF:", error);
     }
@@ -48,23 +48,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
   },
   itemsContainer: {
-    marginTop:15,
-    padding: 10,
-    backgroundColor: "#ffffff",
+   
   },
   tabContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
     backgroundColor: "#ffff",
-    paddingVertical: 10,
+   
   },
   tab: {
     flex: 1,
-    padding: 15,
+   
     alignItems: "center",
   },
   activeTab: {
-    borderBottomWidth: 2,
+  
     borderBottomColor: "#00509E", // Color for the active tab
   },
   tabText: {
@@ -72,7 +70,7 @@ const styles = StyleSheet.create({
     fontWeight: "normal",
   },
   card: {
-    marginBottom: 8,
+    
     backgroundColor: "#1e1e1e",
   },
   row: {
@@ -95,7 +93,7 @@ const styles = StyleSheet.create({
     height: 100,
   },
   summaryContainer: {
-    padding: 16,
+   
     marginTop: "auto",
     backgroundColor: "#ffff",
     display: "flex",

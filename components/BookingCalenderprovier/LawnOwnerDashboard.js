@@ -3,24 +3,25 @@ import {
   View,
   Text,
   TextInput,
-  StyleSheet,
-  ScrollView,
   TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  Dimensions,
   Modal,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
-import moment from "moment";
-import { Picker } from "@react-native-picker/picker";
-import { ActivityIndicator, Appbar, useTheme, Dialog, Portal, Button } from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import { BookingContext } from "./BookingContext";
-import { useAuth } from "../Authprovider.js/AuthProvider";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import * as Animatable from "react-native-animatable";
+import { BookingContext } from "../BookingCalenderprovier/BookingContext";
 
-const LawnOwnerDashboard = () => {
+const { width, height } = Dimensions.get("window");
+
+const BookingScreen = () => {
   const {
-    markedDates,
     selectedDates,
     setSelectedDates,
     newBooking,
@@ -29,349 +30,332 @@ const LawnOwnerDashboard = () => {
     modalVisible,
     setModalVisible,
     handleBookingSubmit,
-    remark,
-    setRemark,
-    setMarkedDates,
+    markedDates,
+    isDateBooked,
+    successMessage,
+    showSuccessMessage,
+    setShowSuccessMessage,
   } = useContext(BookingContext);
 
-  const { user, signOut } = useAuth();
-  const navigation = useNavigation();
-  const theme = useTheme(); // Get the theme
-
-  const [visibleDialog, setVisibleDialog] = useState(false);
-  const [dialogMessage, setDialogMessage] = useState("");
+  const [currentMonth, setCurrentMonth] = useState(new Date().toISOString().split("T")[0]);
+  const [formModalVisible, setFormModalVisible] = useState(false);
 
   const handleDayPress = (day) => {
-    const bookedDates = Object.keys(markedDates).filter(
-      (key) => markedDates[key]?.customStyles?.container?.backgroundColor === "#4DB6AC"
-    );
-
-    const isOriginallyBooked = bookedDates.includes(day.dateString);
-
-    if (isOriginallyBooked) {
-      setDialogMessage(`Selected date is already booked.`);
-      setVisibleDialog(true); // Show dialog instead of Alert
+    const dateString = day.dateString;
+    if (isDateBooked(dateString)) {
+      alert("This date is already booked.");
       return;
     }
 
-    setMarkedDates((prevMarkedDates) => {
-      const updatedMarkedDates = { ...prevMarkedDates };
+    const updatedDates = selectedDates.includes(dateString)
+      ? selectedDates.filter((date) => date !== dateString)
+      : [...selectedDates, dateString];
+    setSelectedDates(updatedDates);
+  };
 
-      if (selectedDates.includes(day.dateString)) {
-        setSelectedDates(selectedDates.filter((date) => date !== day.dateString));
-        delete updatedMarkedDates[day.dateString];
-        setRemark("");
-      } else {
-        setSelectedDates([...selectedDates, day.dateString]);
-        setRemark("");
-        updatedMarkedDates[day.dateString] = {
-          customStyles: {
-            container: {
-              backgroundColor: "lightblue",
-            },
-            text: {
-              color: "#000",
-            },
+  const getMarkedDates = () => {
+    const marked = { ...markedDates };
+    selectedDates.forEach((date) => {
+      marked[date] = {
+        customStyles: {
+          container: {
+            backgroundColor: "#3B82F6",
           },
-        };
-      }
-
-      return updatedMarkedDates;
+          text: {
+            color: "#FFFFFF",
+          },
+        },
+      };
     });
+    return marked;
   };
 
   return (
-    <LinearGradient colors={["#E5F1FB", "#FFFFFF"]} style={[styles.gradientContainer, { backgroundColor: theme.colors.background }]}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Appbar.Header style={[styles.header, { backgroundColor: theme.colors.primary }]}>
-               <Appbar.Action
-                 icon="arrow-left"
-                 onPress={() => navigation.goBack()}
-                 color={theme.colors.surface}
-               />
-               <Text style={[styles.headerTitle, { color: theme.colors.surface }]}>Bookings Calendar</Text>
-               {/* Added space to balance the header */}
-               <View style={{ width: 56 }} />
-             </Appbar.Header>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <LinearGradient
+        colors={["#F5F7FA", "#E3F2FD"]}
+        style={styles.gradient}
+      >
+        <Animatable.View animation="fadeInUp" duration={500} style={styles.content}>
+          {/* Header */}
+          <Text style={styles.title}>Book Your Lawn</Text>
+          <Text style={styles.subtitle}>Select your dates to proceed</Text>
 
-           
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-          <Calendar
-            minDate={moment().format("YYYY-MM-DD")}
-            onDayPress={handleDayPress}
-            markingType={"custom"}
-            markedDates={markedDates}
-            theme={{
-              selectedDayBackgroundColor: theme.colors.primary, // Use primary color for selected day
-              todayTextColor: theme.colors.accent, // Accent color for today's text
-              arrowColor: theme.colors.accent, // Accent color for arrows
-              textDayFontWeight: "bold",
-              textMonthFontWeight: "bold",
-              textDayHeaderFontWeight: "bold",
-            }}
-          />
-          <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-evenly" ,borderRadius:10,borderColor:"#fff", borderWidth: 1,margin:10,padding:10,marginTop:10,backgroundColor:"#fff"}}>
-          <View>
-            <Text style={{textAlign:"center"}}>From Date</Text>
-            <TextInput
-              value={selectedDates[0] || ''}
-              editable={false}
-              style={{ fontSize: 20, fontWeight: "bold" }}
-            />
-          </View>
-    
-          <View style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-            <Text style={{ fontSize: 24, fontWeight: "bold" }}>|</Text>
-          </View>
-          <View>
-            <Text style={{textAlign:"center"}}>To Date</Text>
-            <TextInput 
-              value={selectedDates[1] || ''}
-              editable={false}
-              style={{ fontSize: 20, fontWeight: "bold" }}
-            />
-          </View>
-    
-        </View>
-    
-          {loading && <ActivityIndicator style={styles.loadingIndicator} animating={loading} color={theme.colors.primary} />}
+          {/* Calendar */}
+          <Animatable.View animation="fadeIn" duration={500} delay={200}>
+            <LinearGradient
+              colors={["#FFFFFF", "#E3F2FD"]}
+              style={styles.calendarContainer}
+            >
+              <Calendar
+                current={currentMonth}
+                onMonthChange={(month) => setCurrentMonth(month.dateString)}
+                onDayPress={handleDayPress}
+                markedDates={getMarkedDates()}
+                markingType="custom"
+                theme={{
+                  backgroundColor: "transparent",
+                  calendarBackground: "transparent",
+                  textSectionTitleColor: "#666666",
+                  dayTextColor: "#333333",
+                  todayTextColor: "#3B82F6",
+                  arrowColor: "#3B82F6",
+                  monthTextColor: "#333333",
+                  textDayFontFamily: "Roboto",
+                  textMonthFontFamily: "Roboto",
+                  textDayHeaderFontFamily: "Roboto",
+                }}
+              />
+            </LinearGradient>
+          </Animatable.View>
 
+          {/* Proceed to Booking Button */}
+          <Animatable.View animation="fadeIn" duration={500} delay={400}>
+            <TouchableOpacity
+              style={[
+                styles.proceedButton,
+                { opacity: selectedDates.length > 0 ? 1 : 0.5 },
+              ]}
+              onPress={() => setFormModalVisible(true)}
+              disabled={selectedDates.length === 0}
+              activeOpacity={0.7}
+            >
+              <View style={styles.buttonGradient}>
+                <Text style={styles.buttonText}>Proceed to Booking</Text>
+              </View>
+            </TouchableOpacity>
+          </Animatable.View>
+        </Animatable.View>
 
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: theme.colors.primary }]}
-            onPress={() => {
-              if (selectedDates.length === 0) {
-                setDialogMessage("Please select an event date");
-                setVisibleDialog(true); // Show dialog instead of alert
-              } else {
-                setModalVisible(true);
-              }
-            }}
-          >
-            <Text style={styles.buttonText}>Book Now</Text>
-          </TouchableOpacity>
+        {/* Form Modal */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={formModalVisible}
+          onRequestClose={() => setFormModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <Animatable.View animation="zoomIn" duration={500} style={styles.formModalContainer}>
+              <ScrollView contentContainerStyle={styles.formModalContent}>
+                <Text style={styles.modalTitle}>Enter Booking Details</Text>
 
-
-
-          
-          {/* Booking Modal */}
-          <Modal
-            transparent={true}
-            animationType="slide"
-            visible={modalVisible}
-            onRequestClose={() => setModalVisible(false)}
-          >
-            <View style={styles.modalContainer}>
-              <View style={[styles.modalContent, { backgroundColor: theme.colors.surface }]}>
-                <TouchableOpacity style={styles.closeIcon} onPress={() => setModalVisible(false)}>
-                  <Icon name="close" size={25} color={theme.colors.text} />
-                </TouchableOpacity>
-
-                <Text style={[styles.formTitle, { color: theme.colors.text }]}>Confirm Booking</Text>
-
-                <TextInput
-                  style={[styles.input, { backgroundColor: theme.colors.background }]}
-                  placeholder="Full Name"
-                  value={newBooking.name}
-                  onChangeText={(text) => setNewBooking({ ...newBooking, name: text })}
-                />
-                <TextInput
-                  style={[styles.input, { backgroundColor: theme.colors.background }]}
-                  placeholder="Contact No."
-                  value={newBooking.contact}
-                  onChangeText={(text) => setNewBooking({ ...newBooking, contact: text })}
-                  keyboardType="numeric"
-                />
-                <TextInput
-                  style={[styles.input, { backgroundColor: theme.colors.background }]}
-                  placeholder="Address"
-                  value={newBooking.address}
-                  onChangeText={(text) => setNewBooking({ ...newBooking, address: text })}
-                />
-
-                <View style={styles.pickerContainer}>
-                  <Text style={[styles.pickerLabel, { color: theme.colors.text }]}>Payment Type</Text>
-                  <Picker
-                    selectedValue={newBooking.paymentStatus}
-                    style={styles.picker}
-                    onValueChange={(itemValue) =>
-                      setNewBooking({ ...newBooking, paymentStatus: itemValue })
-                    }
-                  >
-                    <Picker.Item label="Cash" value="Cash" />
-                    <Picker.Item label="Online Payment" value="OnlinePayment" />
-                  </Picker>
+                {/* Input Fields */}
+                <View style={styles.inputContainer}>
+                  <View style={styles.inputWrapper}>
+                    <Icon name="person" size={20} color="#666666" style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Name"
+                      placeholderTextColor="#666666"
+                      value={newBooking.name}
+                      onChangeText={(text) => setNewBooking({ ...newBooking, name: text })}
+                    />
+                  </View>
+                  <View style={styles.inputWrapper}>
+                    <Icon name="phone" size={20} color="#666666" style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Contact"
+                      placeholderTextColor="#666666"
+                      value={newBooking.contact}
+                      onChangeText={(text) => setNewBooking({ ...newBooking, contact: text })}
+                      keyboardType="phone-pad"
+                    />
+                  </View>
+                  <View style={styles.inputWrapper}>
+                    <Icon name="location-on" size={20} color="#666666" style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Address"
+                      placeholderTextColor="#666666"
+                      value={newBooking.address}
+                      onChangeText={(text) => setNewBooking({ ...newBooking, address: text })}
+                    />
+                  </View>
+                  <View style={styles.inputWrapper}>
+                    <Icon name="attach-money" size={20} color="#666666" style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Total Amount"
+                      placeholderTextColor="#666666"
+                      value={newBooking.totalAmount}
+                      onChangeText={(text) =>
+                        setNewBooking({ ...newBooking, totalAmount: parseFloat(text) || 0 })
+                      }
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  <View style={styles.inputWrapper}>
+                    <Icon name="payment" size={20} color="#666666" style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Advance Booking Amount"
+                      placeholderTextColor="#666666"
+                      value={newBooking.AdvBookAmount}
+                      onChangeText={(text) =>
+                        setNewBooking({ ...newBooking, AdvBookAmount: parseFloat(text) || 0 })
+                      }
+                      keyboardType="numeric"
+                    />
+                  </View>
                 </View>
 
-                <TextInput
-                  style={[styles.input, { backgroundColor: theme.colors.background }]}
-                  placeholder="Total Amount"
-                  value={newBooking.totalAmount}
-                  onChangeText={(text) => setNewBooking({ ...newBooking, totalAmount: text })}
-                  keyboardType="numeric"
-                />
-
-                <TextInput
-                  style={[styles.input, { backgroundColor: theme.colors.background }]}
-                  placeholder="Advance / Booking Payment"
-                  value={newBooking.AdvBookAmount}
-                  onChangeText={(text) => setNewBooking({ ...newBooking, AdvBookAmount: text })}
-                  keyboardType="numeric"
-                />
-
-                <TouchableOpacity
-                  style={[styles.button, { backgroundColor: theme.colors.primary }]}
-                  onPress={handleBookingSubmit}
-                >
-                  <Text style={styles.buttonText}>
+                {/* Confirm and Cancel Buttons */}
+                <View style={styles.modalButtonContainer}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.cancelButton]}
+                    onPress={() => setFormModalVisible(false)}
+                  >
+                    <Text style={styles.modalButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.confirmButton]}
+                    onPress={handleBookingSubmit}
+                    disabled={loading}
+                  >
                     {loading ? (
-                      <ActivityIndicator size="small" color={theme.colors.background} />
+                      <ActivityIndicator size="small" color="#FFFFFF" />
                     ) : (
-                      "Confirm"
+                      <Text style={styles.modalButtonText}>Confirm Booking</Text>
                     )}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-
-          {/* Dialog for alerts */}
-          <Portal>
-            <Dialog visible={visibleDialog} onDismiss={() => setVisibleDialog(false)}>
-              <Dialog.Title>Notification</Dialog.Title>
-              <Dialog.Content>
-                <Text>{dialogMessage}</Text>
-              </Dialog.Content>
-              <Dialog.Actions>
-                <Button onPress={() => setVisibleDialog(false)}>OK</Button>
-              </Dialog.Actions>
-            </Dialog>
-          </Portal>
-        </View>
-      </ScrollView>
-    </LinearGradient>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </Animatable.View>
+          </View>
+        </Modal>
+      </LinearGradient>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
-  gradientContainer: {
-    flex: 1,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    padding: 0,
-  },
-  appbar: {
-    elevation: 4,
-  },
-  backAction: {
-    color: "#fff",
-  },
-  appbarText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#fff",
-  },
   container: {
     flex: 1,
-    padding: 15,
-    borderTopLeftRadius: 35,
-    borderTopRightRadius: 35,
-    marginTop: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 5,
   },
-  headerTitle: {
-    fontSize: 22, // Increased font size for better readability
-    fontWeight: "600",
-    marginLeft: 10,
-    fontFamily: "Roboto", // Standard font family
+  gradient: {
     flex: 1,
-    textAlign: 'center', // Center-align title
-  },
-  remarkContainer: {
-    marginTop: 20,
-    padding: 15,
-    backgroundColor: "#f9f9f9",
-    borderRadius: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  remarkText: {
-    fontSize: 16,
-    fontWeight: "400",
-  },
- 
-  button: {
-    paddingVertical: 15,
-    borderRadius: 25,
-    alignItems: "center",
-    marginTop: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 5,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "500",
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    width: "90%",
-    borderRadius: 15,
-    padding: 25,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-  },
-  closeIcon: {
-    alignSelf: "flex-end",
-  },
-  formTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  input: {
-    height: 45,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 15,
     paddingHorizontal: 15,
-    marginBottom: 10,
-    fontSize: 16,
   },
-  pickerContainer: {
+  content: {
+    flex: 1,
+    paddingVertical: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#333333",
+    textAlign: "center",
+    marginBottom: 10,
+    fontFamily: "Roboto",
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#666666",
+    textAlign: "center",
+    marginBottom: 20,
+    fontFamily: "Roboto",
+  },
+  calendarContainer: {
+    borderRadius: 10,
+    padding: 10,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 15,
+    borderColor: "#E0E0E0",
   },
-  pickerLabel: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    backgroundColor: "#f9f9f9",
-    fontSize: 16,
-  },
-  picker: {
-    height: 50,
+  proceedButton: {
     width: "100%",
+    borderRadius: 10,
+    overflow: "hidden",
+    marginBottom: 20,
+  },
+  buttonGradient: {
+    backgroundColor: "#3B82F6",
+    paddingVertical: 15,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+    fontFamily: "Roboto",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  formModalContainer: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 15,
+    width: width * 0.9,
+    maxHeight: height * 0.7,
+    padding: 20,
+  },
+  formModalContent: {
+    flexGrow: 1,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#333333",
+    marginBottom: 20,
+    fontFamily: "Roboto",
+  },
+  inputContainer: {
+    width: "100%",
+    marginBottom: 20,
+  },
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F5F5F5",
+    borderRadius: 10,
+    marginBottom: 15,
+    paddingHorizontal: 15,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+  },
+  inputIcon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    height: 50,
+    color: "#333333",
+    fontSize: 16,
+    fontFamily: "Roboto",
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  modalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    alignItems: "center",
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  cancelButton: {
+    backgroundColor: "#EF5350",
+  },
+  confirmButton: {
+    backgroundColor: "#3B82F6",
+  },
+  modalButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+    fontFamily: "Roboto",
   },
 });
 
-export default LawnOwnerDashboard;
+export default BookingScreen;

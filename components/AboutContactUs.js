@@ -1,138 +1,166 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Linking, Dimensions } from 'react-native';
-import { version } from '../package.json'; // Import version from package.json
-import { Appbar, useTheme } from 'react-native-paper'; // Import useTheme
+import { version } from '../package.json';
+import { Appbar, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Import icons
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Animatable from 'react-native-animatable';
 
 // Get device dimensions
 const { width, height } = Dimensions.get('window');
 
 const AboutContactUs = () => {
-  const theme = useTheme(); // Use the theme
+  const theme = useTheme();
   const navigation = useNavigation();
 
-  // Function to open dialer when contact number is clicked
   const handleCall = (phoneNumber) => {
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
   return (
-    <>
-      <Appbar.Header style={{ backgroundColor: theme.colors.primary }}>
+    <LinearGradient
+      colors={["#F5F7FA", "#E3F2FD"]}
+      style={styles.gradient}
+    >
+      {/* Header */}
+      <Appbar.Header>
+        <LinearGradient
+          colors={["#3B82F6", "#1E3A8A"]}
+          style={StyleSheet.absoluteFill}
+        />
         <Appbar.BackAction
-          color={theme.colors.surface} // Use theme color for back icon
+          color="#FFFFFF"
           onPress={() => navigation.goBack()}
         />
-        <Text style={{ fontSize: 20, fontWeight: "normal", color: theme.colors.surface }}>
+        <Text style={styles.headerTitle}>
           About & Contact Us
         </Text>
       </Appbar.Header>
-      <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+
+      <ScrollView style={styles.container}>
         {/* About Us Section */}
-        <View style={[styles.section, { backgroundColor: theme.colors.surface }]}>
-          <Image source={require('../assets/icon.webp')} style={styles.logo} />
-          <Text style={[styles.heading, { color: theme.colors.primary }]}>About Us</Text>
-          <Text style={[styles.paragraph, { color: theme.colors.text }]}>
-            Welcome to "Book My Lawn"!
-            At Book My Lawn, we are committed to delivering the best user experience. Our goal is to simplify your lawn care bookings and streamline your business operations, helping you save time and focus on what matters most. Whether you’re a homeowner looking to maintain your lawn or a business aiming to manage your services efficiently, we’ve got you covered.
-            Thank you for choosing Book My Lawn – where quality service meets convenience!
+        <Animatable.View animation="fadeInUp" duration={500} style={styles.section}>
+          <View style={styles.logoContainer}>
+            <Image source={require('../assets/icon.webp')} style={styles.logo} />
+          </View>
+          <Text style={styles.heading}>About Us</Text>
+          <Text style={styles.paragraph}>
+            Welcome to "Book My Lawn"! At Book My Lawn, we are committed to delivering the best user experience. Our goal is to simplify your lawn care bookings and streamline your business operations, helping you save time and focus on what matters most. Whether you’re a homeowner looking to maintain your lawn or a business aiming to manage your services efficiently, we’ve got you covered. Thank you for choosing Book My Lawn – where quality service meets convenience!
           </Text>
-        </View>
+        </Animatable.View>
 
         {/* Contact Us Section */}
-        <View style={[styles.section, { backgroundColor: theme.colors.surface }]}>
-          <Text style={[styles.heading, { color: theme.colors.primary }]}>Contact Us</Text>
-          <Text style={[styles.paragraph, { color: theme.colors.text }]}>
+        <Animatable.View animation="fadeInUp" duration={500} delay={200} style={styles.section}>
+          <Text style={styles.heading}>Contact Us</Text>
+          <Text style={styles.paragraph}>
             Have questions or need assistance? We're here to help! You can contact us directly using the details below:
           </Text>
 
           {/* Name */}
           <View style={styles.infoContainer}>
-            <Icon name="person" size={20} color={theme.colors.primary} style={styles.icon} />
-            <Text style={[styles.infoText, { color: theme.colors.text }]}>Affan Ansari</Text>
+            <Icon name="person" size={20} color="#3B82F6" style={styles.icon} />
+            <Text style={styles.infoText}>Affan Ansari</Text>
           </View>
 
           {/* Contact Number */}
           <TouchableOpacity onPress={() => handleCall('9579564688')} style={styles.infoContainer}>
-            <Icon name="phone" size={20} color={theme.colors.primary} style={styles.icon} />
-            <Text style={[styles.infoText, styles.contactText, { color: theme.colors.primary }]}>
+            <Icon name="phone" size={20} color="#3B82F6" style={styles.icon} />
+            <Text style={[styles.infoText, styles.contactText]}>
               +919579564688
             </Text>
           </TouchableOpacity>
 
           {/* Email */}
           <View style={styles.infoContainer}>
-            <Icon name="email" size={20} color={theme.colors.primary} style={styles.icon} />
-            <Text style={[styles.infoText, { color: theme.colors.text }]}>
+            <Icon name="email" size={20} color="#3B82F6" style={styles.icon} />
+            <Text style={styles.infoText}>
               mohammadaffan777@gmail.com
             </Text>
           </View>
 
-          {/* Display App Version at the bottom */}
+          {/* Version */}
           <View style={styles.versionContainer}>
-            <Text style={[styles.versionText, { color: theme.colors.placeholder }]}>
+            <Text style={styles.versionText}>
               Version: {version}
             </Text>
           </View>
-        </View>
+        </Animatable.View>
       </ScrollView>
-    </>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    padding: 20,
+    padding: 15,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#FFFFFF",
+    fontFamily: "Roboto",
   },
   section: {
-    marginBottom: 30,
+    marginBottom: 20,
     borderRadius: 10,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    padding: 15,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  logo: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    resizeMode: 'contain',
   },
   heading: {
-    fontSize: width * 0.06, // Dynamic font size based on screen width
-    fontWeight: 'bold',
-    marginBottom: 15,
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#333333",
+    marginBottom: 10,
+    fontFamily: "Roboto",
   },
   paragraph: {
-    fontSize: width * 0.04, // Dynamic font size based on screen width
-    marginBottom: 15,
-    lineHeight: 22,
+    fontSize: 14,
+    color: "#666666",
+    lineHeight: 20,
+    fontFamily: "Roboto",
   },
   infoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 10,
   },
   infoText: {
-    fontSize: width * 0.04, // Dynamic font size based on screen width
-    marginLeft: 10,
+    fontSize: 14,
+    color: "#666666",
+    fontFamily: "Roboto",
   },
   contactText: {
-    textDecorationLine: 'underline', // Underline to indicate it's clickable
-  },
-  logo: {
-    width: '100%',
-    height: 100,
-    resizeMode: 'contain',
-    marginBottom: 20,
+    color: "#3B82F6",
+    textDecorationLine: 'underline',
   },
   icon: {
     marginRight: 10,
   },
   versionContainer: {
-    marginTop: 20,
+    marginTop: 15,
     alignItems: 'center',
   },
   versionText: {
-    fontSize: width * 0.04, // Dynamic font size based on screen width
+    fontSize: 12,
+    color: "#666666",
+    fontFamily: "Roboto",
   },
 });
 

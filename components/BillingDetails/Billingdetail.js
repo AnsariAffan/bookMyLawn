@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   Dimensions,
   Linking,
+  Platform,
+  Share,
 } from "react-native";
 import {
   Text,
@@ -22,13 +24,12 @@ import {
   updateBillingData,
   onBillingDataChange,
 } from "../../firebaseConfiguration/FirebaseCrud";
+import RNHTMLtoPDF from "react-native-html-to-pdf";
+
 
 const { width } = Dimensions.get("window");
 
 const Billingdetail = ({ dataDefaulting }) => {
-  console.log("---dataDefaulting-----");
-  console.log(dataDefaulting);
-  console.log("---dataDefaulting-----");
   const theme = useTheme();
   const { user } = useAuth();
   const [billingData, setBillingData] = useState(dataDefaulting);
@@ -96,31 +97,57 @@ const Billingdetail = ({ dataDefaulting }) => {
     }
   };
 
-  const repeatHyphens = Math.floor(width / 5.2); // 10px width per hyphen (adjust as needed)
-  const hyphenString = "-".repeat(repeatHyphens);
+  const handleExportPrint = async () => {
+    try {
+      setLoading(true);
+
+      // handleExportPrint()
+    } catch (error) {
+      setDialogMessage("Failed to export/print invoice. Please try again.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* User Details Section */}
-      <Card style={[styles.card, { backgroundColor: theme.colors.background }]}>
-        <Card.Content>
-          <Text style={styles.header}>User Details</Text>
+      {/* Header Section */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerTitle}>Invoice</Text>
+        <Text style={styles.headerSubtitle}>Bill for {dataDefaulting.name}</Text>
+        <TouchableOpacity style={styles.exportButton}   onPress={handleMarkAsPaid} disabled={loading}>
+          {loading ? (
+            <ActivityIndicator color="#FFFFFF" size="small" />
+          ) : (
+            <>
+              <Icon name="" size={20} color="#FFFFFF" style={styles.exportIcon} />
+              <Text style={styles.exportButtonText}>Mark As Fully Paid</Text>
+            </>
+          )}
+        </TouchableOpacity>
+      </View>
 
+      {/* User Details Section */}
+      <Card style={styles.card}>
+        <Card.Content>
+          <Text style={styles.sectionHeader}>Customer Details</Text>
           <View style={styles.detailsContainer}>
             <View style={styles.detailRow}>
               <Icon name="account" size={20} style={styles.icon} />
-              <Text style={styles.label}>Name:</Text>
+              <Text style={styles.label}>Name</Text>
               <Text style={styles.value}>{dataDefaulting.name}</Text>
             </View>
             <View style={styles.detailRow}>
               <Icon name="map-marker" size={20} style={styles.icon} />
-              <Text style={styles.label}>Address:</Text>
+              <Text style={styles.label}>Address</Text>
               <Text style={styles.value}>{dataDefaulting.address}</Text>
             </View>
             <TouchableOpacity onPress={handleContactPress}>
               <View style={styles.detailRow}>
                 <Icon name="phone" size={20} style={styles.icon} />
-                <Text style={styles.label}>Contact:</Text>
-                <Text style={styles.value}>{dataDefaulting.contact}</Text>
+                <Text style={styles.label}>Contact</Text>
+                <Text style={[styles.value, styles.contactLink]}>{dataDefaulting.contact}</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -128,76 +155,79 @@ const Billingdetail = ({ dataDefaulting }) => {
       </Card>
 
       {/* Billing Details Section */}
-      <Card style={[styles.card, { backgroundColor: theme.colors.background }]}>
+      <Card style={styles.card}>
         <Card.Content>
-          <Text style={styles.header}>Billing Details</Text>
+          <Text style={styles.sectionHeader}>Invoice Details</Text>
           <View style={styles.detailsContainer}>
             <View style={styles.detailRow}>
-              <Text style={styles.label}>Payment Status:</Text>
-              <Text
+              <Text style={styles.label}>Payment Status</Text>
+              <View
                 style={[
-                  styles.value,
+                  styles.statusBadge,
                   billingData.paymentStatus === "Fully Paid"
-                    ? styles.paid
-                    : styles.unpaid,
+                    ? styles.paidBadge
+                    : styles.unpaidBadge,
                 ]}
               >
-                {billingData.paymentStatus}
-              </Text>
+                <Text style={styles.statusText}>{billingData.paymentStatus}</Text>
+              </View>
             </View>
-
             <View style={styles.detailRow}>
               <Text style={styles.label}>Booking Date</Text>
               <Text style={styles.value}>{billingData.dates}</Text>
             </View>
-
             <View style={styles.detailRow}>
-              <Text style={styles.label}>Total Amount:</Text>
-              <Text style={styles.value}>{billingData.totalAmount}</Text>
+              <Text style={styles.label}>Total Amount</Text>
+              <Text style={[styles.value, styles.amount]}>₹{billingData.totalAmount}</Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.label}>Booking Amount:</Text>
-              <Text style={styles.value}>{billingData.AdvBookAmount}</Text>
+              <Text style={styles.label}>Booking Amount</Text>
+              <Text style={styles.value}>₹{billingData.AdvBookAmount}</Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.label}>Remaining Amount:</Text>
-              <Text style={styles.value}>{billingData.remainingAmount}</Text>
+              <Text style={styles.label}>Remaining Amount</Text>
+              <Text style={[styles.value, { color: "#EF5350" }]}>₹{billingData.remainingAmount}</Text>
             </View>
-            <View>
-              <Text style={styles.label}>{hyphenString}</Text>
-            </View>
+            <View style={styles.divider} />
             <View style={styles.detailRow}>
-              <Text style={styles.label}>Total Received:</Text>
-              <Text style={styles.value}>
-                {billingData.totalReceivedAmount}
-              </Text>
+              <Text style={styles.label}>Total Received</Text>
+              <Text style={[styles.value, { color: "#4CAF50" }]}>₹{billingData.totalReceivedAmount}</Text>
             </View>
           </View>
         </Card.Content>
       </Card>
 
+      {/* Mark as Fully Paid Button */}
       <TouchableOpacity
-        style={[styles.button, { backgroundColor: theme.colors.primary }]}
+        style={styles.button}
         onPress={handleMarkAsPaid}
+        disabled={loading}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color="#FFFFFF" />
         ) : (
           <Text style={styles.buttonText}>Mark as Fully Paid</Text>
         )}
       </TouchableOpacity>
 
+      {/* Dialog */}
       <Portal>
         <Dialog
           visible={dialogVisible}
           onDismiss={() => setDialogVisible(false)}
+          style={styles.dialog}
         >
-          <Dialog.Title>Notification</Dialog.Title>
+          <Dialog.Title style={styles.dialogTitle}>Notification</Dialog.Title>
           <Dialog.Content>
-            <Text>{dialogMessage}</Text>
+            <Text style={styles.dialogMessage}>{dialogMessage}</Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDialogVisible(false)}>OK</Button>
+            <Button
+              onPress={() => setDialogVisible(false)}
+              textColor="#FF9900"
+            >
+              OK
+            </Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
@@ -207,59 +237,149 @@ const Billingdetail = ({ dataDefaulting }) => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 5,
-    backgroundColor: "#f9f9f9",
+    flexGrow: 1,
+    padding: 15,
+    backgroundColor: "#F5F5F5",
+  },
+  headerContainer: {
+  
+    backgroundColor: "#FFFFFF",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+    marginBottom: 10,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333333",
+    marginBottom: 5,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: "#666666",
+    marginBottom: 10,
+  },
+  exportButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FF9900",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    alignSelf: "flex-end",
+  },
+  exportIcon: {
+    marginRight: 8,
+  },
+  exportButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "bold",
   },
   card: {
-    borderRadius: 12,
-    marginBottom: 10,
-    elevation: 4,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
   },
-  header: {
+  sectionHeader: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 12,
+    color: "#333333",
+    marginBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+    paddingBottom: 5,
   },
   detailsContainer: {
-    marginVertical: 8,
+    marginVertical: 5,
   },
   detailRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginVertical: 6,
+    marginVertical: 10,
+    paddingHorizontal: 5,
   },
- label: {
-    fontSize: 16, // Adjust font size based on your design
-    flexShrink: 0, // Prevent shrinking of the text
-    whiteSpace: 'nowrap', // Ensure no wrapping (works better in web but can help in some cases)
-    textAlign: 'left', // Make sure text aligns left
+  label: {
+    fontSize: 16,
+    color: "#666666",
+    flex: 1,
   },
   value: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "bold",
-    flex: 1,
+    color: "#333333",
     textAlign: "right",
+    flex: 1,
+  },
+  contactLink: {
+    color: "#007185",
   },
   icon: {
     marginRight: 10,
-    color: "#4DB6AC",
+    color: "#007185",
+  },
+  statusBadge: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+  },
+  paidBadge: {
+    backgroundColor: "#4CAF50",
+  },
+  unpaidBadge: {
+    backgroundColor: "#EF5350",
+  },
+  statusText: {
+    fontSize: 12,
+    color: "#FFFFFF",
+    fontWeight: "bold",
+  },
+  amount: {
+    fontSize: 18,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#E0E0E0",
+    marginVertical: 10,
   },
   button: {
-    padding: 12,
+    backgroundColor: "#26A69A",
+    padding: 15,
     borderRadius: 8,
     alignItems: "center",
+    marginVertical: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   buttonText: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "bold",
   },
-  paid: {
-    color: "green",
+  dialog: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
   },
-  unpaid: {
-    color: "red",
+  dialogTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333333",
+  },
+  dialogMessage: {
+    fontSize: 16,
+    color: "#666666",
   },
 });
 

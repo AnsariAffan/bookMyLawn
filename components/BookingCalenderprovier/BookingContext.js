@@ -101,16 +101,21 @@ export const BookingProvider = ({ children }) => {
       }
 
       setLoading(true);
+// Calculate payment status based on AdvBookAmount and totalAmount
+let paymentStatus = "Not Paid";
+if (newBooking.AdvBookAmount > 0) {
+  paymentStatus = newBooking.AdvBookAmount >= newBooking.totalAmount ? "Fully Paid" : "Partially Paid";
+}
 
-      const bookingData = {
-        ...newBooking,
-        dates: selectedDates,
-        status: "Approved",
-        remainingAmount: newBooking.totalAmount - newBooking.AdvBookAmount,
-        paymentStatus: newBooking.AdvBookAmount.length > 0 ? "Partially Paid" : "Not Paid",
-        userId: user?.uid,
-        totalReceivedAmount:newBooking.AdvBookAmount
-      };
+const bookingData = {
+  ...newBooking,
+  dates: selectedDates,
+  status: "Approved",
+  remainingAmount: newBooking.totalAmount - newBooking.AdvBookAmount,
+  paymentStatus: paymentStatus,
+  userId: user?.uid,
+  totalReceivedAmount: newBooking.AdvBookAmount,
+};
 
 
       const billingData = {

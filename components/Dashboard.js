@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { useBookings } from "./utility/useBookings";
-import { Avatar, useTheme } from "react-native-paper"; // Import useTheme
+import { Avatar, useTheme } from "react-native-paper";
 import { auth } from "../firebaseConfiguration/firebaseConfig";
 import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -21,7 +21,7 @@ import { useBillingData } from "./utility/DataFilterOnDashboard/BillingDataConte
 const { width, height } = Dimensions.get("window");
 
 const Dashboard = () => {
-  const { billingDataState } = useBillingData(); // Access the billing data from context
+  const { billingDataState } = useBillingData();
 
   const {
     userBookings,
@@ -40,10 +40,9 @@ const Dashboard = () => {
   const navigation = useNavigation();
   const [user, setUser] = useState(null);
   const [image, setImage] = useState(null);
-  const theme = useTheme(); // Use the theme
+  const theme = useTheme();
 
   useEffect(() => {
-    // Ensure auth is defined and onAuthStateChanged exists
     const unsubscribe = auth?.onAuthStateChanged((currentUser) => {
       if (currentUser) {
         setUser(currentUser);
@@ -53,13 +52,12 @@ const Dashboard = () => {
       }
     });
 
-    // Return the unsubscribe function to clean up
-    // return () => {
-    //   if (unsubscribe) {
-    //     unsubscribe // Make sure unsubscribe is called properly
-    //   }
-    // };
-  }, []); // Empty dependency array to run the effect only once (on mount/unmount)
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (user && user.photoURL) {
@@ -68,161 +66,135 @@ const Dashboard = () => {
   }, [user]);
 
   const renderUpcomingEvents = () => {
-    return billingDataState.filteredData.map((event, index) => {
-      return (
-        <TouchableOpacity
-          key={index}
-          onPress={() =>
-            navigation.navigate("BookingDetails", { booking: event })
-          }
+    return billingDataState?.filteredData.map((event, index) => (
+      <TouchableOpacity
+        key={index}
+        onPress={() =>
+          navigation.navigate("BookingDetails", { booking: event })
+        }
+      >
+        <LinearGradient
+          colors={["#FFFFFF", "#E3F2FD"]}
+          style={styles.eventCard}
         >
-          <View
-            style={[
-              styles.eventCard,
-              { backgroundColor: theme.colors.surface },
-            ]}
-          >
-            <Text
-              style={[
-                styles.eventTitle,
-                { color: theme.colors.text },
-              ]}
-            >
-              {event.dates}
-            </Text>
-            <Text
-              style={[
-                styles.eventDate,
-                { color: theme.colors.placeholder },
-              ]}
-            >
-              {event.paymentStatus}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      );
-    });
+          <Text style={styles.eventTitle}>{event.dates}</Text>
+          <Text style={styles.eventDate}>{event.paymentStatus}</Text>
+        </LinearGradient>
+      </TouchableOpacity>
+    ));
   };
 
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
+        <ActivityIndicator size="large" color="#3B82F6" />
       </View>
     );
   }
 
   return (
-    <ScrollView
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background },
-      ]}
+    <LinearGradient
+      colors={["#F5F7FA", "#E3F2FD"]}
+      style={styles.gradient}
     >
-      <View style={styles.headerContainer}>
-        {/* Profile Picture on the Left */}
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Settings")}
-          style={styles.profileContainer}
+      <ScrollView style={styles.container}>
+        {/* Header Section */}
+        <LinearGradient
+          colors={["#FFFFFF", "#E3F2FD"]}
+          style={styles.headerContainer}
         >
-          {image ? (
-            <Avatar.Image size={40} source={{ uri: image }} />
-          ) : (
-            <Avatar.Image
-              size={40}
-              source={require("../assets/icons/icon.png")}
-            />
-          )}
-        </TouchableOpacity>
-
-        {/* User Name in the Middle */}
-        <Text style={[styles.header, { color: theme.colors.text }]}>
-          {user?.displayName}
-        </Text>
-
-        {/* Calendar Button on the Right */}
-        <DateFilter />
-      </View>
-
-      <View style={styles.container}>
-        <View style={styles.sideBySideContainer}>
-          {/* Total Revenue */}
-          <TouchableOpacity style={styles.boxContainer}>
-            <LinearGradient
-              colors={["#6C63FF", "#8E85FF"]}
-              style={[styles.dataBox, { backgroundColor: theme.colors.primary }]}
-            >
-              <View style={styles.revenueContainer}>
-                <Text style={styles.currencyText}>₹</Text>
-                <Text style={styles.dataText}>
-                  {billingDataState.totalReceivedAmount}
-                </Text>
-              </View>
-              <Text style={styles.dataLabel}>Total Revenue</Text>
-            </LinearGradient>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Settings")}
+            style={styles.profileContainer}
+          >
+            {image ? (
+              <Avatar.Image size={36} source={{ uri: image }} />
+            ) : (
+              <Avatar.Image
+                size={36}
+                source={require("../assets/icons/icon.png")}
+              />
+            )}
           </TouchableOpacity>
 
-          {/* Unpaid */}
-          <TouchableOpacity style={styles.boxContainer}>
-            <LinearGradient
-              colors={["#FF6584", "#FF7E9A"]}
-              style={[styles.dataBox, { backgroundColor: "#FF6584" }]}
-            >
-              <View style={styles.revenueContainer}>
-                <Text style={styles.currencyText}>₹</Text>
-                <Text style={styles.dataText}>
-                  {billingDataState.totalRemainingAmount}
-                </Text>
-              </View>
-              <Text style={styles.dataLabel}>Unpaid</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.sideBySideContainer}>
-          {/* Total Bookings */}
-          <TouchableOpacity style={styles.boxContainer}>
-            <LinearGradient
-              colors={["#32DCA1", "#4AE8B8"]}
-              style={[styles.dataBox, { backgroundColor: "#32DCA1" }]}
-            >
-              <Text style={styles.dataText}>
-                {billingDataState.totalBookings}
-              </Text>
-              <Text style={styles.dataLabel}>Total Bookings</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-
-          {/* Upcoming Events */}
-          <TouchableOpacity style={styles.boxContainer}>
-            <LinearGradient
-              colors={["#FFA726", "#FFBA4D"]}
-              style={[styles.dataBox, { backgroundColor: "#FFA726" }]}
-            >
-              <Text style={styles.dataText}>
-                {billingDataState?.totalUpcomingDates}
-              </Text>
-              <Text style={styles.dataLabel}>Upcoming Events</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-            Upcoming Events
+          <Text style={styles.header}>
+            {user?.displayName || "Welcome"}
           </Text>
+
+          <View style={styles.calendarButton}>
+            <DateFilter />
+          </View>
+        </LinearGradient>
+
+        {/* Data Boxes */}
+        <View style={styles.dataContainer}>
+          <View style={styles.sideBySideContainer}>
+            {/* Total Revenue */}
+            <TouchableOpacity style={styles.boxContainer}>
+              <View style={[styles.dataBox, { backgroundColor: "#3B82F6" }]}>
+                <View style={styles.revenueContainer}>
+                  <Text style={styles.currencyText}>₹</Text>
+                  <Text style={styles.dataText}>
+                    {billingDataState.totalReceivedAmount}
+                  </Text>
+                </View>
+                <Text style={styles.dataLabel}>Total Revenue</Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Unpaid */}
+            <TouchableOpacity style={styles.boxContainer}>
+              <View style={[styles.dataBox, { backgroundColor: "#EF5350" }]}>
+                <View style={styles.revenueContainer}>
+                  <Text style={styles.currencyText}>₹</Text>
+                  <Text style={styles.dataText}>
+                    {billingDataState.totalRemainingAmount}
+                  </Text>
+                </View>
+                <Text style={styles.dataLabel}>Unpaid</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.sideBySideContainer}>
+            {/* Total Bookings */}
+            <TouchableOpacity style={styles.boxContainer}>
+              <View style={[styles.dataBox, { backgroundColor: "#4DB6AC" }]}>
+                <Text style={styles.dataText}>
+                  {billingDataState.totalBookings}
+                </Text>
+                <Text style={styles.dataLabel}>Total Bookings</Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Upcoming Events */}
+            <TouchableOpacity style={styles.boxContainer}>
+              <View style={[styles.dataBox, { backgroundColor: "#FF9900" }]}>
+                <Text style={styles.dataText}>
+                  {billingDataState?.totalUpcomingDates}
+                </Text>
+                <Text style={styles.dataLabel}>Upcoming Events</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Upcoming Events Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Upcoming Events</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {renderUpcomingEvents()}
           </ScrollView>
         </View>
-      </View>
 
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-          Revenue vs Time (Monthly)
-        </Text>
+        {/* Revenue Chart Section */}
+        <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Revenue vs Time (Monthly)</Text>
         {totalReceivedAmounts.length > 0 ? (
-          <TouchableOpacity>
+          <LinearGradient
+            colors={["#FFFFFF", "#E3F2FD"]}
+            style={styles.chartContainer}
+          >
             <LineChart
               data={{
                 labels: [
@@ -239,77 +211,90 @@ const Dashboard = () => {
                   "Nov",
                   "Dec",
                 ],
-                datasets: [{ data: totalReceivedAmounts, strokeWidth: 1 }],
+                datasets: [{ data: totalReceivedAmounts, strokeWidth: 2 }],
               }}
-              width={width - 12}
-              height={220}
+              width={width - 20}
+              height={200}
               chartConfig={{
-                backgroundColor: theme.colors.primary,
-                backgroundGradientFrom: theme.colors.primary,
-                backgroundGradientTo: theme.colors.primary,
+                backgroundColor: "#FFFFFF", // Changed to white
+                backgroundGradientFrom: "#FFFFFF", // Changed to white
+                backgroundGradientTo: "#FFFFFF", // Changed to white
                 decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                style: { borderRadius: 16 },
-                propsForDots: { r: "6", strokeWidth: "2", stroke: "#FFA726" },
+                color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(102, 102, 102, ${opacity})`,
+                style: { borderRadius: 10 },
+                propsForDots: {
+                  r: "5",
+                  strokeWidth: "2",
+                  stroke: "#3B82F6",
+                },
               }}
-              style={{ marginVertical: 8, borderRadius: 16 }}
+              style={{ borderRadius: 10 }}
             />
-          </TouchableOpacity>
+          </LinearGradient>
         ) : (
           <Text style={styles.noDataText}>No data available</Text>
         )}
       </View>
-    </ScrollView>
+      </ScrollView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    paddingInline: width * 0.01,
+    paddingHorizontal: width * 0.02,
   },
   loaderContainer: {
     justifyContent: "center",
     alignItems: "center",
     flex: 1,
-  },
-  profileContainer: {
-    marginTop: 5, // Optional: gives space from the top
-    marginLeft: 5,
+    backgroundColor: "#F5F7FA",
   },
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: height * 0.01,
-    marginBottom: height * 0.001,
+    marginBottom: height * 0.01,
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+  },
+  profileContainer: {
+    marginLeft: 10,
   },
   header: {
-    fontSize: width * 0.06,
-    fontWeight: "bold",
-    paddingLeft: 5,
-    marginTop: 5,
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#333333",
+    fontFamily: "Roboto",
+  },
+  calendarButton: {
+    marginRight: 5,
+  },
+  dataContainer: {
+    marginBottom: 5,
   },
   sideBySideContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 0,
+    marginBottom: 5,
   },
   boxContainer: {
     flex: 1,
-    marginHorizontal: width * 0.01, // Space between the boxes
+    marginHorizontal: width * 0.01,
   },
   dataBox: {
-    flex: 1,
-    padding: width * 0.05,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
-    marginVertical: 4, // Margin to create space between rows
+    padding: width * 0.04,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
   },
   revenueContainer: {
     flexDirection: "row",
@@ -317,52 +302,69 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   currencyText: {
-    fontSize: width * 0.06,
-    fontWeight: "bold",
-    color: "#FFF",
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#FFFFFF",
     marginRight: 5,
+    fontFamily: "Roboto",
   },
   dataText: {
-    fontSize: width * 0.06,
-    fontWeight: "bold",
-    color: "#FFF",
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#FFFFFF",
+    fontFamily: "Roboto",
   },
   dataLabel: {
     textAlign: "left",
-    color: "#FFF",
-    fontSize: width * 0.04,
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontFamily: "Roboto",
+    marginTop: 5,
   },
   section: {
-    marginTop: height * 0.01,
-    padding: 3,
+    marginTop: height * 0,
+    padding: 5,
   },
   sectionTitle: {
-    fontSize: width * 0.05,
-    fontWeight: "bold",
-    marginBottom: height * 0,
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333333",
+    marginBottom: 5,
+    fontFamily: "Roboto",
   },
   eventCard: {
-    padding: width * 0.02,
-    margin: width * 0.02,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
+    padding: width * 0.03,
+    margin: width * 0.01,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    width: width * 0.35,
   },
   eventTitle: {
-    fontSize: width * 0.04,
-    fontWeight: "normal",
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#333333",
+    fontFamily: "Roboto",
   },
   eventDate: {
-    fontSize: width * 0.03,
+    fontSize: 12,
+    color: "#666666",
+    fontFamily: "Roboto",
+    marginTop: 2,
+  },
+  chartContainer: {
+    borderRadius: 10,
+    padding: 5,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
   },
   noDataText: {
-    fontSize: width * 0.04,
-    fontWeight: "normal",
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#666666",
     textAlign: "center",
-    marginTop: height * 0.02,
+    marginTop: 10,
+    fontFamily: "Roboto",
   },
 });
 

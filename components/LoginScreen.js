@@ -1,12 +1,24 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Dimensions, KeyboardAvoidingView, Platform } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  ActivityIndicator,
+  Dimensions,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { Checkbox } from "react-native-paper";
 import { useAuth } from "./Authprovider.js/AuthProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { version } from '../package.json';
-import { LinearGradient } from 'expo-linear-gradient'; // For gradient background
-import Icon from 'react-native-vector-icons/MaterialIcons'; // For icons
+import { version } from "../package.json";
+import { LinearGradient } from "expo-linear-gradient";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import * as Animatable from "react-native-animatable";
 
 const { width, height } = Dimensions.get("window");
 
@@ -83,66 +95,93 @@ export default function LoginScreen() {
       style={styles.container}
     >
       <LinearGradient
-        colors={["#6A11CB", "#2575FC"]} // Gradient background
+        colors={["#F5F7FA", "#E3F2FD"]}
         style={styles.gradient}
       >
-        <View style={styles.content}>
-          <Image source={require('../assets/icons/icon.png')} style={styles.icon} />
+        <Animatable.View animation="fadeInUp" duration={1000} style={styles.content}>
+          {/* App Icon */}
+          <Image source={require("../assets/icons/icon.png")} style={styles.icon} />
+
+          {/* Title and Subtitle */}
           <Text style={styles.title}>Welcome Back!</Text>
           <Text style={styles.subtitle}>Book My Lawn</Text>
 
+          {/* Input Container */}
           <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter ID"
-              placeholderTextColor="#999"
-              value={id}
-              onChangeText={setId}
-              autoCapitalize="none"
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Password"
-              placeholderTextColor="#999"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={true}
-              autoCapitalize="none"
-            />
+            <LinearGradient
+              colors={["#FFFFFF", "#E3F2FD"]}
+              style={styles.inputWrapper}
+            >
+              <Icon name="person" size={20} color="#3B82F6" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Enter ID"
+                placeholderTextColor="#666666"
+                value={id}
+                onChangeText={setId}
+                autoCapitalize="none"
+              />
+            </LinearGradient>
+            <LinearGradient
+              colors={["#FFFFFF", "#E3F2FD"]}
+              style={styles.inputWrapper}
+            >
+              <Icon name="lock" size={20} color="#3B82F6" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Enter Password"
+                placeholderTextColor="#666666"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={true}
+                autoCapitalize="none"
+              />
+            </LinearGradient>
           </View>
 
+          {/* Remember Me Checkbox */}
           <View style={styles.rememberMeContainer}>
             <Checkbox
               status={rememberMe ? "checked" : "unchecked"}
               onPress={() => setRememberMe(!rememberMe)}
-              color="#fff"
+              color="#3B82F6"
+              uncheckedColor="#666666"
             />
             <Text style={styles.rememberMeText}>Remember Me</Text>
           </View>
 
-          {isSigningUp ? (
-            <TouchableOpacity style={styles.button} onPress={handleSignUp} disabled={isLoading}>
-              {isLoading ? (
-                <ActivityIndicator size="small" color="blue" />
-              ) : (
-                <Text style={styles.buttonText}>Sign Up</Text>
-              )}
+          {/* Login/Sign Up Button */}
+          <Animatable.View animation="pulse" iterationCount="infinite" duration={2000}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={isSigningUp ? handleSignUp : handleLogin}
+              disabled={isLoading}
+              activeOpacity={0.8}
+            >
+              <View style={styles.buttonGradient}>
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.buttonText}>
+                    {isSigningUp ? "Sign Up" : "Login"}
+                  </Text>
+                )}
+              </View>
             </TouchableOpacity>
-          ) : (
-            <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isLoading}>
-              {isLoading ? (
-                <ActivityIndicator size="small" color="blue" />
-              ) : (
-                <Text style={styles.buttonText}>Login</Text>
-              )}
-            </TouchableOpacity>
-          )}
+          </Animatable.View>
 
+          {/* Switch between Login and Sign Up */}
+          <TouchableOpacity onPress={() => setIsSigningUp(!isSigningUp)}>
+            <Text style={styles.switchText}>
+              {isSigningUp ? "Already have an account? Login" : "Don't have an account? Sign Up"}
+            </Text>
+          </TouchableOpacity>
 
+          {/* Version Text */}
           <View style={styles.versionContainer}>
             <Text style={styles.versionText}>Version: {version}</Text>
           </View>
-        </View>
+        </Animatable.View>
       </LinearGradient>
     </KeyboardAvoidingView>
   );
@@ -160,38 +199,51 @@ const styles = StyleSheet.create({
   content: {
     width: width * 0.9,
     alignItems: "center",
+    paddingVertical: 20,
   },
   icon: {
-    width: 100,
-    height: 100,
+    width: 80,
+    height: 80,
     marginBottom: 20,
     borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "#E0E0E0",
   },
   title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 10,
+    fontSize: 32,
+    fontWeight: "600",
+    color: "#333333",
+    marginBottom: 5,
+    fontFamily: "Roboto",
   },
   subtitle: {
-    fontSize: 16,
-    color: "#fff",
+    fontSize: 18,
+    color: "#666666",
     marginBottom: 30,
+    fontFamily: "Roboto",
   },
   inputContainer: {
     width: "100%",
     marginBottom: 20,
   },
-  input: {
-    width: "100%",
-    height: 50,
-    borderColor: "#fff",
-    borderWidth: 1,
-    borderRadius: 25,
-    paddingHorizontal: 20,
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 15,
     marginBottom: 15,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    color: "#fff",
+    paddingHorizontal: 15,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+  },
+  inputIcon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    height: 50,
+    color: "#333333",
+    fontSize: 16,
+    fontFamily: "Roboto",
   },
   rememberMeContainer: {
     flexDirection: "row",
@@ -200,36 +252,42 @@ const styles = StyleSheet.create({
   },
   rememberMeText: {
     fontSize: 14,
-    color: "#fff",
+    color: "#666666",
     marginLeft: 10,
+    fontFamily: "Roboto",
   },
   button: {
-    backgroundColor: "#fff",
-    paddingVertical: 15,
-    paddingHorizontal: 40,
-    borderRadius: 25,
     width: "100%",
-    alignItems: "center",
+    borderRadius: 15,
+    overflow: "hidden",
     marginBottom: 20,
+   
+  },
+  buttonGradient: {
+    backgroundColor: "#3B82F6",
+    paddingVertical: 15,
+    alignItems: "center",
   },
   buttonText: {
-    color: "#6A11CB",
+    color: "#FFFFFF",
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
+    fontFamily: "Roboto",
+    paddingInline:30
   },
   switchText: {
-    color: "#fff",
+    color: "#3B82F6",
     fontSize: 14,
     textDecorationLine: "underline",
+    fontFamily: "Roboto",
   },
   versionContainer: {
-    position: "absolute",
-    
-    bottom: -100,
+    marginTop: 20,
     alignItems: "center",
   },
   versionText: {
     fontSize: 12,
-    color: "#fff",
+    color: "#666666",
+    fontFamily: "Roboto",
   },
 });
