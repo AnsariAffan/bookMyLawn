@@ -121,8 +121,11 @@ const Billingdetail = ({ navigation, route }) => {
     <Card style={styles.card2}>
       <Card.Content>
         <Text style={styles.sectionHeader}>Invoice Details</Text>
+        
         <View style={styles.detailsContainer}>
+       
           <View style={styles.detailRow}>
+          
             <Text style={styles.label}>Payment Status</Text>
             <View
               style={[
@@ -135,6 +138,7 @@ const Billingdetail = ({ navigation, route }) => {
               <Text style={styles.statusText}>{billingData.paymentStatus}</Text>
             </View>
           </View>
+
           <View style={styles.detailRow}>
             <Text style={styles.label}>Booking Date</Text>
             <Text style={styles.value}>{billingData.dates}</Text>
@@ -179,6 +183,8 @@ const Billingdetail = ({ navigation, route }) => {
     <View style={styles.headerContainer}>
     <View Style={{display:"flex",flexDirection:"column",justifyContent:"space-evenlt]y"}}>
     <Text style={styles.headerTitle}>Invoice </Text>
+    <Text style={styles.headerSubtitle}>Create At: {dataDefaulting.createdAt} </Text>
+
     <Text style={styles.headerSubtitle}>Bill id:{dataDefaulting.id} </Text>
     </View>
      

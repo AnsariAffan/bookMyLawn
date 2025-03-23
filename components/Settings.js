@@ -25,7 +25,7 @@ const Settings = ({ navigation }) => {
       if (user) {
         setUsername(user.displayName || 'Username');
         setEmail(user.email || 'user@example.com');
-        setImage(user.photoURL || null);
+        setImage(user.photoURL || null); // Ensure photoURL is set correctly
       }
     });
     return unsubscribe;
@@ -72,8 +72,8 @@ const Settings = ({ navigation }) => {
 
       if (!result.canceled && result.assets?.length > 0) {
         const selectedImage = result.assets[0].uri;
-        setImage(selectedImage);
-        await updateProfile(auth.currentUser, { photoURL: selectedImage });
+        setImage(selectedImage); // Update state with the selected image URI
+        await updateProfile(auth.currentUser, { photoURL: selectedImage }); // Update photoURL in Firebase
       }
     } catch (error) {
       console.error('Error picking image:', error);

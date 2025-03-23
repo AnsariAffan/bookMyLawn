@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
   filterModal: {
     backgroundColor: "#FFFFFF",
     borderRadius: 10,
-    padding: 20,
+    padding: 15,
     width: "90%",
     maxWidth: 400,
   },

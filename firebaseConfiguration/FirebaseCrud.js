@@ -7,10 +7,11 @@ export const saveBillingData = (clientId, billingData) => {
   const billingRef = ref(realtimeDb, `clients/${clientId}/Billings`);
   const newBillingRef = push(billingRef); // Push creates a new unique ID for each billing entry
   
-  // Add the generated id to the billing data
+  // Add the generated id and createdAt timestamp in ISO 8601 format to the billing data
   const billingDataWithId = { 
     ...billingData, 
-    id: newBillingRef.key // Set the generated ID as part of the billing data
+    id: newBillingRef.key, // Set the generated ID as part of the billing data
+    createdAt: new Date().toISOString() // Add the current timestamp in ISO 8601 format
   };
 
   set(newBillingRef, billingDataWithId)
@@ -22,7 +23,14 @@ export const saveBillingData = (clientId, billingData) => {
 export const saveBookingData = (clientId, bookingData) => {
   const bookingRef = ref(realtimeDb, `clients/${clientId}/Bookings`);
   const newBookingRef = push(bookingRef); // Push creates a new unique ID for each booking entry
-  set(newBookingRef, bookingData)
+  
+  // Add createdAt timestamp in ISO 8601 format to the booking data
+  const bookingDataWithTimestamp = {
+    ...bookingData,
+    createdAt: new Date().toISOString() // Add the current timestamp in ISO 8601 format
+  };
+
+  set(newBookingRef, bookingDataWithTimestamp)
     .then(() => console.log('Booking data saved successfully.'))
     .catch((error) => console.error('Error saving booking data: ', error));
 };

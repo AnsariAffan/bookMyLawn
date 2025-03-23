@@ -150,7 +150,7 @@ const BookingScreen = () => {
                     { placeholder: "Name", icon: "person", key: "name", keyboardType: "default" },
                     { placeholder: "Contact", icon: "phone", key: "contact", keyboardType: "phone-pad" },
                     { placeholder: "Address", icon: "location-on", key: "address", keyboardType: "default" },
-                    { placeholder: "Total Amount", icon: "attach-money", key: "totalAmount", keyboardType: "numeric" },
+                    { placeholder: "₹ Total Amount", key: "totalAmount", keyboardType: "numeric" },
                     { placeholder: "Advance Booking Amount", icon: "payment", key: "AdvBookAmount", keyboardType: "numeric" },
                   ].map(({ placeholder, icon, key, keyboardType }) => (
                     <View style={styles.inputWrapper} key={key}>
@@ -183,7 +183,7 @@ const BookingScreen = () => {
                     {loading ? (
                       <ActivityIndicator size="small" color="#FFFFFF" />
                     ) : (
-                      <Text style={styles.modalButtonText}>Confirm Booking</Text>
+                      <Text style={styles.modalButtonText}>Confirm</Text>
                     )}
                   </TouchableOpacity>
                 </View>
