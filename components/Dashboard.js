@@ -177,13 +177,7 @@ const Dashboard = () => {
           </View>
         </View>
 
-        {/* Upcoming Events Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Upcoming Events</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {renderUpcomingEvents}
-          </ScrollView>
-        </View>
+       
 
         {/* Revenue Chart Section */}
         <View style={styles.section}>
@@ -234,6 +228,13 @@ const Dashboard = () => {
           <Text style={styles.noDataText}>No data available</Text>
         )}
       </View>
+       {/* Upcoming Events Section */}
+       <View style={styles.section}>
+       <Text style={styles.sectionTitle}>Upcoming Events</Text>
+       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+         {renderUpcomingEvents}
+       </ScrollView>
+     </View>
       </ScrollView>
     </LinearGradient>
   );

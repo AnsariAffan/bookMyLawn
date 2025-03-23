@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../Authprovider.js/AuthProvider';
 import { onBillingDataChange } from '../../firebaseConfiguration/FirebaseCrud';
 
@@ -53,10 +53,20 @@ export const BookingListProvider = ({ children }) => {
 
   const handleFilterChange = (status) => setFilter(status);
 
-  const handleCardPress = (item, navigation) => {
+  const handleCardPress = useCallback((item, navigation) => {
     setSelectedBooking(item);
     navigation.navigate("BookingDetails", { booking: item });
-  };
+  }, []);
+
+  const renderItem = useCallback(
+    ({ item, navigation }) => (
+      <HotelCard
+        hotel={item}
+        onPress={() => handleCardPress(item, navigation)}
+      />
+    ),
+    [handleCardPress]
+  );
 
   return (
     <BookingListContext.Provider
@@ -68,9 +78,20 @@ export const BookingListProvider = ({ children }) => {
         handleFilterChange,
         handleCardPress,
         filter,
+        renderItem, // Expose renderItem for FlatList usage
       }}
     >
       {children}
     </BookingListContext.Provider>
   );
 };
+
+// Memoized HotelCard component
+const HotelCard = React.memo(({ hotel, onPress }) => {
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <Text>{hotel.name}</Text>
+      <Text>{hotel.paymentStatus}</Text>
+    </TouchableOpacity>
+  );
+});

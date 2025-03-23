@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useMemo, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
   ActivityIndicator,
+  Modal,
 } from "react-native";
 import { Avatar, useTheme } from "react-native-paper";
 import { BookingListContext } from "./BookingListContext";
@@ -15,8 +16,14 @@ import { useBillingData } from "../utility/DataFilterOnDashboard/BillingDataCont
 import { LinearGradient } from "expo-linear-gradient";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import * as Animatable from "react-native-animatable";
+import { Picker } from "@react-native-picker/picker";
 
 const { width } = Dimensions.get("window");
+
+const monthNames = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
 
 const BookingList = ({ navigation }) => {
   const theme = useTheme();
@@ -32,8 +39,26 @@ const BookingList = ({ navigation }) => {
 
   const { billingDataState } = useBillingData();
 
-  const renderCoinItem = useMemo(
-    () => ({ item, index }) => {
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
+
+  const handleMonthChange = (month) => setSelectedMonth(month);
+  const handleYearChange = (year) => setSelectedYear(year);
+
+  const handleApplyFilter = () => {
+    setFilterModalVisible(false);
+  };
+
+  const handleClearFilter = () => {
+    setSelectedMonth("");
+    setSelectedYear("");
+    setFilterModalVisible(false);
+  };
+
+  // Memoized component for rendering list items
+  const RenderCoinItem = React.memo(
+    ({ item, index, handleCardPress, navigation }) => {
       const totalAmount = item.totalAmount;
       const totalReceivedAmount = item.totalReceivedAmount;
       const remainingAmount = totalAmount - totalReceivedAmount;
@@ -99,22 +124,59 @@ const BookingList = ({ navigation }) => {
         </Animatable.View>
       );
     },
+    (prevProps, nextProps) => {
+      // Custom comparison function to prevent unnecessary re-renders
+      return (
+        prevProps.item === nextProps.item &&
+        prevProps.index === nextProps.index &&
+        prevProps.handleCardPress === nextProps.handleCardPress &&
+        prevProps.navigation === nextProps.navigation
+      );
+    }
+  );
+
+  // Memoize the renderItem function
+  const renderItem = useCallback(
+    ({ item, index }) => (
+      <RenderCoinItem
+        item={item}
+        index={index}
+        handleCardPress={handleCardPress}
+        navigation={navigation}
+      />
+    ),
     [handleCardPress, navigation]
   );
 
-  const filteredData = useMemo(
-    () =>
-      filteredHotels.map((hotel) => ({
-        name: hotel.name,
-        totalAmount: hotel.totalAmount,
-        totalReceivedAmount: hotel.totalReceivedAmount,
-        remainingAmount: hotel.remainingAmount,
-        paymentStatus: hotel.paymentStatus,
-        dates: hotel.dates,
-        id: hotel.id,
-      })),
-    [filteredHotels]
-  );
+  const filteredData = useMemo(() => {
+    return filteredHotels.filter((hotel) => {
+      const bookingDate = new Date(hotel.dates);
+
+      if (selectedMonth) {
+        const hotelMonth = bookingDate.getMonth() + 1; // Months are 0-indexed
+        if (hotelMonth !== parseInt(selectedMonth)) return false;
+      }
+
+      if (selectedYear) {
+        const hotelYear = bookingDate.getFullYear();
+        if (hotelYear !== parseInt(selectedYear)) return false;
+      }
+
+      return true;
+    });
+  }, [filteredHotels, selectedMonth, selectedYear]);
+
+  const filterCounts = useMemo(() => {
+    const counts = { all: filteredHotels.length, "partially paid": 0, "fully paid": 0 };
+    filteredHotels.forEach((hotel) => {
+      if (hotel.paymentStatus?.toLowerCase() === "partially paid") {
+        counts["partially paid"]++;
+      } else if (hotel.paymentStatus?.toLowerCase() === "fully paid") {
+        counts["fully paid"]++;
+      }
+    });
+    return counts;
+  }, [filteredHotels]);
 
   return (
     <LinearGradient colors={["#F5F7FA", "#E3F2FD"]} style={styles.container}>
@@ -124,7 +186,12 @@ const BookingList = ({ navigation }) => {
             colors={["#FFFFFF", "#E3F2FD"]}
             style={styles.portfolioSummary}
           >
-            <Text style={styles.value}>Portfolio</Text>
+            <View style={styles.portfolioHeader}>
+              <Text style={styles.value}>Portfolio</Text>
+              <TouchableOpacity onPress={() => setFilterModalVisible(true)}>
+                <Icon name="calendar-today" size={24} color="#666666" />
+              </TouchableOpacity>
+            </View>
             <View style={styles.searchBarContainer}>
               <Icon name="search" size={20} color="#666666" style={styles.searchIcon} />
               <TextInput
@@ -151,6 +218,52 @@ const BookingList = ({ navigation }) => {
           </LinearGradient>
         </Animatable.View>
 
+        <Modal visible={filterModalVisible} transparent={true} animationType="slide">
+          <View style={styles.modalContainer}>
+            <View style={styles.filterModal}>
+              <Text style={styles.modalTitle}>Filter by Date</Text>
+
+              <Text style={styles.filterLabel}>Month</Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={selectedMonth}
+                  onValueChange={handleMonthChange}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Select Month" value="" />
+                  {monthNames.map((month, index) => (
+                    <Picker.Item key={index} label={month} value={`${index + 1}`} />
+                  ))}
+                </Picker>
+              </View>
+
+              <Text style={styles.filterLabel}>Year</Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={selectedYear}
+                  onValueChange={handleYearChange}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Select Year" value="" />
+                  {Array.from({ length: 5 }, (_, i) => {
+                    const year = new Date().getFullYear() - i;
+                    return <Picker.Item key={year} label={`${year}`} value={`${year}`} />;
+                  })}
+                </Picker>
+              </View>
+
+              <View style={styles.filterButtons}>
+                <TouchableOpacity onPress={handleApplyFilter} style={styles.applyButton}>
+                  <Text style={styles.applyButtonText}>Apply</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleClearFilter} style={styles.clearButton}>
+                  <Text style={styles.clearButtonText}>Clear</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
         <View style={styles.filterContainer}>
           {["all", "partially paid", "fully paid"].map((status) => (
             <TouchableOpacity
@@ -163,7 +276,7 @@ const BookingList = ({ navigation }) => {
                 style={[styles.filterGradient, filter === status && { backgroundColor: "#3B82F6" }]}
               >
                 <Text style={[styles.filterButtonText, filter === status && styles.selectedFilterText]}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                  {`${status.charAt(0).toUpperCase() + status.slice(1)} (${filterCounts[status]})`}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -175,9 +288,17 @@ const BookingList = ({ navigation }) => {
         ) : (
           <FlatList
             data={filteredData}
-            renderItem={renderCoinItem}
+            renderItem={renderItem}
             contentContainerStyle={styles.coinList}
             keyExtractor={(item) => item.id.toString()}
+            getItemLayout={(data, index) => ({
+              length: 100, // Approximate height of each item
+              offset: 100 * index,
+              index,
+            })}
+            initialNumToRender={10} // Render only a few items initially
+            maxToRenderPerBatch={10} // Limit the number of items rendered per batch
+            windowSize={5} // Adjust the window size for better performance
           />
         )}
       </Animatable.View>
@@ -232,6 +353,77 @@ const styles = StyleSheet.create({
   amountText: { fontSize: 14 },
   separator: { fontSize: 14, color: "#666666", marginHorizontal: 5 },
   loader: { flex: 1, justifyContent: "center", alignItems: "center" },
+  picker: {
+    height: 40,
+    marginVertical: 10,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 5,
+  },
+  portfolioHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  filterModal: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    padding: 20,
+    width: "90%", // Increased width for better visibility
+    maxWidth: 400, // Added max width for larger screens
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  filterLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginTop: 10,
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderRadius: 5,
+    overflow: "hidden",
+    marginVertical: 10,
+  },
+  picker: {
+    height: 40,
+    backgroundColor: "#F5F5F5",
+  },
+  filterButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+  applyButton: {
+    backgroundColor: "#3B82F6",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  applyButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+  },
+  clearButton: {
+    backgroundColor: "#EF5350",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  clearButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+  },
 });
 
 export default BookingList;

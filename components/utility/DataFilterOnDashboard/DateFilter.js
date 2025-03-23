@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAuth } from '../../Authprovider.js/AuthProvider';
 import { useBillingData } from './BillingDataContext'; // Import the custom hook
 import { onBillingDataChange } from '../../../firebaseConfiguration/FirebaseCrud'; // Import the real-time listener
+import { Picker } from "@react-native-picker/picker";
 
 const DateFilter = () => {
   const { user } = useAuth();
@@ -18,6 +19,9 @@ const DateFilter = () => {
 
   const [showPicker, setShowPicker] = useState(false);
   const [totalUpcomingDates, setTotalUpcomingDates] = useState(0); // Store the number of upcoming dates
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
 
   // Fetch data for the current month on component mount
   useEffect(() => {
@@ -25,6 +29,12 @@ const DateFilter = () => {
       onBillingDataChange(user?.displayName, handleBillingDataUpdate);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user?.displayName) {
+      fetchDataFromFirebase(selectedDate.month, selectedDate.year); // Fetch data when selectedDate changes
+    }
+  }, [user, selectedDate]);
 
   const handleBillingDataUpdate = (billingData) => {
     if (billingData) {
@@ -52,8 +62,7 @@ const DateFilter = () => {
     if (date) {
       const month = date.getMonth() + 1;
       const year = date.getFullYear();
-      setSelectedDate({ month, year });
-      fetchDataFromFirebase(month, year);
+      setSelectedDate({ month, year }); // Update selectedDate state
     }
     setShowPicker(false);
   };
@@ -158,14 +167,87 @@ const DateFilter = () => {
     return monthNames[monthNumber - 1]; // Adjust because monthNumber is 1-based
   };
 
+  const handleMonthChange = (month) => setSelectedMonth(month);
+  const handleYearChange = (year) => setSelectedYear(year);
+
+  const handleApplyFilter = () => {
+    if (selectedMonth && selectedYear) {
+      const month = parseInt(selectedMonth);
+      const year = parseInt(selectedYear);
+      setSelectedDate({ month, year });
+      fetchDataFromFirebase(month, year); // Fetch data for the selected month and year
+    }
+    setFilterModalVisible(false);
+  };
+
+  const handleClearFilter = () => {
+    setSelectedMonth("");
+    setSelectedYear("");
+    setSelectedDate({ month: new Date().getMonth() + 1, year: new Date().getFullYear() });
+    fetchDataFromFirebase(new Date().getMonth() + 1, new Date().getFullYear()); // Reset to current month and year
+    setFilterModalVisible(false);
+  };
+
+  // Replace numeric month labels with month names
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={handlePicker} style={styles.calendarButton}>
+      <TouchableOpacity onPress={() => setFilterModalVisible(true)} style={styles.calendarButton}>
         <Icon name="calendar-today" size={30} color="#000" />
         <Text style={styles.buttonText}>
           {getMonthName(selectedDate.month).slice(0,3)} {selectedDate.year}
         </Text>
       </TouchableOpacity>
+
+      <Modal visible={filterModalVisible} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.filterModal}>
+            <Text style={styles.modalTitle}>Filter by Date</Text>
+
+            <Text style={styles.filterLabel}>Month</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={selectedMonth}
+                onValueChange={handleMonthChange}
+                style={styles.picker}
+              >
+                <Picker.Item label="Select Month" value="" />
+                {monthNames.map((name, index) => (
+                  <Picker.Item key={index} label={name} value={`${index + 1}`} />
+                ))}
+              </Picker>
+            </View>
+
+            <Text style={styles.filterLabel}>Year</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={selectedYear}
+                onValueChange={handleYearChange}
+                style={styles.picker}
+              >
+                <Picker.Item label="Select Year" value="" />
+                {Array.from({ length: 5 }, (_, i) => {
+                  const year = new Date().getFullYear() - i;
+                  return <Picker.Item key={year} label={`${year}`} value={`${year}`} />;
+                })}
+              </Picker>
+            </View>
+
+            <View style={styles.filterButtons}>
+              <TouchableOpacity onPress={handleApplyFilter} style={styles.applyButton}>
+                <Text style={styles.applyButtonText}>Apply</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleClearFilter} style={styles.clearButton}>
+                <Text style={styles.clearButtonText}>Clear</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {showPicker && (
         <DateTimePicker
@@ -215,6 +297,66 @@ const styles = StyleSheet.create({
   upcomingDatesText: {
     fontSize: 16,
     marginBottom: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  filterModal: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    padding: 20,
+    width: "90%",
+    maxWidth: 400,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  filterLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginTop: 10,
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderRadius: 5,
+    overflow: "hidden",
+    marginVertical: 10,
+  },
+  picker: {
+    height: 40,
+    backgroundColor: "#F5F5F5",
+  },
+  filterButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+  applyButton: {
+    backgroundColor: "#3B82F6",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  applyButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+  },
+  clearButton: {
+    backgroundColor: "#EF5350",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  clearButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
   },
 });
 
