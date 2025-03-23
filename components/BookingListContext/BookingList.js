@@ -17,6 +17,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import * as Animatable from "react-native-animatable";
 import { Picker } from "@react-native-picker/picker";
+import { exportData } from "../utility/ExportData";
 
 const { width } = Dimensions.get("window");
 
@@ -54,6 +55,14 @@ const BookingList = ({ navigation }) => {
     setSelectedMonth("");
     setSelectedYear("");
     setFilterModalVisible(false);
+  };
+
+  const handleExport = async (format) => {
+    try {
+      await exportData(filteredData, format);
+    } catch (error) {
+      console.error("Export failed:", error);
+    }
   };
 
   // Memoized component for rendering list items
@@ -188,9 +197,21 @@ const BookingList = ({ navigation }) => {
           >
             <View style={styles.portfolioHeader}>
               <Text style={styles.value}>Portfolio</Text>
-              <TouchableOpacity onPress={() => setFilterModalVisible(true)}>
-                <Icon name="calendar-today" size={24} color="#666666" />
-              </TouchableOpacity>
+              <View style={{ flexDirection: "row" }}>
+                <TouchableOpacity onPress={() => setFilterModalVisible(true)}>
+                  <Icon name="calendar-today" size={24} color="#666666" />
+                </TouchableOpacity>
+                {/*
+                  
+                   <TouchableOpacity onPress={() => handleExport("excel")} style={{ marginLeft: 10 }}>
+                  <Icon name="file-excel" size={24} color="#4CAF50" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleExport("pdf")} style={{ marginLeft: 10 }}>
+                  <Icon name="file-pdf" size={24} color="#EF5350" />
+                </TouchableOpacity>
+                  */}
+               
+              </View>
             </View>
             <View style={styles.searchBarContainer}>
               <Icon name="search" size={20} color="#666666" style={styles.searchIcon} />
