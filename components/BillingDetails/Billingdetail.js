@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   View,
   StyleSheet,
@@ -6,8 +6,6 @@ import {
   TouchableOpacity,
   Dimensions,
   Linking,
-  Platform,
-  Share,
 } from "react-native";
 import {
   Text,
@@ -20,12 +18,7 @@ import {
 } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useAuth } from "../Authprovider.js/AuthProvider";
-import {
-  updateBillingData,
-  onBillingDataChange,
-} from "../../firebaseConfiguration/FirebaseCrud";
-import RNHTMLtoPDF from "react-native-html-to-pdf";
-
+import { updateBillingData, onBillingDataChange } from "../../firebaseConfiguration/FirebaseCrud";
 
 const { width } = Dimensions.get("window");
 
@@ -39,30 +32,22 @@ const Billingdetail = ({ dataDefaulting }) => {
 
   useEffect(() => {
     if (billingData?.id) {
-      const unsubscribe = onBillingDataChange(
-        user.displayName,
-        (updatedData) => {
-          if (updatedData) {
-            const newData = updatedData[billingData.id];
-            if (newData) {
-              setBillingData((prev) => ({ ...prev, ...newData }));
-            }
-          }
+      const unsubscribe = onBillingDataChange(user.displayName, (updatedData) => {
+        if (updatedData?.[billingData.id]) {
+          setBillingData((prev) => ({ ...prev, ...updatedData[billingData.id] }));
         }
+      });
+      return unsubscribe || (() => {});
+    }
+  }, [billingData?.id, user.displayName]);
+
+  const handleMarkAsPaid = useCallback(async () => {
+    if (!billingData || billingData.remainingAmount === 0) {
+      setDialogMessage(
+        billingData?.remainingAmount === 0
+          ? "This bill is already fully paid."
+          : "No billing data available."
       );
-      return () => unsubscribe;
-    }
-  }, [billingData?.id]);
-
-  const handleMarkAsPaid = async () => {
-    if (!billingData) {
-      setDialogMessage("No billing data available.");
-      setDialogVisible(true);
-      return;
-    }
-
-    if (billingData.remainingAmount === 0) {
-      setDialogMessage("This bill is already fully paid.");
       setDialogVisible(true);
       return;
     }
@@ -76,11 +61,7 @@ const Billingdetail = ({ dataDefaulting }) => {
 
     try {
       setLoading(true);
-      await updateBillingData(
-        user?.displayName,
-        billingData?.id,
-        updatedDetails
-      );
+      await updateBillingData(user?.displayName, billingData?.id, updatedDetails);
       setDialogMessage("Payment marked as fully paid successfully.");
     } catch (error) {
       setDialogMessage("Failed to update payment status. Please try again.");
@@ -89,115 +70,104 @@ const Billingdetail = ({ dataDefaulting }) => {
       setLoading(false);
       setDialogVisible(true);
     }
-  };
+  }, [billingData, user?.displayName]);
 
-  const handleContactPress = () => {
+  const handleContactPress = useCallback(() => {
     if (dataDefaulting?.contact) {
       Linking.openURL(`tel:${dataDefaulting.contact}`);
     }
-  };
+  }, [dataDefaulting?.contact]);
 
-  const handleExportPrint = async () => {
-    try {
-      setLoading(true);
+  const renderCustomerDetails = useMemo(() => (
+    <Card style={styles.card}>
+      <Card.Content>
+        <Text style={styles.sectionHeader}>Customer Details</Text>
+        <View style={styles.detailsContainer}>
+          <View style={styles.detailRow}>
+            <Icon name="account" size={20} style={styles.icon} />
+            <Text style={styles.label}>Name</Text>
+            <Text style={styles.value}>{dataDefaulting.name}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Icon name="map-marker" size={20} style={styles.icon} />
+            <Text style={styles.label}>Address</Text>
+            <Text style={styles.value}>{dataDefaulting.address}</Text>
+          </View>
+          <TouchableOpacity onPress={handleContactPress}>
+            <View style={styles.detailRow}>
+              <Icon name="phone" size={20} style={styles.icon} />
+              <Text style={styles.label}>Contact</Text>
+              <Text style={[styles.value, styles.contactLink]}>{dataDefaulting.contact}</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </Card.Content>
+    </Card>
+  ), [dataDefaulting, handleContactPress]);
 
-      // handleExportPrint()
-    } catch (error) {
-      setDialogMessage("Failed to export/print invoice. Please try again.");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const renderBillingDetails = useMemo(() => (
+    <Card style={styles.card}>
+      <Card.Content>
+        <Text style={styles.sectionHeader}>Invoice Details</Text>
+        <View style={styles.detailsContainer}>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Payment Status</Text>
+            <View
+              style={[
+                styles.statusBadge,
+                billingData.paymentStatus === "Fully Paid"
+                  ? styles.paidBadge
+                  : styles.unpaidBadge,
+              ]}
+            >
+              <Text style={styles.statusText}>{billingData.paymentStatus}</Text>
+            </View>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Booking Date</Text>
+            <Text style={styles.value}>{billingData.dates}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Total Amount</Text>
+            <Text style={[styles.value, styles.amount]}>₹{billingData.totalAmount}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Booking Amount</Text>
+            <Text style={styles.value}>₹{billingData.AdvBookAmount}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Remaining Amount</Text>
+            <Text style={[styles.value, { color: "#EF5350" }]}>₹{billingData.remainingAmount}</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Total Received</Text>
+            <Text style={[styles.value, { color: "#4CAF50" }]}>₹{billingData.totalReceivedAmount}</Text>
+          </View>
+        </View>
+      </Card.Content>
+    </Card>
+  ), [billingData]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Header Section */}
       <View style={styles.headerContainer}>
         <Text style={styles.headerTitle}>Invoice</Text>
         <Text style={styles.headerSubtitle}>Bill for {dataDefaulting.name}</Text>
-        <TouchableOpacity style={styles.exportButton}   onPress={handleMarkAsPaid} disabled={loading}>
+        <TouchableOpacity
+          style={styles.exportButton}
+          onPress={handleMarkAsPaid}
+          disabled={loading}
+        >
           {loading ? (
             <ActivityIndicator color="#FFFFFF" size="small" />
           ) : (
-            <>
-              <Icon name="" size={20} color="#FFFFFF" style={styles.exportIcon} />
-              <Text style={styles.exportButtonText}>Mark As Fully Paid</Text>
-            </>
+            <Text style={styles.exportButtonText}>Mark As Fully Paid</Text>
           )}
         </TouchableOpacity>
       </View>
-
-      {/* User Details Section */}
-      <Card style={styles.card}>
-        <Card.Content>
-          <Text style={styles.sectionHeader}>Customer Details</Text>
-          <View style={styles.detailsContainer}>
-            <View style={styles.detailRow}>
-              <Icon name="account" size={20} style={styles.icon} />
-              <Text style={styles.label}>Name</Text>
-              <Text style={styles.value}>{dataDefaulting.name}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Icon name="map-marker" size={20} style={styles.icon} />
-              <Text style={styles.label}>Address</Text>
-              <Text style={styles.value}>{dataDefaulting.address}</Text>
-            </View>
-            <TouchableOpacity onPress={handleContactPress}>
-              <View style={styles.detailRow}>
-                <Icon name="phone" size={20} style={styles.icon} />
-                <Text style={styles.label}>Contact</Text>
-                <Text style={[styles.value, styles.contactLink]}>{dataDefaulting.contact}</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </Card.Content>
-      </Card>
-
-      {/* Billing Details Section */}
-      <Card style={styles.card}>
-        <Card.Content>
-          <Text style={styles.sectionHeader}>Invoice Details</Text>
-          <View style={styles.detailsContainer}>
-            <View style={styles.detailRow}>
-              <Text style={styles.label}>Payment Status</Text>
-              <View
-                style={[
-                  styles.statusBadge,
-                  billingData.paymentStatus === "Fully Paid"
-                    ? styles.paidBadge
-                    : styles.unpaidBadge,
-                ]}
-              >
-                <Text style={styles.statusText}>{billingData.paymentStatus}</Text>
-              </View>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.label}>Booking Date</Text>
-              <Text style={styles.value}>{billingData.dates}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.label}>Total Amount</Text>
-              <Text style={[styles.value, styles.amount]}>₹{billingData.totalAmount}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.label}>Booking Amount</Text>
-              <Text style={styles.value}>₹{billingData.AdvBookAmount}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.label}>Remaining Amount</Text>
-              <Text style={[styles.value, { color: "#EF5350" }]}>₹{billingData.remainingAmount}</Text>
-            </View>
-            <View style={styles.divider} />
-            <View style={styles.detailRow}>
-              <Text style={styles.label}>Total Received</Text>
-              <Text style={[styles.value, { color: "#4CAF50" }]}>₹{billingData.totalReceivedAmount}</Text>
-            </View>
-          </View>
-        </Card.Content>
-      </Card>
-
-      {/* Mark as Fully Paid Button */}
+      {renderCustomerDetails}
+      {renderBillingDetails}
       <TouchableOpacity
         style={styles.button}
         onPress={handleMarkAsPaid}
@@ -209,8 +179,6 @@ const Billingdetail = ({ dataDefaulting }) => {
           <Text style={styles.buttonText}>Mark as Fully Paid</Text>
         )}
       </TouchableOpacity>
-
-      {/* Dialog */}
       <Portal>
         <Dialog
           visible={dialogVisible}
@@ -222,10 +190,7 @@ const Billingdetail = ({ dataDefaulting }) => {
             <Text style={styles.dialogMessage}>{dialogMessage}</Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button
-              onPress={() => setDialogVisible(false)}
-              textColor="#FF9900"
-            >
+            <Button onPress={() => setDialogVisible(false)} textColor="#FF9900">
               OK
             </Button>
           </Dialog.Actions>
@@ -242,7 +207,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F5F5",
   },
   headerContainer: {
-  
     backgroundColor: "#FFFFFF",
     padding: 20,
     borderBottomWidth: 1,

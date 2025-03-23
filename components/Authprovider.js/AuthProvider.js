@@ -16,69 +16,51 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Make sure `onAuthStateChanged` is called correctly and `auth` is defined
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        storeUserInformation(user); // Store user information when the user is authenticated
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        storeUserInformation(currentUser); // This might trigger a re-render indirectly
       }
-      setUser(user);
+      setUser(currentUser);
       setLoading(false);
     });
 
-    // Ensure cleanup function is valid and unsubscribe is defined
-    return () => {
-      if (unsubscribe) {
-        unsubscribe // Call unsubscribe only if it exists
-      }
-    };
-  }, []); // Empty dependency array to ensure it runs only once on mount/unmount
+    return unsubscribe; // Simplified cleanup
+  }, []);
 
   const signIn = async (email, password) => {
+    if (user) {
+      Alert.alert("A user is already logged in.");
+      return;
+    }
+
     try {
       setLoading(true);
-
-      // Check if there is already a user logged in
-      if (user) {
-         Alert.alert("A user is already logged in.");
-        setLoading(false);
-        return; // Prevent login if a user is already logged in
-      }
-
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const currentUser = userCredential.user;
-      
-      // Store user information after successful login (don't update displayName)
+      const { user: currentUser } = await signInWithEmailAndPassword(auth, email, password);
       if (currentUser) {
-        await storeUserInformation(currentUser); 
+        await storeUserInformation(currentUser);
       }
-      setLoading(false);
     } catch (error) {
       console.error("Error signing in: ", error);
+    } finally {
       setLoading(false);
     }
   };
 
   const signUp = async (email, password) => {
+    if (user) {
+      Alert.alert("A user is already logged in.");
+      return;
+    }
+
     try {
       setLoading(true);
-
-      // Check if there is already a user logged in
-      if (user) {
-        console.log("A user is already logged in.");
-        setLoading(false);
-        return; // Prevent signup if a user is already logged in
-      }
-
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const currentUser = userCredential.user;
-      
-      // Store user information after successful signup (don't update displayName)
+      const { user: currentUser } = await createUserWithEmailAndPassword(auth, email, password);
       if (currentUser) {
-        await storeUserInformation(currentUser); 
+        await storeUserInformation(currentUser);
       }
-      setLoading(false);
     } catch (error) {
       console.error("Error signing up: ", error);
+    } finally {
       setLoading(false);
     }
   };
@@ -86,12 +68,11 @@ export const AuthProvider = ({ children }) => {
   const signOut = async () => {
     try {
       setLoading(true);
-      console.log("Logging out...");
       await firebaseSignOut(auth);
-      setUser(null);  // Clear the user after sign-out
-      setLoading(false);
+      setUser(null);
     } catch (error) {
       console.error("Error signing out: ", error);
+    } finally {
       setLoading(false);
     }
   };

@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Dimensions, TouchableOpacity } from "react-native";
 import { View, StyleSheet, Linking } from "react-native";
 import { Appbar, Text, Card, Title, Icon } from "react-native-paper";
+import { useFocusEffect } from "@react-navigation/native";
 import UserDetail from "./UserDetail";
 import BillingDetail from "./BillingDetails/Billingdetail";
 // import { createPDF } from "./utility/handleExportPrint";
@@ -19,6 +20,20 @@ const BookingDetails = ({ navigation, route }) => {
       console.error("Error creating PDF:", error);
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      const listener = navigation.addListener("beforeRemove", (e) => {
+        // Handle any cleanup or confirmation logic here if needed
+      });
+
+      return () => {
+        if (listener && typeof listener === "function") {
+          listener(); // Ensure cleanup of the listener
+        }
+      };
+    }, [navigation])
+  );
 
   return (
     <View style={styles.container}>

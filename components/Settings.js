@@ -12,7 +12,7 @@ const Settings = ({ navigation }) => {
   const [image, setImage] = useState(null);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [visible, setVisible] = useState(false);
+  const [dialogVisible, setDialogVisible] = useState(false);
   const [editType, setEditType] = useState('');
   const [tempValue, setTempValue] = useState('');
   const [passwordDialogVisible, setPasswordDialogVisible] = useState(false);
@@ -23,54 +23,36 @@ const Settings = ({ navigation }) => {
   useEffect(() => {
     const unsubscribe = auth?.onAuthStateChanged((user) => {
       if (user) {
-        setUsername(user?.displayName || 'Username');
-        setEmail(user?.email || 'user@example.com');
-        setImage(user?.photoURL || null);
-      } else {
-        setUsername('');
-        setEmail('');
-        setImage(null);
+        setUsername(user.displayName || 'Username');
+        setEmail(user.email || 'user@example.com');
+        setImage(user.photoURL || null);
       }
     });
-
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
+    return unsubscribe;
   }, []);
 
   const showDialog = (type) => {
     setEditType(type);
     setTempValue(type === 'username' ? username : email);
-    setVisible(true);
+    setDialogVisible(true);
   };
 
-  const showPasswordDialog = () => {
-    setPasswordDialogVisible(true);
-  };
-
-  const hideDialog = () => setVisible(false);
-
-  const hidePasswordDialog = () => setPasswordDialogVisible(false);
+  const hideDialog = () => setDialogVisible(false);
 
   const handleSave = async () => {
-    if (editType === 'username') {
-      try {
+    try {
+      if (editType === 'username') {
         await updateProfile(auth.currentUser, { displayName: tempValue });
         setUsername(tempValue);
-      } catch (error) {
-        console.error('Error updating displayName:', error);
-      }
-    } else if (editType === 'email') {
-      try {
+      } else if (editType === 'email') {
         await auth.currentUser.updateEmail(tempValue);
         setEmail(tempValue);
-      } catch (error) {
-        console.error('Error updating email:', error);
       }
+    } catch (error) {
+      console.error(`Error updating ${editType}:`, error);
+    } finally {
+      hideDialog();
     }
-    hideDialog();
   };
 
   const pickImage = async () => {
@@ -88,7 +70,7 @@ const Settings = ({ navigation }) => {
         quality: 1,
       });
 
-      if (!result.canceled && result.assets && result.assets.length > 0) {
+      if (!result.canceled && result.assets?.length > 0) {
         const selectedImage = result.assets[0].uri;
         setImage(selectedImage);
         await updateProfile(auth.currentUser, { photoURL: selectedImage });
@@ -116,7 +98,7 @@ const Settings = ({ navigation }) => {
       alert('Password updated successfully!');
       setNewPassword('');
       setCurrentPassword('');
-      hidePasswordDialog();
+      setPasswordDialogVisible(false);
     } catch (error) {
       console.error('Error updating password:', error);
       alert('Failed to update password. Please check your current password.');
@@ -124,17 +106,11 @@ const Settings = ({ navigation }) => {
   };
 
   return (
-    <LinearGradient
-      colors={["#F5F7FA", "#E3F2FD"]}
-      style={styles.gradient}
-    >
+    <LinearGradient colors={["#F5F7FA", "#E3F2FD"]} style={styles.gradient}>
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           {/* Profile Section */}
-          <LinearGradient
-            colors={["#FFFFFF", "#E3F2FD"]}
-            style={styles.profileContainer}
-          >
+          <LinearGradient colors={["#FFFFFF", "#E3F2FD"]} style={styles.profileContainer}>
             <Animatable.View animation="fadeIn" duration={500}>
               <TouchableOpacity onPress={pickImage}>
                 {image ? (
@@ -163,7 +139,7 @@ const Settings = ({ navigation }) => {
 
             <TouchableOpacity
               style={styles.item}
-              onPress={showPasswordDialog}
+              onPress={() => setPasswordDialogVisible(true)}
               activeOpacity={0.7}
             >
               <View style={styles.iconTextContainer}>
@@ -198,7 +174,7 @@ const Settings = ({ navigation }) => {
 
         {/* Dialogs */}
         <Portal>
-          <Dialog visible={visible} onDismiss={hideDialog} style={styles.dialog}>
+          <Dialog visible={dialogVisible} onDismiss={hideDialog} style={styles.dialog}>
             <Dialog.Title style={styles.dialogTitle}>
               Edit {editType.charAt(0).toUpperCase() + editType.slice(1)}
             </Dialog.Title>
@@ -206,7 +182,7 @@ const Settings = ({ navigation }) => {
               <TextInput
                 label={`New ${editType.charAt(0).toUpperCase() + editType.slice(1)}`}
                 value={tempValue}
-                onChangeText={(text) => setTempValue(text)}
+                onChangeText={setTempValue}
                 mode="outlined"
                 style={styles.input}
                 theme={{ colors: { primary: "#3B82F6" } }}
@@ -218,14 +194,14 @@ const Settings = ({ navigation }) => {
             </Dialog.Actions>
           </Dialog>
 
-          <Dialog visible={passwordDialogVisible} onDismiss={hidePasswordDialog} style={styles.dialog}>
+          <Dialog visible={passwordDialogVisible} onDismiss={() => setPasswordDialogVisible(false)} style={styles.dialog}>
             <Dialog.Title style={styles.dialogTitle}>Change Password</Dialog.Title>
             <Dialog.Content>
               <TextInput
                 label="Current Password"
                 secureTextEntry
                 value={currentPassword}
-                onChangeText={(text) => setCurrentPassword(text)}
+                onChangeText={setCurrentPassword}
                 mode="outlined"
                 style={styles.input}
                 theme={{ colors: { primary: "#3B82F6" } }}
@@ -234,14 +210,14 @@ const Settings = ({ navigation }) => {
                 label="New Password"
                 secureTextEntry
                 value={newPassword}
-                onChangeText={(text) => setNewPassword(text)}
+                onChangeText={setNewPassword}
                 mode="outlined"
                 style={styles.input}
                 theme={{ colors: { primary: "#3B82F6" } }}
               />
             </Dialog.Content>
             <Dialog.Actions>
-              <Button onPress={hidePasswordDialog} textColor="#666666">Cancel</Button>
+              <Button onPress={() => setPasswordDialogVisible(false)} textColor="#666666">Cancel</Button>
               <Button onPress={handleChangePassword} textColor="#3B82F6">Save</Button>
             </Dialog.Actions>
           </Dialog>

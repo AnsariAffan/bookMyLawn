@@ -1,5 +1,5 @@
 git add . 
-git commit -m "New UI bt Grok Ai" 
+git commit -m "make performance changes in code via copilate" 
 git push -u origin main 
 npm version patch 
 git push --tags

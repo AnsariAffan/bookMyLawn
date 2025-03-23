@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   View,
   Text,
@@ -52,37 +52,60 @@ const Dashboard = () => {
       }
     });
 
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  }, []);
+    return unsubscribe;
+  }, []); // Removed unnecessary dependencies for better performance
 
-  useEffect(() => {
-    if (user && user.photoURL) {
-      setImage(user.photoURL);
-    }
-  }, [user]);
-
-  const renderUpcomingEvents = () => {
-    return billingDataState?.filteredData.map((event, index) => (
-      <TouchableOpacity
-        key={index}
-        onPress={() =>
-          navigation.navigate("BookingDetails", { booking: event })
-        }
-      >
-        <LinearGradient
-          colors={["#FFFFFF", "#E3F2FD"]}
-          style={styles.eventCard}
+  const renderUpcomingEvents = useMemo(
+    () =>
+      billingDataState?.filteredData.map((event, index) => (
+        <TouchableOpacity
+          key={index}
+          onPress={() =>
+            navigation.navigate("BookingDetails", { booking: event })
+          }
         >
-          <Text style={styles.eventTitle}>{event.dates}</Text>
-          <Text style={styles.eventDate}>{event.paymentStatus}</Text>
-        </LinearGradient>
-      </TouchableOpacity>
-    ));
-  };
+          <LinearGradient
+            colors={["#FFFFFF", "#E3F2FD"]}
+            style={styles.eventCard}
+          >
+            <Text style={styles.eventTitle}>{event.dates}</Text>
+            <Text style={styles.eventDate}>{event.paymentStatus}</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      )),
+    [billingDataState?.filteredData, navigation]
+  ); // Memoized to avoid unnecessary re-renders
+
+  const headerContent = useMemo(() => {
+    return (
+      <LinearGradient
+        colors={["#FFFFFF", "#E3F2FD"]}
+        style={styles.headerContainer}
+      >
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Settings")}
+          style={styles.profileContainer}
+        >
+          {image ? (
+            <Avatar.Image size={36} source={{ uri: image }} />
+          ) : (
+            <Avatar.Image
+              size={36}
+              source={require("../assets/icons/icon.png")}
+            />
+          )}
+        </TouchableOpacity>
+
+        <Text style={styles.header}>
+          {user?.displayName || "Welcome"}
+        </Text>
+
+        <View style={styles.calendarButton}>
+          <DateFilter />
+        </View>
+      </LinearGradient>
+    );
+  }, [image, navigation, user]); // Memoized to avoid unnecessary re-renders
 
   if (loading) {
     return (
@@ -99,32 +122,7 @@ const Dashboard = () => {
     >
       <ScrollView style={styles.container}>
         {/* Header Section */}
-        <LinearGradient
-          colors={["#FFFFFF", "#E3F2FD"]}
-          style={styles.headerContainer}
-        >
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Settings")}
-            style={styles.profileContainer}
-          >
-            {image ? (
-              <Avatar.Image size={36} source={{ uri: image }} />
-            ) : (
-              <Avatar.Image
-                size={36}
-                source={require("../assets/icons/icon.png")}
-              />
-            )}
-          </TouchableOpacity>
-
-          <Text style={styles.header}>
-            {user?.displayName || "Welcome"}
-          </Text>
-
-          <View style={styles.calendarButton}>
-            <DateFilter />
-          </View>
-        </LinearGradient>
+        {headerContent}
 
         {/* Data Boxes */}
         <View style={styles.dataContainer}>
@@ -183,7 +181,7 @@ const Dashboard = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Upcoming Events</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {renderUpcomingEvents()}
+            {renderUpcomingEvents}
           </ScrollView>
         </View>
 

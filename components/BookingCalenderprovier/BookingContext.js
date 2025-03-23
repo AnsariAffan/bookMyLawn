@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect} from "react";
+import React, { createContext, useState, useEffect } from "react";
 import moment from "moment";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../Authprovider.js/AuthProvider";
@@ -8,7 +8,7 @@ export const BookingContext = createContext();
 
 export const BookingProvider = ({ children }) => {
   const [bookings, setBookings] = useState([]);
-  const [markedDates, setMarkedDates] = useState({});  // Stores booked dates
+  const [markedDates, setMarkedDates] = useState({});
   const [selectedDates, setSelectedDates] = useState([]);
   const [newBooking, setNewBooking] = useState({
     name: "",
@@ -19,7 +19,7 @@ export const BookingProvider = ({ children }) => {
     AdvBookAmount: 0,
     paidAmount: 0,
     billingId: "",
-    totalReceivedAmount:0
+    totalReceivedAmount: 0,
   });
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -28,11 +28,8 @@ export const BookingProvider = ({ children }) => {
   const [remark, setRemark] = useState("");
 
   const navigation = useNavigation();
+  const { user } = useAuth();
 
-  // Get user data from Auth context
-  const { user, signOut } = useAuth();
-
-  // Real-time listener for billing data specific to the logged-in user
   useEffect(() => {
     if (!user || !user?.uid) {
       setBookings([]);
@@ -45,17 +42,12 @@ export const BookingProvider = ({ children }) => {
         setMarkedDates({});
       } else {
         const updatedMarkedDates = {};
-        
         Object.values(billingData).forEach((billingItem) => {
           billingItem.dates.forEach((date) => {
             updatedMarkedDates[date] = {
               customStyles: {
-                container: {
-                  backgroundColor: "#4DB6AC", // Color for booked dates
-                },
-                text: {
-                  color: "#000",
-                },
+                container: { backgroundColor: "#4DB6AC" },
+                text: { color: "#000" },
               },
             };
           });
@@ -64,20 +56,11 @@ export const BookingProvider = ({ children }) => {
       }
     };
 
-    // Listen for changes in the client's billing data
     onBillingDataChange(user.displayName, handleBillingDataChange);
-
-    return () => {
-      // Cleanup logic if needed
-    };
   }, [user?.uid]);
 
-  // Function to validate if selected date is already booked
-  const isDateBooked = (date) => {
-    return markedDates[date] !== undefined;
-  };
+  const isDateBooked = (date) => markedDates[date] !== undefined;
 
-  // Function to format selected dates
   const formatSelectedDates = () => {
     const groupedByMonth = selectedDates.reduce((acc, date) => {
       const monthYear = moment(date).format("MMM YYYY");
@@ -86,63 +69,58 @@ export const BookingProvider = ({ children }) => {
       acc[monthYear].push(day);
       return acc;
     }, {});
-
     return Object.entries(groupedByMonth)
       .map(([month, days]) => `${month}: ${days.join(", ")}`)
       .join(" | ");
   };
 
-  // Function to handle booking submission
   const handleBookingSubmit = async () => {
     try {
       if (!newBooking.name || !newBooking.contact || !newBooking.address) {
         alert("Please fill in all fields.");
-        return;
+        return false; // Return false to indicate failure
       }
 
       setLoading(true);
-// Calculate payment status based on AdvBookAmount and totalAmount
-let paymentStatus = "Not Paid";
-if (newBooking.AdvBookAmount > 0) {
-  paymentStatus = newBooking.AdvBookAmount >= newBooking.totalAmount ? "Fully Paid" : "Partially Paid";
-}
 
-const bookingData = {
-  ...newBooking,
-  dates: selectedDates,
-  status: "Approved",
-  remainingAmount: newBooking.totalAmount - newBooking.AdvBookAmount,
-  paymentStatus: paymentStatus,
-  userId: user?.uid,
-  totalReceivedAmount: newBooking.AdvBookAmount,
-};
+      let paymentStatus = "Not Paid";
+      if (newBooking.AdvBookAmount > 0) {
+        paymentStatus = newBooking.AdvBookAmount >= newBooking.totalAmount ? "Fully Paid" : "Partially Paid";
+      }
 
-
-      const billingData = {
-        ...bookingData,
-       // bookingId: bookingId,
+      const bookingData = {
+        ...newBooking,
+        dates: selectedDates,
+        status: "Approved",
+        remainingAmount: newBooking.totalAmount - newBooking.AdvBookAmount,
+        paymentStatus,
+        userId: user?.uid,
+        totalReceivedAmount: newBooking.AdvBookAmount,
       };
 
-      saveBillingData(user.displayName, billingData);
- 
+      await saveBillingData(user.displayName, bookingData); // Ensure this returns a promise
 
       setSuccessMessage("Booking confirmed for " + formatSelectedDates());
       setShowSuccessMessage(true);
       setModalVisible(false);
-      
-      navigation.navigate("SuccessMessage", { date: formatSelectedDates() });
 
       setNewBooking({
         name: "",
         contact: "",
         address: "",
-        status: "",
+        totalAmount: 0,
         paymentStatus: "",
-        totalAmount: "",
+        AdvBookAmount: 0,
+        paidAmount: 0,
+        billingId: "",
+        totalReceivedAmount: 0,
       });
       setSelectedDates([]);
+
+      return true; // Indicate success
     } catch (error) {
       console.error("Error creating booking:", error);
+      return false; // Indicate failure
     } finally {
       setLoading(false);
     }
@@ -152,7 +130,7 @@ const bookingData = {
     <BookingContext.Provider
       value={{
         bookings,
-        markedDates,           // Expose markedDates for validation
+        markedDates,
         selectedDates,
         setSelectedDates,
         newBooking,
@@ -165,8 +143,9 @@ const bookingData = {
         setRemark,
         successMessage,
         showSuccessMessage,
-        setMarkedDates,       // Allow setting marked dates externally
-        isDateBooked,         // Expose the validation function
+        setShowSuccessMessage, // Expose this to allow closing the popup
+        setMarkedDates,
+        isDateBooked,
       }}
     >
       {children}
