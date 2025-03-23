@@ -205,7 +205,7 @@ const Dashboard = () => {
                 ],
                 datasets: [{ data: totalReceivedAmounts, strokeWidth: 2 }],
               }}
-              width={width - 20}
+              width={width - 27}
               height={200}
               chartConfig={{
                 backgroundColor: "#FFFFFF", // Changed to white
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
   },
   chartContainer: {
     borderRadius: 10,
-    padding: 5,
+    padding: 0,
     borderWidth: 1,
     borderColor: "#E0E0E0",
   },
