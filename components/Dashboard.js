@@ -61,7 +61,7 @@ const Dashboard = () => {
         <TouchableOpacity
           key={index}
           onPress={() =>
-            navigation.navigate("BookingDetails", { booking: event })
+            navigation.navigate("Billingdetails", { booking: event })
           }
         >
           <LinearGradient

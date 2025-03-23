@@ -15,6 +15,7 @@ import {
   Portal,
   ActivityIndicator,
   useTheme,
+  Appbar,
 } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useAuth } from "../Authprovider.js/AuthProvider";
@@ -22,7 +23,9 @@ import { updateBillingData, onBillingDataChange } from "../../firebaseConfigurat
 
 const { width } = Dimensions.get("window");
 
-const Billingdetail = ({ dataDefaulting }) => {
+const Billingdetail = ({ navigation, route }) => {
+    const dataDefaulting = route?.params?.booking
+    console.log(dataDefaulting);
   const theme = useTheme();
   const { user } = useAuth();
   const [billingData, setBillingData] = useState(dataDefaulting);
@@ -77,9 +80,17 @@ const Billingdetail = ({ dataDefaulting }) => {
       Linking.openURL(`tel:${dataDefaulting.contact}`);
     }
   }, [dataDefaulting?.contact]);
-
+  const handlePrint = async () => {
+    try {
+      // await createPDF(); // Make sure it's awaited
+    } catch (error) {
+      console.error("Error creating PDF:", error);
+    }
+  };
   const renderCustomerDetails = useMemo(() => (
+    
     <Card style={styles.card}>
+     
       <Card.Content>
         <Text style={styles.sectionHeader}>Customer Details</Text>
         <View style={styles.detailsContainer}>
@@ -106,6 +117,7 @@ const Billingdetail = ({ dataDefaulting }) => {
   ), [dataDefaulting, handleContactPress]);
 
   const renderBillingDetails = useMemo(() => (
+    
     <Card style={styles.card2}>
       <Card.Content>
         <Text style={styles.sectionHeader}>Invoice Details</Text>
@@ -151,8 +163,25 @@ const Billingdetail = ({ dataDefaulting }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerTitle}>Invoice</Text>
+    <Appbar.Header style={{ backgroundColor: "#ffff" }}>
+            <Appbar.BackAction
+              style={{ color: "black", backgroundColor: "#ffff" }}
+              onPress={() => navigation.goBack()}
+            />
+            <Appbar.Content
+              style={{ paddingLeft: 10, fontWeight: "700" }}
+              color="black"
+              title="Details"
+              subtitle="Step 2 of 3"
+            />
+            <Appbar.Action icon="printer" onPress={handlePrint} color="#4DB6AC" />
+          </Appbar.Header> 
+    <View style={styles.headerContainer}>
+    <View Style={{display:"flex",flexDirection:"column",justifyContent:"space-evenlt]y"}}>
+    <Text style={styles.headerTitle}>Invoice </Text>
+    <Text style={styles.headerSubtitle}>Bill id:{dataDefaulting.id} </Text>
+    </View>
+     
         <Text style={styles.headerSubtitle}>Bill for {dataDefaulting.name}</Text>
         <TouchableOpacity
           style={styles.exportButton}
@@ -203,6 +232,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#E0E0E0",
     marginBottom: 10,
+    
   },
   headerTitle: {
     fontSize: 24,

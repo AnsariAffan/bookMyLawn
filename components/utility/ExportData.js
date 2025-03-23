@@ -20,6 +20,10 @@
 //   ];
 
 //   try {
+//     if (!RNFS || !RNFS.DownloadDirectoryPath) {
+//       throw new Error("File system access is not available on this platform.");
+//     }
+
 //     if (format === "excel") {
 //       const worksheetData = data.map((item) => ({
 //         name: item.name,

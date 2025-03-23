@@ -9,7 +9,6 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import SplashScreen from "./SplashScreen";
 import LoginScreen from "./LoginScreen";
 import SuccessMessage from "./SuccessMessage";
-import BookingDetails from "./BookingDetails";
 import LawnOwnerDashboard from "./BookingCalenderprovier/LawnOwnerDashboard";
 import { BookingListProvider } from "./BookingListContext/BookingListContext";
 import { BookingProvider } from "./BookingCalenderprovier/BookingContext";
@@ -19,6 +18,7 @@ import Settings from "./Settings";
 import Dashboard from "./Dashboard";
 import AboutContactUs from "./AboutContactUs";
 import { BillingDataProvider } from "./utility/DataFilterOnDashboard/BillingDataContext";
+import Billingdetail from "./BillingDetails/Billingdetail";
 
 // Navigators
 const Stack = createStackNavigator();
@@ -101,7 +101,7 @@ export default function NavigationManager() {
                   <Stack.Screen name="LoginScreen" component={LoginScreen} />
                   <Stack.Screen name="MainApp" component={MainApp} />
                   <Stack.Screen name="SuccessMessage" component={SuccessMessage} />
-                  <Stack.Screen name="BookingDetails" component={BookingDetails} />
+                  <Stack.Screen name="Billingdetails" component={Billingdetail} />
                   <Stack.Screen name="AboutContactUs" component={AboutContactUs} />
                 </Stack.Navigator>
               </BookingProvider>
