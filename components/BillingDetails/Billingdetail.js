@@ -106,7 +106,7 @@ const Billingdetail = ({ dataDefaulting }) => {
   ), [dataDefaulting, handleContactPress]);
 
   const renderBillingDetails = useMemo(() => (
-    <Card style={styles.card}>
+    <Card style={styles.card2}>
       <Card.Content>
         <Text style={styles.sectionHeader}>Invoice Details</Text>
         <View style={styles.detailsContainer}>
@@ -168,17 +168,7 @@ const Billingdetail = ({ dataDefaulting }) => {
       </View>
       {renderCustomerDetails}
       {renderBillingDetails}
-      <TouchableOpacity
-        style={styles.button}
-        onPress={handleMarkAsPaid}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="#FFFFFF" />
-        ) : (
-          <Text style={styles.buttonText}>Mark as Fully Paid</Text>
-        )}
-      </TouchableOpacity>
+      
       <Portal>
         <Dialog
           visible={dialogVisible}
@@ -205,6 +195,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 15,
     backgroundColor: "#F5F5F5",
+    
   },
   headerContainer: {
     backgroundColor: "#FFFFFF",
@@ -252,6 +243,20 @@ const styles = StyleSheet.create({
     elevation: 2,
     borderWidth: 1,
     borderColor: "#E0E0E0",
+  
+  },
+  card2: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+  marginBottom:60
   },
   sectionHeader: {
     fontSize: 18,
