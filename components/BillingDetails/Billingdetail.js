@@ -22,6 +22,8 @@ import { useAuth } from "../Authprovider.js/AuthProvider";
 import { updateBillingData, onBillingDataChange } from "../../firebaseConfiguration/FirebaseCrud";
 
 const { width } = Dimensions.get("window");
+const chartWidth = width * 0.9; // 90% of the screen width
+const chartHeight = width * 0.5; // 50% of the screen width
 
 const Billingdetail = ({ navigation, route }) => {
     const dataDefaulting = route?.params?.booking
@@ -160,6 +162,7 @@ const Billingdetail = ({ navigation, route }) => {
             <Text style={styles.label}>Total Received</Text>
             <Text style={[styles.value, { color: "#4CAF50" }]}>₹{billingData.totalReceivedAmount}</Text>
           </View>
+        
         </View>
       </Card.Content>
     </Card>

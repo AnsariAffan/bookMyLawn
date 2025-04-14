@@ -205,8 +205,8 @@ const Dashboard = () => {
                 ],
                 datasets: [{ data: totalReceivedAmounts, strokeWidth: 2 }],
               }}
-              width={width - 27}
-              height={200}
+              width={width * 0.9} // Set width to 90% of screen width
+              height={height * 0.25} // Set height to 25% of screen height
               chartConfig={{
                 backgroundColor: "#FFFFFF", // Changed to white
                 backgroundGradientFrom: "#FFFFFF", // Changed to white

@@ -19,7 +19,7 @@ import * as Animatable from "react-native-animatable";
 import { Picker } from "@react-native-picker/picker";
 import { exportData } from "../utility/ExportData";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 const monthNames = [
   "January", "February", "March", "April", "May", "June",
@@ -64,6 +64,16 @@ const BookingList = ({ navigation }) => {
       console.error("Export failed:", error);
     }
   };
+
+  const selectedMonthName = useMemo(() => {
+    if (selectedMonth && selectedYear) {
+      return `Portfolio for ${monthNames[parseInt(selectedMonth) - 1]} ${selectedYear}`;
+    } else if (selectedMonth) {
+      return `Portfolio for ${monthNames[parseInt(selectedMonth) - 1]}`;
+    } else {
+      return "Portfolio";
+    }
+  }, [selectedMonth, selectedYear]);
 
   // Memoized component for rendering list items
   const RenderCoinItem = React.memo(
@@ -187,6 +197,15 @@ const BookingList = ({ navigation }) => {
     return counts;
   }, [filteredHotels]);
 
+  const filteredMetrics = useMemo(() => {
+    const metrics = { totalReceived: 0, totalUnpaid: 0 };
+    filteredData.forEach((hotel) => {
+      metrics.totalReceived += Number(hotel.totalReceivedAmount) || 0;
+      metrics.totalUnpaid += Number(hotel.totalAmount) - Number(hotel.totalReceivedAmount) || 0;
+    });
+    return metrics;
+  }, [filteredData]);
+
   return (
     <LinearGradient colors={["#F5F7FA", "#E3F2FD"]} style={styles.container}>
       <Animatable.View animation="fadeInDown" duration={1000} style={styles.contentContainer}>
@@ -196,7 +215,7 @@ const BookingList = ({ navigation }) => {
             style={styles.portfolioSummary}
           >
             <View style={styles.portfolioHeader}>
-              <Text style={styles.value}>Portfolio</Text>
+              <Text style={styles.value}>{selectedMonthName}</Text>
               <View style={{ flexDirection: "row" }}>
                 <TouchableOpacity onPress={() => setFilterModalVisible(true)}>
                   <Icon name="calendar-today" size={24} color="#666666" />
@@ -227,12 +246,12 @@ const BookingList = ({ navigation }) => {
             <View style={styles.metricsContainer}>
               <View style={styles.metric}>
                 <Text style={styles.metricLabel}>Received</Text>
-                <Text style={styles.metricValue}>+ {billingDataState.totalReceivedAmount}</Text>
+                <Text style={styles.metricValue}>+ {filteredMetrics.totalReceived.toLocaleString("en-US", { minimumFractionDigits: 2 })}</Text>
               </View>
               <View style={styles.metric}>
                 <Text style={styles.metricLabel}>Unpaid</Text>
                 <Text style={[styles.metricValue, { color: "#EF5350" }]}>
-                  - {billingDataState.totalRemainingAmount}
+                  - {filteredMetrics.totalUnpaid.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                 </Text>
               </View>
             </View>
@@ -333,9 +352,11 @@ const styles = StyleSheet.create({
   portfolioSummary: {
     borderRadius: 15,
     padding: 20,
-    marginBottom: 15,
+    marginBottom: 5, // Adjust margin to reduce space below this container
     borderWidth: 1,
     borderColor: "#E0E0E0",
+    width: width * 0.9, // 90% of screen width
+    height: height * 0.3, // 30% of screen height
   },
   value: { fontSize: 24, fontWeight: "600", color: "#333333" },
   searchBarContainer: {
@@ -350,7 +371,12 @@ const styles = StyleSheet.create({
   },
   searchIcon: { marginRight: 10 },
   searchBar: { flex: 1, paddingVertical: 10, fontSize: 16, color: "#333333" },
-  metricsContainer: { flexDirection: "row", justifyContent: "space-between" },
+  metricsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 0, // Ensure no extra margin below
+    paddingBottom: 0, // Ensure no extra padding below
+  },
   metric: { alignItems: "center" },
   metricLabel: { fontSize: 14, color: "#666666" },
   metricValue: { fontSize: 20, fontWeight: "600", color: "#333333" },
@@ -395,8 +421,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 10,
     padding: 15,
-    width: "90%", // Increased width for better visibility
-    maxWidth: 400, // Added max width for larger screens
+    width: "90%", // Adjusted to be responsive
+    maxWidth: Dimensions.get("window").width * 0.9, // Dynamic width
+    maxHeight: Dimensions.get("window").height * 0.8, // Dynamic height
   },
   modalTitle: {
     fontSize: 18,

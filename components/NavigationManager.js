@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { useColorScheme } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -76,8 +77,8 @@ const MainApp = () => (
   </Tab.Navigator>
 );
 
-// Custom Theme
-const customTheme = {
+// Custom Themes
+const lightTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
@@ -88,9 +89,23 @@ const customTheme = {
   },
 };
 
+const darkTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: "#000000",
+    text: "#FFFFFF",
+    primary: "#34C759",
+    accent: "#3B82F6",
+  },
+};
+
 export default function NavigationManager() {
+  const colorScheme = useColorScheme(); // Detect system theme
+  const theme = useMemo(() => (colorScheme === "dark" ? darkTheme : lightTheme), [colorScheme]);
+
   return (
-    <PaperProvider theme={customTheme}>
+    <PaperProvider theme={theme}>
       <AuthProvider>
         <BillingDataProvider>
           <NavigationContainer>
