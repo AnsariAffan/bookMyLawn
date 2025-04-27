@@ -64,7 +64,7 @@ jobs:
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.resend.com
-          server_port: 587
+          server_port: 465
           username: resend
           password: re_y8abwdTB_5EPmZBJgor4XiQi5wJiizj5Q
           subject: 'New APK Build 📦'
