@@ -3,7 +3,7 @@ name: Android APK Build
 on:
   push:
     branches:
-      - main   # or your production branch
+      - main
   pull_request:
 
 jobs:
@@ -18,18 +18,16 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18  # or your project version
+          node-version: 18
 
       - name: Install dependencies
-        run: npm install --force  # or yarn install
+        run: npm install
 
-      - name: Set up Java and Android SDK
-        uses: reactivecircus/android-emulator-runner@v2
+      - name: Set up Java
+        uses: actions/setup-java@v3
         with:
-          api-level: 31
-          target: google_apis
-          arch: x86_64
-          profile: pixel
+          distribution: 'temurin'
+          java-version: '17'   # or 11 depending on your Android project
 
       - name: Build Release APK
         run: |
