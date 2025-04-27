@@ -1,4 +1,4 @@
-name: Android APK Build
+name: Android & iOS Build
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  build:
+  build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
 
@@ -47,11 +47,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-     # - name: Build Release APK
-      #  run: |
-       #   cd android
-        #  chmod +x gradlew
-         # ./gradlew assembleRelease
+      - name: Build Release APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
@@ -59,24 +59,80 @@ jobs:
           name: app-release.apk
           path: android/app/build/outputs/apk/release/app-release.apk
 
+      # - name: Send Android APK via Email
+      #   uses: dawidd6/action-send-mail@v3
+      #   with:
+      #     server_address: smtp.resend.com
+      #     server_port: 587
+      #     username: mohammadaffan777@gmail.com
+      #     password: ${{ secrets.RESEND_API_KEY }}
+      #     subject: 'New Android APK Build 📦'
+      #     body: |
+      #       Hi Team,
 
-      - name: Send APK via Email
-        uses: dawidd6/action-send-mail@v3
+      #       A new Android APK build has been generated successfully! 🎉
+
+      #       Please find the APK attached below.
+
+      #       Thanks,
+      #       GitHub Actions Bot 🤖
+      #     to: anamfirdaus04@gmail.com,mohammadamansari777@gmail.com,mohammadaffan777@gmail.com,yashfeennashra@gmail.com
+      #     from: mohammadaffan777@gmail.com
+      #     attachments: android/app/build/outputs/apk/release/app-release.apk
+
+  build-ios:
+    name: Build iOS IPA
+    runs-on: macos-latest  # MacOS runner for iOS build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          server_address: smtp.resend.com
-          server_port: 465
-          username: resend
-          password: re_y8abwdTB_5EPmZBJgor4XiQi5wJiizj5Q
-          subject: 'New APK Build 📦'
-          body: |
-            Hi Team,
+          node-version: 18
 
-            A new Android APK build has been generated successfully! 🎉
+      - name: Install dependencies
+        run: npm install --force
 
-            Please find the APK attached.
+      - name: Set up CocoaPods
+        run: |
+          sudo gem install cocoapods
+          pod install
 
-            Thanks,
-            GitHub Actions Bot 🤖
-          to: anamfirdaus04@gmail.com,mohammadamansari777@gmail.com,mohammadaffan777@gmail.com,yashfeennashra@gmail.com
-          from: mohammadaffan777@gmail.com
-          attachments: android/app/build/outputs/apk/release/app-release.apk
+      - name: Build iOS App
+        run: |
+          cd ios
+          xcodebuild -scheme YourScheme archive -archivePath $PWD/build/YourApp.xcarchive
+
+      - name: Export IPA from Archive
+        run: |
+          xcodebuild -exportArchive -archivePath $PWD/build/YourApp.xcarchive -exportPath $PWD/build/YourApp.ipa -exportOptionsPlist ios/exportOptions.plist
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release.ipa
+          path: ios/build/YourApp.ipa
+
+  #     - name: Send iOS IPA via Email
+  #       uses: dawidd6/action-send-mail@v3
+  #       with:
+  #         server_address: smtp.resend.com
+  #         server_port: 587
+  #         username: apikey
+  #         password: ${{ secrets.RESEND_API_KEY }}
+  #         subject: 'New iOS IPA Build 📦'
+  #         body: |
+  #           Hi Team,
+
+  #           A new iOS IPA build has been generated successfully! 🎉
+
+  #           Please find the IPA attached below.
+
+  #           Thanks,
+  #           GitHub Actions Bot 🤖
+  #         to: anamfirdaus04@gmail.com,mohammadamansari777@gmail.com,mohammadaffan777@gmail.com,yashfeennashra@gmail.com
+  #         from: mohammadaffan777@gmail.com
+  #         attachments: ios/build/YourApp.ipa
