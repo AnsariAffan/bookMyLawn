@@ -102,7 +102,7 @@ const BookingList = ({ navigation }) => {
           delay={index * 100}
         >
           <LinearGradient
-            colors={["#FFFFFF", "#E3F2FD"]}
+            colors={["#FFFFFF", "#F3F4F6"]}
             style={styles.coinCard}
           >
             <TouchableOpacity
@@ -113,7 +113,7 @@ const BookingList = ({ navigation }) => {
                 <Avatar.Text
                   size={40}
                   label={item.name.slice(0, 2).toUpperCase()}
-                  style={{ backgroundColor: "#26A69A" }}
+                  style={{ backgroundColor: "#F3F4F6" }}
                 />
                 <View style={styles.coinInfo}>
                   <Text style={styles.coinName}>{item.name}</Text>
@@ -128,7 +128,8 @@ const BookingList = ({ navigation }) => {
 
               <View style={styles.amountContainer}>
                 <Text style={styles.totalAmount}>{item.totalAmount}</Text>
-                <View style={styles.amountRow}>
+            {/*
+              <View style={styles.amountRow}>
                   <Text style={[styles.amountText, { color: "#4CAF50" }]}>
                     +{totalReceivedAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                   </Text>
@@ -137,6 +138,8 @@ const BookingList = ({ navigation }) => {
                     -{remainingAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                   </Text>
                 </View>
+              */}    
+                
               </View>
             </TouchableOpacity>
           </LinearGradient>
@@ -207,11 +210,11 @@ const BookingList = ({ navigation }) => {
   }, [filteredData]);
 
   return (
-    <LinearGradient colors={["#F5F7FA", "#E3F2FD"]} style={styles.container}>
+    <LinearGradient colors={["#ffff", "#F3F4F6"]} style={styles.container}>
       <Animatable.View animation="fadeInDown" duration={1000} style={styles.contentContainer}>
         <Animatable.View animation="zoomIn" duration={1000}>
           <LinearGradient
-            colors={["#FFFFFF", "#E3F2FD"]}
+            colors={["#FFFFFF", "#F3F4F6"]}
             style={styles.portfolioSummary}
           >
             <View style={styles.portfolioHeader}>
@@ -348,15 +351,16 @@ const BookingList = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  contentContainer: { flex: 1, padding: 15 },
+  contentContainer: { flex: 1, padding: 5 },
   portfolioSummary: {
     borderRadius: 15,
-    padding: 20,
-    marginBottom: 5, // Adjust margin to reduce space below this container
+    padding: 5,
+    marginTop:20,
+    marginBottom: 8, // Adjust margin to reduce space below this container
     borderWidth: 1,
     borderColor: "#E0E0E0",
-    width: width * 0.9, // 90% of screen width
-    height: height * 0.3, // 30% of screen height
+    width: width *0.97, // 90% of screen width
+    height: height * 0.2, // 30% of screen height
   },
   value: { fontSize: 24, fontWeight: "600", color: "#333333" },
   searchBarContainer: {
@@ -373,7 +377,7 @@ const styles = StyleSheet.create({
   searchBar: { flex: 1, paddingVertical: 10, fontSize: 16, color: "#333333" },
   metricsContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
     marginBottom: 0, // Ensure no extra margin below
     paddingBottom: 0, // Ensure no extra padding below
   },

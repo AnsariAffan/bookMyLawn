@@ -19,15 +19,19 @@ import {
 } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useAuth } from "../Authprovider.js/AuthProvider";
-import { updateBillingData, onBillingDataChange } from "../../firebaseConfiguration/FirebaseCrud";
+import {
+  updateBillingData,
+  onBillingDataChange,
+} from "../../firebaseConfiguration/FirebaseCrud";
+import { exportData } from "../utility/ExportData";
 
 const { width } = Dimensions.get("window");
 const chartWidth = width * 0.9; // 90% of the screen width
 const chartHeight = width * 0.5; // 50% of the screen width
 
 const Billingdetail = ({ navigation, route }) => {
-    const dataDefaulting = route?.params?.booking
-    console.log(dataDefaulting);
+  const dataDefaulting = route?.params?.booking;
+  console.log(dataDefaulting);
   const theme = useTheme();
   const { user } = useAuth();
   const [billingData, setBillingData] = useState(dataDefaulting);
@@ -37,11 +41,17 @@ const Billingdetail = ({ navigation, route }) => {
 
   useEffect(() => {
     if (billingData?.id) {
-      const unsubscribe = onBillingDataChange(user.displayName, (updatedData) => {
-        if (updatedData?.[billingData.id]) {
-          setBillingData((prev) => ({ ...prev, ...updatedData[billingData.id] }));
+      const unsubscribe = onBillingDataChange(
+        user.displayName,
+        (updatedData) => {
+          if (updatedData?.[billingData.id]) {
+            setBillingData((prev) => ({
+              ...prev,
+              ...updatedData[billingData.id],
+            }));
+          }
         }
-      });
+      );
       return unsubscribe || (() => {});
     }
   }, [billingData?.id, user.displayName]);
@@ -66,7 +76,11 @@ const Billingdetail = ({ navigation, route }) => {
 
     try {
       setLoading(true);
-      await updateBillingData(user?.displayName, billingData?.id, updatedDetails);
+      await updateBillingData(
+        user?.displayName,
+        billingData?.id,
+        updatedDetails
+      );
       setDialogMessage("Payment marked as fully paid successfully.");
     } catch (error) {
       setDialogMessage("Failed to update payment status. Please try again.");
@@ -84,114 +98,136 @@ const Billingdetail = ({ navigation, route }) => {
   }, [dataDefaulting?.contact]);
   const handlePrint = async () => {
     try {
-      // await createPDF(); // Make sure it's awaited
+      //await exportData(dataDefaulting,"pdf"); // Make sure it's awaited
     } catch (error) {
       console.error("Error creating PDF:", error);
     }
   };
-  const renderCustomerDetails = useMemo(() => (
-    
-    <Card style={styles.card}>
-     
-      <Card.Content>
-        <Text style={styles.sectionHeader}>Customer Details</Text>
-        <View style={styles.detailsContainer}>
-          <View style={styles.detailRow}>
-            <Icon name="account" size={20} style={styles.icon} />
-            <Text style={styles.label}>Name</Text>
-            <Text style={styles.value}>{dataDefaulting.name}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Icon name="map-marker" size={20} style={styles.icon} />
-            <Text style={styles.label}>Address</Text>
-            <Text style={styles.value}>{dataDefaulting.address}</Text>
-          </View>
-          <TouchableOpacity onPress={handleContactPress}>
+  const renderCustomerDetails = useMemo(
+    () => (
+      <Card style={styles.card}>
+        <Card.Content>
+          <Text style={styles.sectionHeader}>Customer Details</Text>
+          <View style={styles.detailsContainer}>
             <View style={styles.detailRow}>
-              <Icon name="phone" size={20} style={styles.icon} />
-              <Text style={styles.label}>Contact</Text>
-              <Text style={[styles.value, styles.contactLink]}>{dataDefaulting.contact}</Text>
+              <Icon name="account" size={20} style={styles.icon} />
+              <Text style={styles.label}>Name</Text>
+              <Text style={styles.value}>{dataDefaulting.name}</Text>
             </View>
-          </TouchableOpacity>
-        </View>
-      </Card.Content>
-    </Card>
-  ), [dataDefaulting, handleContactPress]);
+            <View style={styles.detailRow}>
+              <Icon name="map-marker" size={20} style={styles.icon} />
+              <Text style={styles.label}>Address</Text>
+              <Text style={styles.value}>{dataDefaulting.address}</Text>
+            </View>
+            <TouchableOpacity onPress={handleContactPress}>
+              <View style={styles.detailRow}>
+                <Icon name="phone" size={20} style={styles.icon} />
+                <Text style={styles.label}>Contact</Text>
+                <Text style={[styles.value, styles.contactLink]}>
+                  {dataDefaulting.contact}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </Card.Content>
+      </Card>
+    ),
+    [dataDefaulting, handleContactPress]
+  );
 
-  const renderBillingDetails = useMemo(() => (
-    
-    <Card style={styles.card2}>
-      <Card.Content>
-        <Text style={styles.sectionHeader}>Invoice Details</Text>
-        
-        <View style={styles.detailsContainer}>
-       
-          <View style={styles.detailRow}>
-          
-            <Text style={styles.label}>Payment Status</Text>
-            <View
-              style={[
-                styles.statusBadge,
-                billingData.paymentStatus === "Fully Paid"
-                  ? styles.paidBadge
-                  : styles.unpaidBadge,
-              ]}
-            >
-              <Text style={styles.statusText}>{billingData.paymentStatus}</Text>
+  const renderBillingDetails = useMemo(
+    () => (
+      <Card style={styles.card2}>
+        <Card.Content>
+          <Text style={styles.sectionHeader}>Invoice Details</Text>
+
+          <View style={styles.detailsContainer}>
+            <View style={styles.detailRow}>
+              <Text style={styles.label}>Payment Status</Text>
+              <View
+                style={[
+                  styles.statusBadge,
+                  billingData.paymentStatus === "Fully Paid"
+                    ? styles.paidBadge
+                    : styles.unpaidBadge,
+                ]}
+              >
+                <Text style={styles.statusText}>
+                  {billingData.paymentStatus}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.detailRow}>
+              <Text style={styles.label}>Booking Date</Text>
+              <Text style={styles.value}>{billingData.dates}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.label}>Total Amount</Text>
+              <Text style={[styles.value, styles.amount]}>
+                ₹{billingData.totalAmount}
+              </Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.label}>Booking Amount</Text>
+              <Text style={styles.value}>₹{billingData.AdvBookAmount}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.label}>Remaining Amount</Text>
+              <Text style={[styles.value, { color: "#EF5350" }]}>
+                ₹{billingData.remainingAmount}
+              </Text>
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.detailRow}>
+              <Text style={styles.label}>Total Received</Text>
+              <Text style={[styles.value, { color: "#4CAF50" }]}>
+                ₹{billingData.totalReceivedAmount}
+              </Text>
             </View>
           </View>
-
-          <View style={styles.detailRow}>
-            <Text style={styles.label}>Booking Date</Text>
-            <Text style={styles.value}>{billingData.dates}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.label}>Total Amount</Text>
-            <Text style={[styles.value, styles.amount]}>₹{billingData.totalAmount}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.label}>Booking Amount</Text>
-            <Text style={styles.value}>₹{billingData.AdvBookAmount}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.label}>Remaining Amount</Text>
-            <Text style={[styles.value, { color: "#EF5350" }]}>₹{billingData.remainingAmount}</Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.detailRow}>
-            <Text style={styles.label}>Total Received</Text>
-            <Text style={[styles.value, { color: "#4CAF50" }]}>₹{billingData.totalReceivedAmount}</Text>
-          </View>
-        
-        </View>
-      </Card.Content>
-    </Card>
-  ), [billingData]);
+        </Card.Content>
+      </Card>
+    ),
+    [billingData]
+  );
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-    <Appbar.Header style={{ backgroundColor: "#ffff" }}>
-            <Appbar.BackAction
-              style={{ color: "black", backgroundColor: "#ffff" }}
-              onPress={() => navigation.goBack()}
-            />
-            <Appbar.Content
-              style={{ paddingLeft: 10, fontWeight: "700" }}
-              color="black"
-              title="Details"
-              subtitle="Step 2 of 3"
-            />
-            <Appbar.Action icon="printer" onPress={handlePrint} color="#4DB6AC" />
-          </Appbar.Header> 
-    <View style={styles.headerContainer}>
-    <View Style={{display:"flex",flexDirection:"column",justifyContent:"space-evenlt]y"}}>
-    <Text style={styles.headerTitle}>Invoice </Text>
-    <Text style={styles.headerSubtitle}>Create At: {dataDefaulting.createdAt} </Text>
+      <Appbar.Header style={{ backgroundColor: "#ffff" }}>
+        <Appbar.BackAction
+          style={{ color: "black", backgroundColor: "#ffff" }}
+          onPress={() => navigation.goBack()}
+        />
+        <Appbar.Content
+          style={{ paddingLeft: 10, fontWeight: "700" }}
+          color="black"
+          title="Details"
+          subtitle="Step 2 of 3"
+        />
+        <Appbar.Action icon="printer" onPress={handlePrint} color="#4DB6AC" />
+      </Appbar.Header>
+      <View style={styles.headerContainer}>
+        <View
+          Style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-evenlt]y",
+          }}
+        >
+          <Text style={styles.headerTitle}>Invoice </Text>
+          <Text style={styles.headerSubtitle}>
+            Create At: {dataDefaulting.createdAt}{" "}
+          </Text>
 
-    <Text style={styles.headerSubtitle}>Bill id:{dataDefaulting.id} </Text>
-    </View>
-     
-        <Text style={styles.headerSubtitle}>Bill for {dataDefaulting.name}</Text>
+          <Text style={styles.headerSubtitle}>
+            Bill id:{dataDefaulting.id}{" "}
+          </Text>
+        </View>
+
+        <Text style={styles.headerSubtitle}>
+          Bill for {dataDefaulting.name}
+        </Text>
         <TouchableOpacity
           style={styles.exportButton}
           onPress={handleMarkAsPaid}
@@ -206,7 +242,7 @@ const Billingdetail = ({ navigation, route }) => {
       </View>
       {renderCustomerDetails}
       {renderBillingDetails}
-      
+
       <Portal>
         <Dialog
           visible={dialogVisible}
@@ -233,7 +269,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 15,
     backgroundColor: "#F5F5F5",
-    
   },
   headerContainer: {
     backgroundColor: "#FFFFFF",
@@ -241,7 +276,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#E0E0E0",
     marginBottom: 10,
-    
   },
   headerTitle: {
     fontSize: 24,
@@ -282,7 +316,6 @@ const styles = StyleSheet.create({
     elevation: 2,
     borderWidth: 1,
     borderColor: "#E0E0E0",
-  
   },
   card2: {
     backgroundColor: "#FFFFFF",
@@ -295,7 +328,7 @@ const styles = StyleSheet.create({
     elevation: 2,
     borderWidth: 1,
     borderColor: "#E0E0E0",
-  marginBottom:60
+    marginBottom: 60,
   },
   sectionHeader: {
     fontSize: 18,

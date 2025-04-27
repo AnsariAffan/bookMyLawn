@@ -91,13 +91,13 @@ const BookingScreen = () => {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
-      <LinearGradient colors={["#F5F7FA", "#E3F2FD"]} style={styles.gradient}>
+      <LinearGradient colors={["#F3F4F6", "#F3F4F6"]} style={styles.gradient}>
         <Animatable.View animation="fadeInUp" duration={500} style={styles.content}>
           <Text style={styles.title}>Book Your Lawn</Text>
           <Text style={styles.subtitle}>Select your dates to proceed</Text>
 
           <Animatable.View animation="fadeIn" duration={500} delay={200}>
-            <LinearGradient colors={["#FFFFFF", "#E3F2FD"]} style={styles.calendarContainer}>
+            <LinearGradient colors={["#FFFFFF", "#F3F4F6"]} style={styles.calendarContainer}>
               <Calendar
                 current={currentMonth}
                 onMonthChange={(month) => setCurrentMonth(month.dateString)}

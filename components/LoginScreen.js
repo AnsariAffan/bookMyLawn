@@ -95,7 +95,7 @@ export default function LoginScreen() {
       style={styles.container}
     >
       <LinearGradient
-        colors={["#F5F7FA", "#E3F2FD"]}
+        colors={["#F5F7FA", "#F3F4F6"]}
         style={styles.gradient}
       >
         <Animatable.View animation="fadeInUp" duration={1000} style={styles.content}>
@@ -109,7 +109,7 @@ export default function LoginScreen() {
           {/* Input Container */}
           <View style={styles.inputContainer}>
             <LinearGradient
-              colors={["#FFFFFF", "#E3F2FD"]}
+              colors={["#FFFFFF", "#F3F4F6"]}
               style={styles.inputWrapper}
             >
               <Icon name="person" size={20} color="#3B82F6" style={styles.inputIcon} />
@@ -123,7 +123,7 @@ export default function LoginScreen() {
               />
             </LinearGradient>
             <LinearGradient
-              colors={["#FFFFFF", "#E3F2FD"]}
+              colors={["#FFFFFF", "#F3F4F6"]}
               style={styles.inputWrapper}
             >
               <Icon name="lock" size={20} color="#3B82F6" style={styles.inputIcon} />

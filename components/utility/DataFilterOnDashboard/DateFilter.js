@@ -238,12 +238,13 @@ const DateFilter = () => {
             </View>
 
             <View style={styles.filterButtons}>
+            <TouchableOpacity onPress={handleClearFilter} style={styles.clearButton}>
+                <Text style={styles.clearButtonText}>Clear</Text>
+              </TouchableOpacity>
               <TouchableOpacity onPress={handleApplyFilter} style={styles.applyButton}>
                 <Text style={styles.applyButtonText}>Apply</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleClearFilter} style={styles.clearButton}>
-                <Text style={styles.clearButtonText}>Clear</Text>
-              </TouchableOpacity>
+              
             </View>
           </View>
         </View>
@@ -272,7 +273,7 @@ const styles = StyleSheet.create({
   calendarButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#F3F4F6',
     padding: 5,
     borderRadius: 8,
     marginBottom: 20,

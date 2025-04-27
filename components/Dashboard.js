@@ -65,7 +65,7 @@ const Dashboard = () => {
           }
         >
           <LinearGradient
-            colors={["#FFFFFF", "#E3F2FD"]}
+            colors={["#ffff", "#F3F4F6"]}
             style={styles.eventCard}
           >
             <Text style={styles.eventTitle}>{event.dates}</Text>
@@ -79,7 +79,7 @@ const Dashboard = () => {
   const headerContent = useMemo(() => {
     return (
       <LinearGradient
-        colors={["#FFFFFF", "#E3F2FD"]}
+        colors={["#ffff", "#fff"]}
         style={styles.headerContainer}
       >
         <TouchableOpacity
@@ -117,7 +117,7 @@ const Dashboard = () => {
 
   return (
     <LinearGradient
-      colors={["#F5F7FA", "#E3F2FD"]}
+      colors={["#ffff", "#ffff"]}
       style={styles.gradient}
     >
       <ScrollView style={styles.container}>
@@ -129,7 +129,7 @@ const Dashboard = () => {
           <View style={styles.sideBySideContainer}>
             {/* Total Revenue */}
             <TouchableOpacity style={styles.boxContainer}>
-              <View style={[styles.dataBox, { backgroundColor: "#3B82F6" }]}>
+              <View style={[styles.dataBox, { backgroundColor: "#F3F4F6" }]}>
                 <View style={styles.revenueContainer}>
                   <Text style={styles.currencyText}>₹</Text>
                   <Text style={styles.dataText}>
@@ -142,7 +142,7 @@ const Dashboard = () => {
 
             {/* Unpaid */}
             <TouchableOpacity style={styles.boxContainer}>
-              <View style={[styles.dataBox, { backgroundColor: "#EF5350" }]}>
+              <View style={[styles.dataBox, { backgroundColor: "#F3F4F6" }]}>
                 <View style={styles.revenueContainer}>
                   <Text style={styles.currencyText}>₹</Text>
                   <Text style={styles.dataText}>
@@ -157,7 +157,7 @@ const Dashboard = () => {
           <View style={styles.sideBySideContainer}>
             {/* Total Bookings */}
             <TouchableOpacity style={styles.boxContainer}>
-              <View style={[styles.dataBox, { backgroundColor: "#4DB6AC" }]}>
+              <View style={[styles.dataBox, { backgroundColor: "#F3F4F6" }]}>
                 <Text style={styles.dataText}>
                   {billingDataState.totalBookings}
                 </Text>
@@ -167,7 +167,7 @@ const Dashboard = () => {
 
             {/* Upcoming Events */}
             <TouchableOpacity style={styles.boxContainer}>
-              <View style={[styles.dataBox, { backgroundColor: "#FF9900" }]}>
+              <View style={[styles.dataBox, { backgroundColor: "#F3F4F6" }]}>
                 <Text style={styles.dataText}>
                   {billingDataState?.totalUpcomingDates}
                 </Text>
@@ -183,10 +183,7 @@ const Dashboard = () => {
         <View style={styles.section}>
         <Text style={styles.sectionTitle}>Revenue vs Time (Monthly)</Text>
         {totalReceivedAmounts.length > 0 ? (
-          <LinearGradient
-            colors={["#FFFFFF", "#E3F2FD"]}
-            style={styles.chartContainer}
-          >
+        
             <LineChart
               data={{
                 labels: [
@@ -205,8 +202,9 @@ const Dashboard = () => {
                 ],
                 datasets: [{ data: totalReceivedAmounts, strokeWidth: 2 }],
               }}
-              width={width * 0.9} // Set width to 90% of screen width
+              width={width} // Set width to 90% of screen width
               height={height * 0.25} // Set height to 25% of screen height
+              style={{padding:2}}
               chartConfig={{
                 backgroundColor: "#FFFFFF", // Changed to white
                 backgroundGradientFrom: "#FFFFFF", // Changed to white
@@ -221,9 +219,9 @@ const Dashboard = () => {
                   stroke: "#3B82F6",
                 },
               }}
-              style={{ borderRadius: 10 }}
+             
             />
-          </LinearGradient>
+         
         ) : (
           <Text style={styles.noDataText}>No data available</Text>
         )}
@@ -256,23 +254,24 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-evenly",
     alignItems: "center",
     marginTop: height * 0.01,
     marginBottom: height * 0.01,
-    padding: 10,
+    padding: 5,
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
+   
   },
   profileContainer: {
-    marginLeft: 10,
+    marginLeft: -10,
+    marginTop:10,
   },
   header: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#333333",
+    color: "black",
     fontFamily: "Roboto",
+    marginTop:10,
   },
   calendarButton: {
     marginRight: 5,
@@ -287,13 +286,13 @@ const styles = StyleSheet.create({
   },
   boxContainer: {
     flex: 1,
-    marginHorizontal: width * 0.01,
+    marginHorizontal: width * 0.019,
   },
   dataBox: {
-    padding: width * 0.04,
+    padding: width * 0.03,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#E0E0E0",
+    borderColor: "#ffff",
   },
   revenueContainer: {
     flexDirection: "row",
@@ -303,19 +302,19 @@ const styles = StyleSheet.create({
   currencyText: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#FFFFFF",
+    color: "black",
     marginRight: 5,
     fontFamily: "Roboto",
   },
   dataText: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#FFFFFF",
+    color: "black",
     fontFamily: "Roboto",
   },
   dataLabel: {
     textAlign: "left",
-    color: "#FFFFFF",
+    color: "darkgrey",
     fontSize: 14,
     fontFamily: "Roboto",
     marginTop: 5,
@@ -351,12 +350,7 @@ const styles = StyleSheet.create({
     fontFamily: "Roboto",
     marginTop: 2,
   },
-  chartContainer: {
-    borderRadius: 10,
-    padding: 0,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-  },
+
   noDataText: {
     fontSize: 14,
     fontWeight: "500",

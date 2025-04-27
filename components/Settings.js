@@ -106,11 +106,11 @@ const Settings = ({ navigation }) => {
   };
 
   return (
-    <LinearGradient colors={["#F5F7FA", "#E3F2FD"]} style={styles.gradient}>
+    <LinearGradient colors={["#F5F7FA", "#F3F4F6"]} style={styles.gradient}>
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           {/* Profile Section */}
-          <LinearGradient colors={["#FFFFFF", "#E3F2FD"]} style={styles.profileContainer}>
+          <LinearGradient colors={["#FFFFFF", "#F3F4F6"]} style={styles.profileContainer}>
             <Animatable.View animation="fadeIn" duration={500}>
               <TouchableOpacity onPress={pickImage}>
                 {image ? (
