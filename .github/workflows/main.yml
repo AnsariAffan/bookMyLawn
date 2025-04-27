@@ -65,8 +65,8 @@ jobs:
         with:
           server_address: smtp.resend.com
           server_port: 587
-          username: onboarding@resend.dev
-          password: ${{ secrets.RESEND_API_KEY }}
+          username: resend
+          password: re_y8abwdTB_5EPmZBJgor4XiQi5wJiizj5Q
           subject: 'New APK Build 📦'
           body: |
             Hi Team,
