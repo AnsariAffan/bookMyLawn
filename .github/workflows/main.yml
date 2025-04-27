@@ -58,3 +58,25 @@ jobs:
         with:
           name: app-release.apk
           path: android/app/build/outputs/apk/release/app-release.apk
+
+
+      - name: Send APK via Email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.resend.com
+          server_port: 587
+          username: apikey
+          password: ${{ secrets.RESEND_API_KEY }}
+          subject: 'New APK Build 📦'
+          body: |
+            Hi Team,
+
+            A new Android APK build has been generated successfully! 🎉
+
+            Please find the APK attached.
+
+            Thanks,
+            GitHub Actions Bot 🤖
+          to: anamfirdaus04@gmail.com,mohammadamansari777@gmail.com,mohammadaffan777@gmail.com,yashfeennashra@gmail.com
+          from: mohammadaffan777@gmail.com
+          attachments: android/app/build/outputs/apk/release/app-release.apk
