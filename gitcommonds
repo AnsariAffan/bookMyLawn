@@ -1,5 +1,5 @@
 git add . 
-git commit -m "added ne field in form 11 may Sat 2025" 
+git commit -m "added ne fields in form 11 may Sat 2025" 
 git push -u origin main 
 npm version patch 
 git push --tags
