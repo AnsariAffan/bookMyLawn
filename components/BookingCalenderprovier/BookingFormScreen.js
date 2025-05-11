@@ -1,3 +1,4 @@
+
 import React, { useContext, useEffect, useState } from "react";
 import {
   View,
@@ -113,7 +114,9 @@ const BookingFormScreen = () => {
     if (isNaN(newBooking.AdvBookAmount) || newBooking.AdvBookAmount < 0) {
       newErrors.AdvBookAmount = "Advance Amount must be a non-negative number";
     }
-    // Validate asset quantities
+    if (!newBooking.requiresSetupAssistance) {
+      newErrors.requiresSetupAssistance = "Setup Assistance is required";
+    }
     newBooking.assets.forEach((asset, index) => {
       if (asset.included && asset.quantity <= 0) {
         newErrors[`assetQty_${index}`] = `Please select quantity for ${asset.name}`;
@@ -153,7 +156,7 @@ const BookingFormScreen = () => {
     });
   };
 
-  const quantityOptions = Array.from({ length: 101 }, (_, i) => i); // 0 to 100
+  const quantityOptions = Array.from({ length: 101 }, (_, i) => i);
 
   return (
     <LinearGradient colors={["#F3F4F6", "#F3F4F6"]} style={styles.gradient}>
@@ -169,7 +172,8 @@ const BookingFormScreen = () => {
             { placeholder: "₹ Total Amount", key: "totalAmount", keyboardType: "numeric" },
             { placeholder: "Advance Booking Amount", icon: "payment", key: "AdvBookAmount", keyboardType: "numeric" },
             { placeholder: "Special Requests", icon: "note", key: "specialRequests", multiline: true },
-          ]?.map(({ placeholder, icon, key, keyboardType, multiline }) => (
+            { placeholder: "Additional Services", icon: "add", key: "additionalServices", multiline: true },
+          ].map(({ placeholder, icon, key, keyboardType, multiline }) => (
             <View style={styles.inputWrapper} key={key}>
               {icon && <Icon name={icon} size={20} color="#666666" style={styles.inputIcon} />}
               <TextInput
@@ -190,7 +194,6 @@ const BookingFormScreen = () => {
             </View>
           ))}
 
-          {/* Event Type Dropdown */}
           <View style={styles.inputWrapper}>
             <Icon name="event" size={20} color="#666666" style={styles.inputIcon} />
             <Picker
@@ -208,7 +211,20 @@ const BookingFormScreen = () => {
             {errors.eventType && <Text style={styles.errorText}>{errors.eventType}</Text>}
           </View>
 
-          {/* Asset Selection */}
+          <View style={styles.inputWrapper}>
+            <Icon name="build" size={20} color="#666666" style={styles.inputIcon} />
+            <Picker
+              style={styles.picker}
+              selectedValue={newBooking.requiresSetupAssistance}
+              onValueChange={(value) => setNewBooking({ ...newBooking, requiresSetupAssistance: value })}
+            >
+              <Picker.Item label="Requires Setup Assistance?" value="" />
+              <Picker.Item label="Yes" value="Yes" />
+              <Picker.Item label="No" value="No" />
+            </Picker>
+            {errors.requiresSetupAssistance && <Text style={styles.errorText}>{errors.requiresSetupAssistance}</Text>}
+          </View>
+
           <Text style={[styles.formTitle, { fontSize: 20 }]}>Select Assets</Text>
           {Array.isArray(newBooking.assets) &&
             newBooking.assets.map((asset, index) => (
@@ -251,7 +267,6 @@ const BookingFormScreen = () => {
               </View>
             ))}
 
-          {/* Redesigned Buttons */}
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
@@ -275,6 +290,7 @@ const BookingFormScreen = () => {
               <LinearGradient
                 colors={["#4DABF7", "#3B82F6"]}
                 style={styles.buttonGradient}
+
               >
                 {loading ? (
                   <ActivityIndicator size="small" color="#FFFFFF" />

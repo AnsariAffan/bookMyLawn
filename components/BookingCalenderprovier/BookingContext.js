@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useEffect } from "react";
 import moment from "moment";
 import { useAuth } from "../Authprovider.js/AuthProvider";
@@ -9,7 +10,6 @@ export const BookingProvider = ({ children }) => {
   const [bookings, setBookings] = useState([]);
   const [markedDates, setMarkedDates] = useState({});
   const [selectedDates, setSelectedDates] = useState([]);
-  const [selectedAssets, setSelectedAssets] = useState({}); // New: asset selections
   const [newBooking, setNewBooking] = useState({
     name: "",
     contact: "",
@@ -19,13 +19,14 @@ export const BookingProvider = ({ children }) => {
     numberOfGuests: 0,
     additionalServices: "",
     specialRequests: "",
-    requiresSetupAssistance: "", // "Yes" or "No"
+    requiresSetupAssistance: "",
     totalAmount: 0,
     paymentStatus: "",
     AdvBookAmount: 0,
     paidAmount: 0,
     billingId: "",
     totalReceivedAmount: 0,
+    assets: [],
   });
 
   const [loading, setLoading] = useState(false);
@@ -99,20 +100,34 @@ export const BookingProvider = ({ children }) => {
 
       let paymentStatus = "Not Paid";
       if (newBooking.AdvBookAmount > 0) {
-        paymentStatus = newBooking.AdvBookAmount >= newBooking.totalAmount
-          ? "Fully Paid"
-          : "Partially Paid";
+        paymentStatus =
+          newBooking.AdvBookAmount >= newBooking.totalAmount
+            ? "Fully Paid"
+            : "Partially Paid";
       }
 
       const bookingData = {
-        ...newBooking,
+        name: newBooking.name,
+        contact: newBooking.contact,
+        email: newBooking.email,
+        address: newBooking.address,
+        eventType: newBooking.eventType,
+        numberOfGuests: newBooking.numberOfGuests,
+        additionalServices: newBooking.additionalServices,
+        specialRequests: newBooking.specialRequests,
+        requiresSetupAssistance: newBooking.requiresSetupAssistance,
+        totalAmount: newBooking.totalAmount,
+        paymentStatus: paymentStatus,
+        AdvBookAmount: newBooking.AdvBookAmount,
+        paidAmount: newBooking.paidAmount || 0,
+        billingId: newBooking.billingId || "",
+        totalReceivedAmount: newBooking.totalReceivedAmount || newBooking.AdvBookAmount,
+        assets: newBooking.assets,
         dates: selectedDates,
         status: "Approved",
         remainingAmount: newBooking.totalAmount - newBooking.AdvBookAmount,
-        paymentStatus,
         userId: user?.uid,
-        totalReceivedAmount: newBooking.AdvBookAmount,
-        selectedAssets, // New: include selected assets
+        createdAt: new Date().toISOString(),
       };
 
       await saveBillingData(user.displayName, bookingData);
@@ -136,9 +151,9 @@ export const BookingProvider = ({ children }) => {
         paidAmount: 0,
         billingId: "",
         totalReceivedAmount: 0,
+        assets: [],
       });
       setSelectedDates([]);
-      setSelectedAssets({}); // Reset asset selections
 
       return true;
     } catch (error) {
@@ -158,8 +173,6 @@ export const BookingProvider = ({ children }) => {
         setSelectedDates,
         newBooking,
         setNewBooking,
-        selectedAssets,
-        setSelectedAssets,
         loading,
         handleBookingSubmit,
         successMessage,
