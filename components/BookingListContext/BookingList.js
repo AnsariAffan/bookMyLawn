@@ -362,14 +362,14 @@ const styles = StyleSheet.create({
     width: width *0.97, // 90% of screen width
     height: height * 0.2, // 30% of screen height
   },
-  value: { fontSize: 24, fontWeight: "600", color: "#333333" },
+  value: { fontSize: 24, fontWeight: "600", color: "#333333",padding:8 },
   searchBarContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#F5F5F5",
     borderRadius: 10,
     paddingHorizontal: 10,
-    marginBottom: 15,
+    marginBottom: 8,
     borderWidth: 1,
     borderColor: "#E0E0E0",
   },

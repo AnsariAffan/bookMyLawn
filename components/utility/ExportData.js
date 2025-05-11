@@ -1,79 +1,82 @@
-import XLSX from "xlsx";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import RNHTMLtoPDF from "react-native-html-to-pdf";
 import RNFS from "react-native-fs";
-import { Platform, Alert } from "react-native";
+import XLSX from "xlsx";
+import { Platform } from "react-native";
 
-/**
- * Exports data to Excel or PDF format.
- * @param {Array} data - The data to export.
- * @param {string} format - The format to export ('excel' or 'pdf').
- */
-
-
-export const exportData = async (data, format) => {
-    console.log("RNFS:", RNFS); 
-  const columns = [
-    { header: "Name", key: "name" },
-    { header: "Date", key: "dates" },
-    { header: "Payment Status", key: "paymentStatus" },
-    { header: "Total Amount", key: "totalAmount" },
-    { header: "Received Amount", key: "totalReceivedAmount" },
-    { header: "Remaining Amount", key: "remainingAmount" },
-  ];
-
+const exportData = async (data, format = "pdf") => {
   try {
-    if (!RNFS || !RNFS.DownloadDirectoryPath) {
-      throw new Error("File system access is not available on this platform.");
+    if (!data || !data.id) {
+      throw new Error("Invalid or missing billing data");
     }
 
-    if (format === "excel") {
-      const worksheetData = data.map((item) => ({
-        name: item.name,
-        dates: item.dates,
-        paymentStatus: item.paymentStatus,
-        totalAmount: item.totalAmount,
-        totalReceivedAmount: item.totalReceivedAmount,
-        remainingAmount: item.totalAmount - item.totalReceivedAmount,
-      }));
+    const fileName = `Invoice_${data.id}_${new Date().toISOString().split("T")[0]}`;
+    const filePath = Platform.OS === "ios"
+      ? `${RNFS.DocumentDirectoryPath}/${fileName}.${format}`
+      : `${RNFS.DownloadDirectoryPath}/${fileName}.${format}`;
 
-      const worksheet = XLSX.utils.json_to_sheet(worksheetData, {
-        header: columns.map((col) => col.header),
-      });
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Booking Data");
+    if (format === "pdf") {
+      const htmlContent = `
+        <html>
+          <body style="font-family: Arial, sans-serif; padding: 20px;">
+            <h1>Invoice</h1>
+            <p><strong>Bill ID:</strong> ${data.id}</p>
+            <p><strong>Created At:</strong> ${data.createdAt || "N/A"}</p>
+            <h2>Customer Details</h2>
+            <p><strong>Name:</strong> ${data.name || "N/A"}</p>
+            <p><strong>Address:</strong> ${data.address || "N/A"}</p>
+            <p><strong>Contact:</strong> ${data.contact || "N/A"}</p>
+            <h2>Invoice Details</h2>
+            <p><strong>Payment Status:</strong> ${data.paymentStatus || "N/A"}</p>
+            <p><strong>Booking Date:</strong> ${data.dates || "N/A"}</p>
+            <p><strong>Total Amount:</strong> ₹${data.totalAmount || "0"}</p>
+            <p><strong>Booking Amount:</strong> ₹${data.AdvBookAmount || "0"}</p>
+            <p><strong>Remaining Amount:</strong> ₹${data.remainingAmount || "0"}</p>
+            <p><strong>Total Received:</strong> ₹${data.totalReceivedAmount || "0"}</p>
+          </body>
+        </html>
+      `;
 
-      const excelFile = XLSX.write(workbook, { type: "binary", bookType: "xlsx" });
-      const filePath = `${RNFS?.DownloadDirectoryPath}/BookingData.xlsx`;
+      const options = {
+        html: htmlContent,
+        fileName: fileName,
+        directory: Platform.OS === "ios" ? "Documents" : "Download",
+      };
 
-      await RNFS?.writeFile(filePath, excelFile, "ascii");
-      Alert.alert("Success", `Excel file saved to ${filePath}`);
-    } else if (format === "pdf") {
-      const doc = new jsPDF();
-      const tableData = data.map((item) => [
-        item.name,
-        item.dates,
-        item.paymentStatus,
-        item.totalAmount,
-        item.totalReceivedAmount,
-        item.totalAmount - item.totalReceivedAmount,
-      ]);
+      const file = await RNHTMLtoPDF.convert(options);
+      await RNFS.moveFile(file.filePath, filePath);
+    } else if (format === "excel") {
+      const worksheetData = [
+        ["Invoice", "", ""],
+        ["Bill ID", data.id, ""],
+        ["Created At", data.createdAt || "N/A", ""],
+        ["", "", ""],
+        ["Customer Details", "", ""],
+        ["Name", data.name || "N/A", ""],
+        ["Address", data.address || "N/A", ""],
+        ["Contact", data.contact || "N/A", ""],
+        ["", "", ""],
+        ["Invoice Details", "", ""],
+        ["Payment Status", data.paymentStatus || "N/A", ""],
+        ["Booking Date", data.dates || "N/A", ""],
+        ["Total Amount", `₹${data.totalAmount || "0"}`, ""],
+        ["Booking Amount", `₹${data.AdvBookAmount || "0"}`, ""],
+        ["Remaining Amount", `₹${data.remainingAmount || "0"}`, ""],
+        ["Total Received", `₹${data.totalReceivedAmount || "0"}`, ""],
+      ];
 
-      doc.text("Booking Data", 14, 20);
-      doc.autoTable({
-        head: [columns.map((col) => col.header)],
-        body: tableData,
-        startY: 30,
-      });
+      const ws = XLSX.utils.aoa_to_sheet(worksheetData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Invoice");
+      const wbout = XLSX.write(wb, { bookType: "xlsx", type: "base64" });
 
-      const pdfFile = `${RNFS?.DownloadDirectoryPath}/BookingData.pdf`;
-      const pdfOutput = doc.output("arraybuffer");
-      await RNFS.writeFile(pdfFile, Buffer.from(pdfOutput).toString("base64"), "base64");
-      Alert.alert("Success", `PDF file saved to ${pdfFile}`);
-    } else {
-      throw new Error("Unsupported format. Use 'excel' or 'pdf'.");
+      await RNFS.writeFile(filePath, wbout, "base64");
     }
+
+    return { success: true, filePath, message: `File saved to ${filePath}` };
   } catch (error) {
-    Alert.alert("Error", `Failed to export data: ${error.message}`);
+    console.error(`Error creating ${format.toUpperCase()}:`, error);
+    throw new Error(`Failed to export ${format.toUpperCase()}: ${error.message}`);
   }
 };
+
+export { exportData };
