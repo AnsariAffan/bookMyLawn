@@ -1,7 +1,8 @@
-git add . 
-git commit -m "added ne fields in form 11 may Sat 2025 latest" 
-git push -u origin main 
-npm version patch 
+git add .
+git commit -m "your commit message"
+git push origin main
+npm version patch -m "bump version to %s"
+git push origin main
 git push --tags
 
 
