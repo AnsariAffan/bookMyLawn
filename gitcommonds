@@ -1,5 +1,5 @@
 git add . 
-git commit -m "adjuste Ui on list 11 may Sat 2025" 
+git commit -m "adjust Ui on dashboard for graph 11 may Sat 2025" 
 git push -u origin main 
 npm version patch 
 git push --tags

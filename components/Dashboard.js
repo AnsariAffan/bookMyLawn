@@ -100,9 +100,9 @@ const Dashboard = () => {
           {user?.displayName || "Welcome"}
         </Text>
 
-        <View style={styles.calendarButton}>
+    
           <DateFilter />
-        </View>
+      
       </LinearGradient>
     );
   }, [image, navigation, user]); // Memoized to avoid unnecessary re-renders
@@ -204,7 +204,7 @@ const Dashboard = () => {
               }}
               width={width} // Set width to 90% of screen width
               height={height * 0.25} // Set height to 25% of screen height
-              style={{padding:2}}
+              style={{marginLeft:width*-0.04}}
               chartConfig={{
                 backgroundColor: "#FFFFFF", // Changed to white
                 backgroundGradientFrom: "#FFFFFF", // Changed to white
@@ -212,10 +212,10 @@ const Dashboard = () => {
                 decimalPlaces: 0,
                 color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
                 labelColor: (opacity = 1) => `rgba(102, 102, 102, ${opacity})`,
-                style: { borderRadius: 10 },
+                style: { borderRadius: 10,padding:50 },
                 propsForDots: {
                   r: "5",
-                  strokeWidth: "2",
+                  strokeWidth: "5",
                   stroke: "#3B82F6",
                 },
               }}
