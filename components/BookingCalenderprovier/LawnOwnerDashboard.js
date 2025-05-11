@@ -36,6 +36,11 @@ const BookingScreen = () => {
     successMessage,
     showSuccessMessage,
     setShowSuccessMessage,
+    getBookingForDate,
+    selectedBooking,
+    setSelectedBooking,
+    detailsModalVisible,
+    setDetailsModalVisible,
   } = useContext(BookingContext);
 
   const [currentMonth, setCurrentMonth] = useState(new Date().toISOString().split("T")[0]);
@@ -44,7 +49,13 @@ const BookingScreen = () => {
     (day) => {
       const dateString = day.dateString;
       if (isDateBooked(dateString)) {
-        alert("This date is already booked.");
+        const booking = getBookingForDate(dateString);
+        if (booking) {
+          setSelectedBooking(booking);
+          setDetailsModalVisible(true);
+        } else {
+          alert("No booking details found for this date.");
+        }
         return;
       }
       setSelectedDates((prevDates) =>
@@ -53,9 +64,8 @@ const BookingScreen = () => {
           : [...prevDates, dateString]
       );
     },
-    [isDateBooked, setSelectedDates]
+    [isDateBooked, getBookingForDate, setSelectedDates, setSelectedBooking, setDetailsModalVisible]
   );
-
   const handleBookingSubmitWrapper = useCallback(() => {
     handleBookingSubmit().then((success) => {
       if (success) {
@@ -64,18 +74,22 @@ const BookingScreen = () => {
           selectedDates.forEach((date) => {
             updatedMarkedDates[date] = {
               customStyles: {
-                container: { backgroundColor: "#FF0000" },
-                text: { color: "#FFFFFF" },
+                container: { backgroundColor: "#4DB6AC" },
+                text: { color: "#000" },
               },
             };
           });
           return updatedMarkedDates;
         });
-        setSelectedDates([]); // Clear selected dates after success
+        setSelectedDates([]);
+      } else {
+        alert("Failed to submit booking. Please try again.");
       }
+    }).catch((error) => {
+      console.error("Booking submit error:", error);
+      alert("Error submitting booking: " + error.message);
     });
   }, [handleBookingSubmit, selectedDates, setMarkedDates, setSelectedDates]);
-
   const getMarkedDates = useMemo(() => {
     const marked = { ...markedDates };
     selectedDates.forEach((date) => {
@@ -192,6 +206,74 @@ const BookingScreen = () => {
           </View>
         </Modal>
 
+        {/* Booking Details Modal */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={detailsModalVisible}
+          onRequestClose={() => setDetailsModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <Animatable.View animation="zoomIn" duration={500} style={styles.formModalContainer}>
+              <ScrollView contentContainerStyle={styles.formModalContent}>
+                <Text style={styles.modalTitle}>Booking Details</Text>
+                {selectedBooking && (
+                  <View style={styles.detailsContainer}>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Bill ID:</Text>
+                      <Text style={styles.detailValue}>{selectedBooking.id}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Name:</Text>
+                      <Text style={styles.detailValue}>{selectedBooking.name}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Contact:</Text>
+                      <Text style={styles.detailValue}>{selectedBooking.contact}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Address:</Text>
+                      <Text style={styles.detailValue}>{selectedBooking.address}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Dates:</Text>
+                      <Text style={styles.detailValue}>
+                        {selectedBooking.dates.join(", ")}
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Total Amount:</Text>
+                      <Text style={styles.detailValue}>₹{selectedBooking.totalAmount}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Advance Amount:</Text>
+                      <Text style={styles.detailValue}>₹{selectedBooking.AdvBookAmount}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Remaining Amount:</Text>
+                      <Text style={styles.detailValue}>₹{selectedBooking.remainingAmount}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Payment Status:</Text>
+                      <Text style={styles.detailValue}>{selectedBooking.paymentStatus}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Total Received:</Text>
+                      <Text style={styles.detailValue}>₹{selectedBooking.totalReceivedAmount}</Text>
+                    </View>
+                  </View>
+                )}
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => setDetailsModalVisible(false)}
+                >
+                  <Text style={styles.modalButtonText}>Close</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            </Animatable.View>
+          </View>
+        </Modal>
+
         {/* Success Popup */}
         <Modal
           animationType="fade"
@@ -254,6 +336,10 @@ const styles = StyleSheet.create({
   successMessage: { fontSize: 16, color: "#555", textAlign: "center", lineHeight: 24, paddingHorizontal: 10 },
   successButton: { backgroundColor: "#3B82F6", paddingVertical: 15, paddingHorizontal: 40, borderRadius: 25, marginTop: 30 },
   successButtonText: { color: "#FFFFFF", fontSize: 17, fontWeight: "600", letterSpacing: 0.3 },
+  detailsContainer: { width: "100%", marginBottom: 20 },
+  detailRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10 },
+  detailLabel: { fontSize: 16, fontWeight: "600", color: "#333333", flex: 1 },
+  detailValue: { fontSize: 16, color: "#333333", flex: 1, textAlign: "right" },
 });
 
 export default BookingScreen;

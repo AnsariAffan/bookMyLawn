@@ -7,7 +7,7 @@ import { onBillingDataChange, saveBillingData } from "../../firebaseConfiguratio
 export const BookingContext = createContext();
 
 export const BookingProvider = ({ children }) => {
-  const [bookings, setBookings] = useState([]);
+  const [bookings, setBookings] = useState([]); // Store all bookings
   const [markedDates, setMarkedDates] = useState({});
   const [selectedDates, setSelectedDates] = useState([]);
   const [newBooking, setNewBooking] = useState({
@@ -26,6 +26,8 @@ export const BookingProvider = ({ children }) => {
   const [successMessage, setSuccessMessage] = useState("");
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [remark, setRemark] = useState("");
+  const [selectedBooking, setSelectedBooking] = useState(null); // Store selected booking details
+  const [detailsModalVisible, setDetailsModalVisible] = useState(false); // Control details modal
 
   const navigation = useNavigation();
   const { user } = useAuth();
@@ -39,11 +41,18 @@ export const BookingProvider = ({ children }) => {
 
     const handleBillingDataChange = (billingData) => {
       if (!billingData) {
+        setBookings([]);
         setMarkedDates({});
       } else {
+        const bookingArray = Object.entries(billingData).map(([id, data]) => ({
+          id,
+          ...data,
+        }));
+        setBookings(bookingArray); // Store all bookings
+
         const updatedMarkedDates = {};
-        Object.values(billingData).forEach((billingItem) => {
-          billingItem.dates.forEach((date) => {
+        bookingArray.forEach((booking) => {
+          booking.dates.forEach((date) => {
             updatedMarkedDates[date] = {
               customStyles: {
                 container: { backgroundColor: "#4DB6AC" },
@@ -60,6 +69,10 @@ export const BookingProvider = ({ children }) => {
   }, [user?.uid]);
 
   const isDateBooked = (date) => markedDates[date] !== undefined;
+
+  const getBookingForDate = (date) => {
+    return bookings.find((booking) => booking.dates.includes(date)) || null;
+  };
 
   const formatSelectedDates = () => {
     const groupedByMonth = selectedDates.reduce((acc, date) => {
@@ -78,7 +91,7 @@ export const BookingProvider = ({ children }) => {
     try {
       if (!newBooking.name || !newBooking.contact || !newBooking.address) {
         alert("Please fill in all fields.");
-        return false; // Return false to indicate failure
+        return false;
       }
 
       setLoading(true);
@@ -98,7 +111,7 @@ export const BookingProvider = ({ children }) => {
         totalReceivedAmount: newBooking.AdvBookAmount,
       };
 
-      await saveBillingData(user.displayName, bookingData); // Ensure this returns a promise
+      await saveBillingData(user.displayName, bookingData);
 
       setSuccessMessage("Booking confirmed for " + formatSelectedDates());
       setShowSuccessMessage(true);
@@ -117,10 +130,10 @@ export const BookingProvider = ({ children }) => {
       });
       setSelectedDates([]);
 
-      return true; // Indicate success
+      return true;
     } catch (error) {
       console.error("Error creating booking:", error);
-      return false; // Indicate failure
+      return false;
     } finally {
       setLoading(false);
     }
@@ -143,9 +156,14 @@ export const BookingProvider = ({ children }) => {
         setRemark,
         successMessage,
         showSuccessMessage,
-        setShowSuccessMessage, // Expose this to allow closing the popup
+        setShowSuccessMessage,
         setMarkedDates,
         isDateBooked,
+        getBookingForDate, // Expose function to get booking details
+        selectedBooking,
+        setSelectedBooking,
+        detailsModalVisible,
+        setDetailsModalVisible,
       }}
     >
       {children}
