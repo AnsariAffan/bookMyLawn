@@ -74,7 +74,6 @@ const MainApp = () => (
     <Tab.Screen name="Booking" component={LawnOwnerDashboard} />
     <Tab.Screen name="List" component={BookingList} />
     <Tab.Screen name="Settings" component={Settings} />
-    <Stack.Screen name="BookingFormScreen" component={BookingFormScreen} options={{ title: "Booking Form" }} />
 
   </Tab.Navigator>
 );
