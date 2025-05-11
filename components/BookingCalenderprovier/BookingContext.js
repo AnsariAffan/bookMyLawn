@@ -1,19 +1,25 @@
 import React, { createContext, useState, useEffect } from "react";
 import moment from "moment";
-import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../Authprovider.js/AuthProvider";
 import { onBillingDataChange, saveBillingData } from "../../firebaseConfiguration/FirebaseCrud";
 
 export const BookingContext = createContext();
 
 export const BookingProvider = ({ children }) => {
-  const [bookings, setBookings] = useState([]); // Store all bookings
+  const [bookings, setBookings] = useState([]);
   const [markedDates, setMarkedDates] = useState({});
   const [selectedDates, setSelectedDates] = useState([]);
+  const [selectedAssets, setSelectedAssets] = useState({}); // New: asset selections
   const [newBooking, setNewBooking] = useState({
     name: "",
     contact: "",
+    email: "",
     address: "",
+    eventType: "",
+    numberOfGuests: 0,
+    additionalServices: "",
+    specialRequests: "",
+    requiresSetupAssistance: "", // "Yes" or "No"
     totalAmount: 0,
     paymentStatus: "",
     AdvBookAmount: 0,
@@ -21,15 +27,13 @@ export const BookingProvider = ({ children }) => {
     billingId: "",
     totalReceivedAmount: 0,
   });
+
   const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [remark, setRemark] = useState("");
-  const [selectedBooking, setSelectedBooking] = useState(null); // Store selected booking details
-  const [detailsModalVisible, setDetailsModalVisible] = useState(false); // Control details modal
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [detailsModalVisible, setDetailsModalVisible] = useState(false);
 
-  const navigation = useNavigation();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -48,18 +52,20 @@ export const BookingProvider = ({ children }) => {
           id,
           ...data,
         }));
-        setBookings(bookingArray); // Store all bookings
+        setBookings(bookingArray);
 
         const updatedMarkedDates = {};
         bookingArray.forEach((booking) => {
-          booking.dates.forEach((date) => {
-            updatedMarkedDates[date] = {
-              customStyles: {
-                container: { backgroundColor: "#4DB6AC" },
-                text: { color: "#000" },
-              },
-            };
-          });
+          if (booking.dates) {
+            booking.dates.forEach((date) => {
+              updatedMarkedDates[date] = {
+                customStyles: {
+                  container: { backgroundColor: "#4DB6AC" },
+                  text: { color: "#000" },
+                },
+              };
+            });
+          }
         });
         setMarkedDates(updatedMarkedDates);
       }
@@ -71,7 +77,7 @@ export const BookingProvider = ({ children }) => {
   const isDateBooked = (date) => markedDates[date] !== undefined;
 
   const getBookingForDate = (date) => {
-    return bookings.find((booking) => booking.dates.includes(date)) || null;
+    return bookings.find((booking) => booking.dates?.includes(date)) || null;
   };
 
   const formatSelectedDates = () => {
@@ -89,16 +95,13 @@ export const BookingProvider = ({ children }) => {
 
   const handleBookingSubmit = async () => {
     try {
-      if (!newBooking.name || !newBooking.contact || !newBooking.address) {
-        alert("Please fill in all fields.");
-        return false;
-      }
-
       setLoading(true);
 
       let paymentStatus = "Not Paid";
       if (newBooking.AdvBookAmount > 0) {
-        paymentStatus = newBooking.AdvBookAmount >= newBooking.totalAmount ? "Fully Paid" : "Partially Paid";
+        paymentStatus = newBooking.AdvBookAmount >= newBooking.totalAmount
+          ? "Fully Paid"
+          : "Partially Paid";
       }
 
       const bookingData = {
@@ -109,18 +112,24 @@ export const BookingProvider = ({ children }) => {
         paymentStatus,
         userId: user?.uid,
         totalReceivedAmount: newBooking.AdvBookAmount,
+        selectedAssets, // New: include selected assets
       };
 
       await saveBillingData(user.displayName, bookingData);
 
       setSuccessMessage("Booking confirmed for " + formatSelectedDates());
       setShowSuccessMessage(true);
-      setModalVisible(false);
 
       setNewBooking({
         name: "",
         contact: "",
+        email: "",
         address: "",
+        eventType: "",
+        numberOfGuests: 0,
+        additionalServices: "",
+        specialRequests: "",
+        requiresSetupAssistance: "",
         totalAmount: 0,
         paymentStatus: "",
         AdvBookAmount: 0,
@@ -129,6 +138,7 @@ export const BookingProvider = ({ children }) => {
         totalReceivedAmount: 0,
       });
       setSelectedDates([]);
+      setSelectedAssets({}); // Reset asset selections
 
       return true;
     } catch (error) {
@@ -148,18 +158,16 @@ export const BookingProvider = ({ children }) => {
         setSelectedDates,
         newBooking,
         setNewBooking,
+        selectedAssets,
+        setSelectedAssets,
         loading,
-        modalVisible,
-        setModalVisible,
         handleBookingSubmit,
-        remark,
-        setRemark,
         successMessage,
         showSuccessMessage,
         setShowSuccessMessage,
         setMarkedDates,
         isDateBooked,
-        getBookingForDate, // Expose function to get booking details
+        getBookingForDate,
         selectedBooking,
         setSelectedBooking,
         detailsModalVisible,
