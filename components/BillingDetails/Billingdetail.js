@@ -26,8 +26,8 @@ import {
 import { exportData } from "../utility/ExportData";
 
 const { width } = Dimensions.get("window");
-const chartWidth = width * 0.9; // 90% of the screen width
-const chartHeight = width * 0.5; // 50% of the screen width
+const chartWidth = width * 0.9;
+const chartHeight = width * 0.5;
 
 const Billingdetail = ({ navigation, route }) => {
   const dataDefaulting = route?.params?.booking;
@@ -96,13 +96,21 @@ const Billingdetail = ({ navigation, route }) => {
       Linking.openURL(`tel:${dataDefaulting.contact}`);
     }
   }, [dataDefaulting?.contact]);
-  const handlePrint = async () => {
+
+  const handlePrint = async (format = "pdf") => {
     try {
-      //await exportData(dataDefaulting,"pdf"); // Make sure it's awaited
+      setLoading(true);
+      await exportData(billingData, format);
+      setDialogMessage(`Successfully exported as ${format.toUpperCase()}.`);
     } catch (error) {
-      console.error("Error creating PDF:", error);
+      setDialogMessage(error.message || `Error exporting ${format.toUpperCase()}. Please try again.`);
+      console.error(error);
+    } finally {
+      setLoading(false);
+      setDialogVisible(true);
     }
   };
+
   const renderCustomerDetails = useMemo(
     () => (
       <Card style={styles.card}>
@@ -140,7 +148,6 @@ const Billingdetail = ({ navigation, route }) => {
       <Card style={styles.card2}>
         <Card.Content>
           <Text style={styles.sectionHeader}>Invoice Details</Text>
-
           <View style={styles.detailsContainer}>
             <View style={styles.detailRow}>
               <Text style={styles.label}>Payment Status</Text>
@@ -157,7 +164,6 @@ const Billingdetail = ({ navigation, route }) => {
                 </Text>
               </View>
             </View>
-
             <View style={styles.detailRow}>
               <Text style={styles.label}>Booking Date</Text>
               <Text style={styles.value}>{billingData.dates}</Text>
@@ -175,7 +181,7 @@ const Billingdetail = ({ navigation, route }) => {
             <View style={styles.detailRow}>
               <Text style={styles.label}>Remaining Amount</Text>
               <Text style={[styles.value, { color: "#EF5350" }]}>
-                ₹{billingData.remainingAmount}
+              ₹{billingData.remainingAmount}
               </Text>
             </View>
             <View style={styles.divider} />
@@ -205,29 +211,32 @@ const Billingdetail = ({ navigation, route }) => {
           title="Details"
           subtitle="Step 2 of 3"
         />
-        <Appbar.Action icon="printer" onPress={handlePrint} color="#4DB6AC" />
+        <Appbar.Action
+          icon="file-pdf-box"
+          onPress={() => handlePrint("pdf")}
+          color="#4DB6AC"
+        />
+        <Appbar.Action
+          icon="file-excel"
+          onPress={() => handlePrint("excel")}
+          color="#4DB6AC"
+        />
       </Appbar.Header>
       <View style={styles.headerContainer}>
         <View
-          Style={{
+          style={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-evenlt]y",
+            justifyContent: "space-evenly",
           }}
         >
-          <Text style={styles.headerTitle}>Invoice </Text>
+          <Text style={styles.headerTitle}>Invoice</Text>
           <Text style={styles.headerSubtitle}>
-            Create At: {dataDefaulting.createdAt}{" "}
+            Created At: {dataDefaulting.createdAt}
           </Text>
-
-          <Text style={styles.headerSubtitle}>
-            Bill id:{dataDefaulting.id}{" "}
-          </Text>
+          <Text style={styles.headerSubtitle}>Bill ID: {dataDefaulting.id}</Text>
         </View>
-
-        <Text style={styles.headerSubtitle}>
-          Bill for {dataDefaulting.name}
-        </Text>
+        <Text style={styles.headerSubtitle}>Bill for {dataDefaulting.name}</Text>
         <TouchableOpacity
           style={styles.exportButton}
           onPress={handleMarkAsPaid}
@@ -242,7 +251,6 @@ const Billingdetail = ({ navigation, route }) => {
       </View>
       {renderCustomerDetails}
       {renderBillingDetails}
-
       <Portal>
         <Dialog
           visible={dialogVisible}
@@ -296,9 +304,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 8,
     alignSelf: "flex-end",
-  },
-  exportIcon: {
-    marginRight: 8,
   },
   exportButtonText: {
     color: "#FFFFFF",
@@ -391,23 +396,6 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: "#E0E0E0",
     marginVertical: 10,
-  },
-  button: {
-    backgroundColor: "#26A69A",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginVertical: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  buttonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "bold",
   },
   dialog: {
     backgroundColor: "#FFFFFF",
