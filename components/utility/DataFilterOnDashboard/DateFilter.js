@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAuth } from '../../Authprovider.js/AuthProvider';
@@ -262,13 +262,15 @@ const DateFilter = () => {
     </View>
   );
 };
+// Get device dimensions
+const { width, height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     paddingTop:12,
-    paddingLeft:70
+    paddingLeft:width*0.12
   },
   calendarButton: {
     flexDirection: 'row',
