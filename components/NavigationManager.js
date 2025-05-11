@@ -19,6 +19,7 @@ import Dashboard from "./Dashboard";
 import AboutContactUs from "./AboutContactUs";
 import { BillingDataProvider } from "./utility/DataFilterOnDashboard/BillingDataContext";
 import Billingdetail from "./BillingDetails/Billingdetail";
+import BookingFormScreen from "./BookingCalenderprovier/BookingFormScreen";
 
 // Navigators
 const Stack = createStackNavigator();
@@ -73,6 +74,8 @@ const MainApp = () => (
     <Tab.Screen name="Booking" component={LawnOwnerDashboard} />
     <Tab.Screen name="List" component={BookingList} />
     <Tab.Screen name="Settings" component={Settings} />
+    <Stack.Screen name="BookingFormScreen" component={BookingFormScreen} options={{ title: "Booking Form" }} />
+
   </Tab.Navigator>
 );
 
@@ -103,7 +106,8 @@ export default function NavigationManager() {
                   <Stack.Screen name="SuccessMessage" component={SuccessMessage} />
                   <Stack.Screen name="Billingdetails" component={Billingdetail} />
                   <Stack.Screen name="AboutContactUs" component={AboutContactUs} />
-                </Stack.Navigator>
+                  <Stack.Screen name="BookingFormScreen" component={BookingFormScreen} options={{ title: "Booking Form" }} />
+                  </Stack.Navigator>
               </BookingProvider>
             </BookingListProvider>
           </NavigationContainer>
