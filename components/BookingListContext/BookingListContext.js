@@ -55,7 +55,9 @@ export const BookingListProvider = ({ children }) => {
 
   const handleCardPress = useCallback((item, navigation) => {
     setSelectedBooking(item);
-    navigation.navigate("Billingdetails", { booking: item });
+    // console.log(item)
+    // navigation.navigate("Billingdetails", { booking: item });
+     navigation.navigate("TabScreen", { booking: item })
   }, []);
 
   const renderItem = useCallback(

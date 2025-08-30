@@ -7,6 +7,8 @@ import {
   Dimensions,
   Modal,
   ScrollView,
+  StatusBar,
+  SafeAreaView,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { LinearGradient } from "expo-linear-gradient";
@@ -40,7 +42,10 @@ const BookingScreen = () => {
   const handleDayPress = useCallback(
     (day) => {
       const dateString = day.dateString;
+      
+      // Check if the date is already booked using your context logic
       if (isDateBooked(dateString)) {
+        // Get booking details for this date
         const booking = getBookingForDate(dateString);
         if (booking) {
           setSelectedBooking(booking);
@@ -48,222 +53,607 @@ const BookingScreen = () => {
         } else {
           alert("No booking details found for this date.");
         }
-        return;
+        return; // Exit early, don't allow selection of booked dates
       }
+      
+      // Handle selection/deselection of available dates
       setSelectedDates((prevDates) =>
         prevDates.includes(dateString)
-          ? prevDates.filter((date) => date !== dateString)
-          : [...prevDates, dateString]
+          ? prevDates.filter((date) => date !== dateString) // Remove if already selected
+          : [...prevDates, dateString] // Add if not selected
       );
     },
     [isDateBooked, getBookingForDate, setSelectedDates, setSelectedBooking, setDetailsModalVisible]
   );
 
   const getMarkedDates = useMemo(() => {
-    const marked = { ...markedDates };
-    selectedDates.forEach((date) => {
+    const marked = {};
+    
+    // First, apply all existing marked dates from context (booked dates)
+    // Your context uses teal color (#4DB6AC) for booked dates
+    Object.keys(markedDates).forEach((date) => {
       marked[date] = {
         customStyles: {
-          container: { backgroundColor: "#3B82F6" },
-          text: { color: "#FFFFFF" },
+          container: { 
+            backgroundColor: "#EF4444", // Red for booked dates in modern UI
+            borderRadius: 12,
+            elevation: 3,
+            shadowColor: "#EF4444",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.3,
+            shadowRadius: 4,
+          },
+          text: { 
+            color: "#FFFFFF", 
+            fontWeight: "600",
+            fontSize: 16,
+          },
         },
       };
     });
+    
+    // Then, mark selected dates (only if they're not booked)
+    selectedDates.forEach((date) => {
+      if (!markedDates[date]) { // If not in markedDates, it's available
+        marked[date] = {
+          customStyles: {
+            container: { 
+              backgroundColor: "#6366F1",
+              borderRadius: 12,
+              elevation: 3,
+              shadowColor: "#6366F1",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 4,
+            },
+            text: { 
+              color: "#FFFFFF", 
+              fontWeight: "600",
+              fontSize: 16,
+            },
+          },
+        };
+      }
+    });
+
     return marked;
   }, [markedDates, selectedDates]);
 
   return (
-    <LinearGradient colors={["#F3F4F6", "#F3F4F6"]} style={styles.gradient}>
-      <Animatable.View animation="fadeInUp" duration={500} style={styles.content}>
-        <Text style={styles.title}>Book Your Lawn</Text>
-        <Text style={styles.subtitle}>Select your dates to proceed</Text>
-
-        <Animatable.View animation="fadeIn" duration={500} delay={200}>
-          <LinearGradient colors={["#FFFFFF", "#F3F4F6"]} style={styles.calendarContainer}>
-            <Calendar
-              current={currentMonth}
-              onMonthChange={(month) => setCurrentMonth(month.dateString)}
-              onDayPress={handleDayPress}
-              markedDates={getMarkedDates}
-              markingType="custom"
-              theme={{
-                backgroundColor: "transparent",
-                calendarBackground: "transparent",
-                textSectionTitleColor: "#666666",
-                dayTextColor: "#333333",
-                todayTextColor: "#3B82F6",
-                arrowColor: "#3B82F6",
-                monthTextColor: "#333333",
-                textDayFontFamily: "Roboto",
-                textMonthFontFamily: "Roboto",
-                textDayHeaderFontFamily: "Roboto",
-              }}
-            />
-          </LinearGradient>
-        </Animatable.View>
-
-        <Animatable.View animation="fadeIn" duration={500} delay={400}>
-          <TouchableOpacity
-            style={[styles.proceedButton, { opacity: selectedDates.length > 0 ? 1 : 0.5 }]}
-            onPress={() => navigation.navigate("BookingFormScreen")} // Navigate to form screen
-            disabled={selectedDates.length === 0}
-            activeOpacity={0.7}
-          >
-            <View style={styles.buttonGradient}>
-              <Text style={styles.buttonText}>Proceed to Booking</Text>
-            </View>
-          </TouchableOpacity>
-        </Animatable.View>
-      </Animatable.View>
-
-      {/* Booking Details Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={detailsModalVisible}
-        onRequestClose={() => setDetailsModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <Animatable.View animation="zoomIn" duration={500} style={styles.formModalContainer}>
-            <ScrollView contentContainerStyle={styles.formModalContent}>
-              <Text style={styles.modalTitle}>Booking Details</Text>
-              {selectedBooking && (
-                <View style={styles.detailsContainer}>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Bill ID:</Text>
-                    <Text style={styles.detailValue}>{selectedBooking.id}</Text>
-                  </View>
-                  <View style={styles.detailLabel}>
-                    <Text style={styles.detailLabel}>Name:</Text>
-                    <Text style={styles.detailValue}>{selectedBooking.name}</Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Contact:</Text>
-                    <Text style={styles.detailValue}>{selectedBooking.contact}</Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Email:</Text>
-                    <Text style={styles.detailValue}>{selectedBooking.email}</Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Address:</Text>
-                    <Text style={styles.detailValue}>{selectedBooking.address}</Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Event Type:</Text>
-                    <Text style={styles.detailValue}>{selectedBooking.eventType}</Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Number of Guests:</Text>
-                    <Text style={styles.detailValue}>{selectedBooking.numberOfGuests}</Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Setup Assistance:</Text>
-                    <Text style={styles.detailValue}>{selectedBooking.requiresSetupAssistance ? "Yes" : "No"}</Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Additional Services:</Text>
-                    <Text style={styles.detailValue}>{selectedBooking.additionalServices || "None"}</Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Special Requests:</Text>
-                    <Text style={styles.detailValue}>{selectedBooking.specialRequests || "None"}</Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Dates:</Text>
-                    <Text style={styles.detailValue}>{selectedBooking.dates.join(", ")}</Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Total Amount:</Text>
-                    <Text style={styles.detailValue}>₹{selectedBooking.totalAmount}</Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Advance Amount:</Text>
-                    <Text style={styles.detailValue}>₹{selectedBooking.AdvBookAmount}</Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Remaining Amount:</Text>
-                    <Text style={styles.detailValue}>₹{selectedBooking.remainingAmount}</Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Payment Status:</Text>
-                    <Text style={styles.detailValue}>{selectedBooking.paymentStatus}</Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Total Received:</Text>
-                    <Text style={styles.detailValue}>₹{selectedBooking.totalReceivedAmount}</Text>
-                  </View>
-                </View>
-              )}
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setDetailsModalVisible(false)}
-              >
-                <Text style={styles.modalButtonText}>Close</Text>
-              </TouchableOpacity>
-            </ScrollView>
-          </Animatable.View>
-        </View>
-      </Modal>
-
-      {/* Success Popup */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={showSuccessMessage}
-        onRequestClose={() => setShowSuccessMessage(false)}
-      >
-        <View style={styles.successOverlay}>
-          <Animatable.View animation="zoomIn" duration={500} style={styles.successContainer}>
-            <LinearGradient colors={["#F7F9FC", "#E3F2FD"]} style={styles.successGradient}>
-              <Animatable.View animation="bounceIn" duration={800} style={styles.successIconContainer}>
-                <Icon name="check-circle-outline" size={80} color="#34C759" />
+    <>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <SafeAreaView style={styles.safeArea}>
+        <LinearGradient 
+          colors={["#FAFBFF", "#F0F4FF"]} 
+          style={styles.gradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <Animatable.View animation="fadeInUp" duration={600} style={styles.content}>
+            {/* Header Section */}
+            <View style={styles.headerContainer}>
+              <Animatable.View animation="fadeInDown" duration={800} delay={200}>
+                <Text style={styles.title}>Book Your Lawn</Text>
+                <Text style={styles.subtitle}>Select your preferred dates to continue</Text>
               </Animatable.View>
-              <Text style={styles.successTitle}>Booking Successful!</Text>
-              <Text style={styles.successMessage}>{successMessage}</Text>
+              
+              {/* Selected Dates Counter */}
+              {selectedDates.length > 0 && (
+                <Animatable.View animation="zoomIn" duration={400} style={styles.selectedCounter}>
+                  <View style={styles.counterBadge}>
+                    <Icon name="event" size={16} color="#6366F1" />
+                    <Text style={styles.counterText}>
+                      {selectedDates.length} date{selectedDates.length > 1 ? 's' : ''} selected
+                    </Text>
+                  </View>
+                </Animatable.View>
+              )}
+            </View>
+
+            {/* Calendar Section */}
+            <Animatable.View animation="fadeInUp" duration={600} delay={300}>
+              <View style={styles.calendarWrapper}>
+                <LinearGradient 
+                  colors={["#FFFFFF", "#FEFEFF"]} 
+                  style={styles.calendarContainer}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Calendar
+                    current={currentMonth}
+                    onMonthChange={(month) => setCurrentMonth(month.dateString)}
+                    onDayPress={handleDayPress}
+                    markedDates={getMarkedDates}
+                    markingType="custom"
+                    firstDay={1}
+                    showWeekNumbers={false}
+                    disableMonthChange={false}
+                    hideExtraDays={true}
+                    theme={{
+                      backgroundColor: "transparent",
+                      calendarBackground: "transparent",
+                      textSectionTitleColor: "#8B5CF6",
+                      textSectionTitleDisabledColor: "#D1D5DB",
+                      selectedDayBackgroundColor: "#6366F1",
+                      selectedDayTextColor: "#FFFFFF",
+                      todayTextColor: "#6366F1",
+                      dayTextColor: "#374151",
+                      textDisabledColor: "#D1D5DB",
+                      dotColor: "#6366F1",
+                      selectedDotColor: "#FFFFFF",
+                      arrowColor: "#6366F1",
+                      disabledArrowColor: "#D1D5DB",
+                      monthTextColor: "#1F2937",
+                      indicatorColor: "#6366F1",
+                      textDayFontFamily: "System",
+                      textMonthFontFamily: "System",
+                      textDayHeaderFontFamily: "System",
+                      textDayFontSize: 16,
+                      textMonthFontSize: 18,
+                      textDayHeaderFontSize: 14,
+                      textDayFontWeight: "500",
+                      textMonthFontWeight: "700",
+                      textDayHeaderFontWeight: "600",
+                    }}
+                    style={styles.calendar}
+                  />
+                </LinearGradient>
+              </View>
+            </Animatable.View>
+
+            {/* Legend */}
+            <Animatable.View animation="fadeInUp" duration={600} delay={400} style={styles.legendContainer}>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, { backgroundColor: "#6366F1" }]} />
+                <Text style={styles.legendText}>Selected</Text>
+              </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, { backgroundColor: "#EF4444" }]} />
+                <Text style={styles.legendText}>Booked</Text>
+              </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, { backgroundColor: "#10B981" }]} />
+                <Text style={styles.legendText}>Available</Text>
+              </View>
+            </Animatable.View>
+
+            {/* Proceed Button */}
+            <Animatable.View animation="fadeInUp" duration={600} delay={500}>
               <TouchableOpacity
-                style={styles.successButton}
-                onPress={() => setShowSuccessMessage(false)}
+                style={[
+                  styles.proceedButton,
+                  { opacity: selectedDates.length > 0 ? 1 : 0.6 }
+                ]}
+                onPress={() => navigation.navigate("BookingFormScreen")}
+                disabled={selectedDates.length === 0}
                 activeOpacity={0.8}
               >
-                <Text style={styles.successButtonText}>Got It</Text>
+                <LinearGradient
+                  colors={selectedDates.length > 0 ? ["#6366F1", "#8B5CF6"] : ["#9CA3AF", "#6B7280"]}
+                  style={styles.buttonGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                >
+                  <View style={styles.buttonContent}>
+                    <Text style={styles.buttonText}>
+                      {selectedDates.length > 0 ? "Proceed to Booking" : "Select Dates First"}
+                    </Text>
+                    <Icon 
+                      name="arrow-forward" 
+                      size={20} 
+                      color="#FFFFFF" 
+                      style={styles.buttonIcon} 
+                    />
+                  </View>
+                </LinearGradient>
               </TouchableOpacity>
-            </LinearGradient>
+            </Animatable.View>
           </Animatable.View>
-        </View>
-      </Modal>
-    </LinearGradient>
+
+          {/* Booking Details Modal */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={detailsModalVisible}
+            onRequestClose={() => setDetailsModalVisible(false)}
+            statusBarTranslucent={true}
+          >
+            <View style={styles.modalOverlay}>
+              <Animatable.View animation="slideInUp" duration={500} style={styles.formModalContainer}>
+                <LinearGradient
+                  colors={["#FFFFFF", "#FEFEFF"]}
+                  style={styles.modalGradient}
+                >
+                  {/* Modal Header */}
+                  <View style={styles.modalHeader}>
+                    <Text style={styles.modalTitle}>Booking Details</Text>
+                    <TouchableOpacity
+                      style={styles.closeButton}
+                      onPress={() => setDetailsModalVisible(false)}
+                    >
+                      <Icon name="close" size={24} color="#6B7280" />
+                    </TouchableOpacity>
+                  </View>
+
+                  <ScrollView 
+                    contentContainerStyle={styles.modalScrollContent}
+                    showsVerticalScrollIndicator={false}
+                  >
+                    {selectedBooking && (
+                      <View style={styles.detailsContainer}>
+                        {/* Customer Info Section */}
+                        <View style={styles.infoSection}>
+                          <Text style={styles.sectionTitle}>Customer Information</Text>
+                          <View style={styles.infoCard}>
+                            <DetailRow icon="person" label="Name" value={selectedBooking.name} />
+                            <DetailRow icon="phone" label="Contact" value={selectedBooking.contact} />
+                            <DetailRow icon="email" label="Email" value={selectedBooking.email} />
+                            <DetailRow icon="home" label="Address" value={selectedBooking.address} />
+                          </View>
+                        </View>
+
+                        {/* Event Details Section */}
+                        <View style={styles.infoSection}>
+                          <Text style={styles.sectionTitle}>Event Details</Text>
+                          <View style={styles.infoCard}>
+                            <DetailRow icon="event" label="Event Type" value={selectedBooking.eventType} />
+                            <DetailRow icon="group" label="Guests" value={selectedBooking.numberOfGuests} />
+                            <DetailRow icon="build" label="Setup Assistance" value={selectedBooking.requiresSetupAssistance ? "Yes" : "No"} />
+                            <DetailRow icon="calendar-today" label="Dates" value={selectedBooking.dates.join(", ")} />
+                          </View>
+                        </View>
+
+                        {/* Payment Details Section */}
+                        <View style={styles.infoSection}>
+                          <Text style={styles.sectionTitle}>Payment Information</Text>
+                          <View style={styles.infoCard}>
+                            <DetailRow icon="receipt" label="Bill ID" value={selectedBooking.id} />
+                            <DetailRow icon="currency-rupee" label="Total Amount" value={`₹${selectedBooking.totalAmount}`} />
+                            <DetailRow icon="payment" label="Advance Paid" value={`₹${selectedBooking.AdvBookAmount}`} />
+                            <DetailRow icon="account-balance" label="Remaining" value={`₹${selectedBooking.remainingAmount}`} />
+                            <DetailRow icon="check-circle" label="Payment Status" value={selectedBooking.paymentStatus} />
+                          </View>
+                        </View>
+
+                        {/* Additional Info */}
+                        {(selectedBooking.additionalServices || selectedBooking.specialRequests) && (
+                          <View style={styles.infoSection}>
+                            <Text style={styles.sectionTitle}>Additional Information</Text>
+                            <View style={styles.infoCard}>
+                              {selectedBooking.additionalServices && (
+                                <DetailRow icon="room-service" label="Services" value={selectedBooking.additionalServices} />
+                              )}
+                              {selectedBooking.specialRequests && (
+                                <DetailRow icon="notes" label="Special Requests" value={selectedBooking.specialRequests} />
+                              )}
+                            </View>
+                          </View>
+                        )}
+                      </View>
+                    )}
+                  </ScrollView>
+                </LinearGradient>
+              </Animatable.View>
+            </View>
+          </Modal>
+
+          {/* Success Modal */}
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={showSuccessMessage}
+            onRequestClose={() => setShowSuccessMessage(false)}
+            statusBarTranslucent={true}
+          >
+            <View style={styles.successOverlay}>
+              <Animatable.View animation="zoomIn" duration={600} style={styles.successContainer}>
+                <LinearGradient 
+                  colors={["#FFFFFF", "#F0FDF4"]} 
+                  style={styles.successGradient}
+                >
+                  <Animatable.View animation="bounceIn" duration={1000} delay={200}>
+                    <View style={styles.successIconContainer}>
+                      <Icon name="check-circle" size={80} color="#10B981" />
+                    </View>
+                  </Animatable.View>
+                  
+                  <Text style={styles.successTitle}>Booking Confirmed!</Text>
+                  <Text style={styles.successMessage}>{successMessage}</Text>
+                  
+                  <TouchableOpacity
+                    style={styles.successButton}
+                    onPress={() => setShowSuccessMessage(false)}
+                    activeOpacity={0.8}
+                  >
+                    <LinearGradient
+                      colors={["#10B981", "#059669"]}
+                      style={styles.successButtonGradient}
+                    >
+                      <Text style={styles.successButtonText}>Perfect!</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </LinearGradient>
+              </Animatable.View>
+            </View>
+          </Modal>
+        </LinearGradient>
+      </SafeAreaView>
+    </>
   );
 };
 
+// Helper component for detail rows
+const DetailRow = ({ icon, label, value }) => (
+  <View style={styles.detailRow}>
+    <View style={styles.detailLabelContainer}>
+      <Icon name={icon} size={18} color="#8B5CF6" style={styles.detailIcon} />
+      <Text style={styles.detailLabel}>{label}</Text>
+    </View>
+    <Text style={styles.detailValue} numberOfLines={2}>{value}</Text>
+  </View>
+);
+
 const styles = StyleSheet.create({
-  gradient: { flex: 1, paddingHorizontal: 15 },
-  content: { flex: 1, paddingVertical: 20 },
-  title: { fontSize: 24, fontWeight: "600", color: "#333333", textAlign: "center", marginBottom: 10, fontFamily: "Roboto" },
-  subtitle: { fontSize: 16, color: "#666666", textAlign: "center", marginBottom: 20, fontFamily: "Roboto" },
-  calendarContainer: { borderRadius: 10, padding: 10, marginBottom: 20, borderWidth: 1, borderColor: "#E0E0E0" },
-  proceedButton: { width: "100%", borderRadius: 10, overflow: "hidden", marginBottom: 20 },
-  buttonGradient: { backgroundColor: "#3B82F6", paddingVertical: 15, alignItems: "center" },
-  buttonText: { color: "#FFFFFF", fontSize: 16, fontWeight: "600", fontFamily: "Roboto" },
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0, 0, 0, 0.5)", justifyContent: "center", alignItems: "center" },
-  formModalContainer: { backgroundColor: "#FFFFFF", borderRadius: 15, width: width * 0.9, maxHeight: height * 0.7, padding: 20 },
-  formModalContent: { flexGrow: 1, alignItems: "center" },
-  modalTitle: { fontSize: 20, fontWeight: "600", color: "#333333", marginBottom: 20, fontFamily: "Roboto" },
-  detailsContainer: { width: "100%", marginBottom: 20 },
-  detailRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10 },
-  detailLabel: { fontSize: 16, fontWeight: "600", color: "#333333", flex: 1 },
-  detailValue: { fontSize: 16, color: "#333333", flex: 1, textAlign: "right" },
-  modalButton: { paddingVertical: 10, paddingHorizontal: 30, borderRadius: 10, alignItems: "center", flex: 1, marginHorizontal: 5 },
-  cancelButton: { backgroundColor: "#EF5350" },
-  modalButtonText: { color: "#FFFFFF", fontSize: 16, fontWeight: "600", fontFamily: "Roboto" },
-  successOverlay: { flex: 1, backgroundColor: "rgba(0, 0, 0, 0.6)", justifyContent: "center", alignItems: "center" },
-  successContainer: { width: width * 0.85, borderRadius: 20, overflow: "hidden", elevation: 10, shadowColor: "#000", shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.3, shadowRadius: 10 },
-  successGradient: { padding: 30, alignItems: "center" },
-  successIconContainer: { marginBottom: 20, backgroundColor: "rgba(52, 199, 89, 0.1)", borderRadius: 50, padding: 15 },
-  successTitle: { fontSize: 28, fontWeight: "700", color: "#34C759", letterSpacing: 0.5, marginBottom: 10 },
-  successMessage: { fontSize: 16, color: "#555", textAlign: "center", lineHeight: 24, paddingHorizontal: 10 },
-  successButton: { backgroundColor: "#3B82F6", paddingVertical: 15, paddingHorizontal: 40, borderRadius: 25, marginTop: 30 },
-  successButtonText: { color: "#FFFFFF", fontSize: 17, fontWeight: "600", letterSpacing: 0.3 },
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+  },
+  gradient: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  headerContainer: {
+    marginBottom: 24,
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "800",
+    color: "#1F2937",
+    textAlign: "center",
+    marginBottom: 8,
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#6B7280",
+    textAlign: "center",
+    lineHeight: 24,
+  },
+  selectedCounter: {
+    marginTop: 16,
+  },
+  counterBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#EEF2FF",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#C7D2FE",
+  },
+  counterText: {
+    marginLeft: 6,
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#6366F1",
+  },
+  calendarWrapper: {
+    marginBottom: 20,
+  },
+  calendarContainer: {
+    borderRadius: 20,
+    padding: 16,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    borderWidth: 1,
+    borderColor: "#F3F4F6",
+  },
+  calendar: {
+    borderRadius: 16,
+  },
+  legendContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 24,
+    paddingHorizontal: 16,
+  },
+  legendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 12,
+  },
+  legendDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 6,
+  },
+  legendText: {
+    fontSize: 12,
+    color: "#6B7280",
+    fontWeight: "500",
+  },
+  proceedButton: {
+    borderRadius: 16,
+    overflow: "hidden",
+    elevation: 6,
+    shadowColor: "#6366F1",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  buttonGradient: {
+    paddingVertical: 18,
+    paddingHorizontal: 24,
+  },
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
+  buttonIcon: {
+    marginLeft: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "flex-end",
+  },
+  formModalContainer: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: height * 0.85,
+    overflow: "hidden",
+  },
+  modalGradient: {
+    flex: 1,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#1F2937",
+  },
+  closeButton: {
+    padding: 4,
+  },
+  modalScrollContent: {
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+  },
+  detailsContainer: {
+    paddingTop: 16,
+  },
+  infoSection: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#374151",
+    marginBottom: 12,
+  },
+  infoCard: {
+    backgroundColor: "#FAFBFF",
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  detailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 12,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+  detailLabelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  detailIcon: {
+    marginRight: 8,
+  },
+  detailLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#6B7280",
+    flex: 1,
+  },
+  detailValue: {
+    fontSize: 14,
+    color: "#1F2937",
+    fontWeight: "500",
+    flex: 1.2,
+    textAlign: "right",
+  },
+  successOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  successContainer: {
+    width: "100%",
+    maxWidth: 320,
+    borderRadius: 24,
+    overflow: "hidden",
+    elevation: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+  },
+  successGradient: {
+    padding: 32,
+    alignItems: "center",
+  },
+  successIconContainer: {
+    marginBottom: 20,
+    backgroundColor: "rgba(16, 185, 129, 0.1)",
+    borderRadius: 50,
+    padding: 20,
+  },
+  successTitle: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: "#10B981",
+    letterSpacing: -0.5,
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  successMessage: {
+    fontSize: 16,
+    color: "#6B7280",
+    textAlign: "center",
+    lineHeight: 24,
+    marginBottom: 28,
+  },
+  successButton: {
+    borderRadius: 16,
+    overflow: "hidden",
+    minWidth: 120,
+  },
+  successButtonGradient: {
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    alignItems: "center",
+  },
+  successButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
 });
 
-export default BookingScreen;
+export default BookingScreen

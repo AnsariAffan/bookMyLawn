@@ -185,6 +185,7 @@ export const BookingProvider = ({ children }) => {
         setSelectedBooking,
         detailsModalVisible,
         setDetailsModalVisible,
+        
       }}
     >
       {children}

@@ -77,6 +77,10 @@ export function useBookings() {
       return total;
     }, 0);
   };
+   const calculateRevenueForSelectedRange = () => {
+    const sum = revenueByMonth.slice(startMonth, endMonth + 1).reduce((acc, revenue) => acc + revenue, 0);
+    return sum;
+  };
 
   // Function to calculate revenue by month
   const calculateRevenueByMonth = (data) => {
@@ -188,7 +192,7 @@ export function useBookings() {
         const day = date.getDate(); // Get the day of the month
         const month = monthNames[date.getMonth()]; // Get the month name
         const year = date.getFullYear(); // Get the year
-        return `${day} ${month} ${year}`; // Format the date as "Day Month Year"
+        //return ${day} ${month} ${year}; // Format the date as "Day Month Year"
       })
       .join(", "); // Join multiple dates with commas
   };
@@ -219,6 +223,7 @@ export function useBookings() {
     error,
     setMonthRange, // Expose this function to allow setting a custom month range
     formatDates,
-    openAmountSum
+    openAmountSum,
+     totalRevenueForSelectedRange: calculateRevenueForSelectedRange(),  // Expose it
   };
-}
+} 
