@@ -564,11 +564,11 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingVertical: 20,
-    paddingBottom: 100,
+    paddingVertical: 10,
+    paddingBottom: 0,
   },
   cardContainer: {
-    marginBottom: 20,
+    marginBottom: 6,
   },
   modernCard: {
     backgroundColor: "#FFFFFF",
@@ -648,7 +648,7 @@ const styles = StyleSheet.create({
   paymentItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 8,
+
   },
   paymentIconContainer: {
     width: 36,
