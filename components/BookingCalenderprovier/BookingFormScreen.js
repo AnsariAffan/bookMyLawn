@@ -688,12 +688,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5E7EB',
     marginHorizontal: 10,
   },
-  scrollContainer: {
-    flex: 1,
-  },
+
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingHorizontal: width*0,
+
   },
   card: {
     backgroundColor: '#FFFFFF',
