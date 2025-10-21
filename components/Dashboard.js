@@ -199,7 +199,8 @@ const RevenueTrendChart = ({ data, selectedMonth, onMonthSelect }) => {
 
 const Dashboard = () => {
   const { billingDataState } = useBillingData();
-  const [selectedMonth, setSelectedMonth] = useState(1); // February selected by default
+const currentMonthIndex = new Date().getMonth(); // 0-based index (0 = January)
+const [selectedMonth, setSelectedMonth] = useState(currentMonthIndex);
 
   const {
     loading,
