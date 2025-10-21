@@ -400,10 +400,11 @@ console.log("End currentWeekBookings--------------")
                 <Text style={styles.pendingAmount}>₹{openAmountSum}</Text>
                 <Text style={styles.pendingSubtitle}>From 1 pending bookings</Text>
                 
-                <TouchableOpacity style={styles.followUpButton}>
-                  <Text style={styles.followUpText}>Follow Up Payments</Text>
+                <TouchableOpacity style={styles.followUpButton} onPress={()=>{navigation.navigate("List")}} >
+                  <Text style={styles.followUpText} >Follow Up Payments</Text>
                 </TouchableOpacity>
               </View>
+              
               
               <View style={styles.pendingIconWrap}>
                 <Feather name="users" size={32} color="rgba(255,255,255,0.9)" />

@@ -38,4 +38,14 @@ allprojects {
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
     }
+
+       // Force Kotlin version
+    configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                details.useVersion '1.9.24'
+                details.because 'Compose Compiler 1.5.14 requires Kotlin 1.9.24'
+            }
+        }
+}
 }

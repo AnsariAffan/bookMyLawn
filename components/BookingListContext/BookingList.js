@@ -59,7 +59,11 @@ const BookingList = ({ navigation }) => {
   const handleYearChange = (year) => setSelectedYear(year);
 
   const handleApplyFilter = () => {
+   //console.log("Filter is open")
     setFilterModalVisible(false);
+
+
+ 
   };
 
   const handleClearFilter = () => {
@@ -187,7 +191,7 @@ const BookingList = ({ navigation }) => {
           </View>
 
           {/* Quick Actions */}
-          <View style={styles.quickActions}>
+        {/* <View style={styles.quickActions}>
             <TouchableOpacity style={styles.actionButton}>
               <Feather name="eye" size={normalize(16)} color="#667EEA" />
               <Text style={styles.actionButtonText}>View</Text>
@@ -200,7 +204,7 @@ const BookingList = ({ navigation }) => {
               <Feather name="trash-2" size={normalize(16)} color="#EF4444" />
               <Text style={styles.actionButtonText}>Delete</Text>
             </TouchableOpacity>
-          </View>
+          </View>*/}  
         </TouchableOpacity>
       </Animatable.View>
     );
@@ -242,7 +246,7 @@ const BookingList = ({ navigation }) => {
                 <Text style={styles.headerSubtitle}>{filteredData.length} total bookings</Text>
               </View>
               <View style={styles.headerActions}>
-                <TouchableOpacity style={styles.headerButton} onPress={() => setFilterModalVisible(true)}>
+                <TouchableOpacity style={styles.headerButton} >
                   <Feather name="filter" size={normalize(20)} color="#FFFFFF" />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.headerButton}>
@@ -306,7 +310,7 @@ const styles = StyleSheet.create({
   headerSubtitle: { fontSize: normalize(16), color: "rgba(255, 255, 255, 0.8)" },
   headerActions: { flexDirection: "row", gap: normalize(12) },
   headerButton: { width: normalize(44), height: normalize(44), borderRadius: normalize(22), backgroundColor: "rgba(255,255,255,0.2)", justifyContent: "center", alignItems: "center" },
-  searchSection: { paddingHorizontal: normalize(20), paddingVertical: normalize(16), marginTop: -normalize(12), zIndex: 1 },
+  searchSection: { paddingHorizontal: normalize(18), paddingVertical: normalize(15), marginTop: -normalize(8), zIndex: 1 },
   searchContainer: { flexDirection: "row", alignItems: "center", backgroundColor: "#FFF", borderRadius: normalize(16), paddingHorizontal: normalize(16), paddingVertical: normalize(12), shadowColor: "#667EEA", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: normalize(12), elevation: 6 },
   searchInput: { flex: 1, marginLeft: normalize(12), fontSize: normalize(16), color: "#1F2937" },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
@@ -329,7 +333,7 @@ const styles = StyleSheet.create({
   detailItem: { flexDirection: "row", alignItems: "center", marginBottom: normalize(8), gap: normalize(8) },
   detailLabel: { fontSize: normalize(14), color: "#6B7280", fontWeight: "500" },
   detailValue: { fontSize: normalize(16), color: "#1F2937", fontWeight: "600" },
-  paymentSummary: { marginBottom: normalize(16) },
+  paymentSummary: { marginBottom: normalize(0) },
   paymentBackground: { borderRadius: normalize(12), padding: normalize(16) },
   paymentGrid: { flexDirection: "row", justifyContent: "space-between" },
   paymentItem: { alignItems: "center" },

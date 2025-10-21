@@ -34,11 +34,14 @@ const { width, height } = Dimensions.get("window");
 
 const BillingDetails = ({ navigation, dataDefaulting,route }) => {
 
-   const dt  = route?.params?.ddd 
+  if(route?.params?.ddd ){
+ 
+  }
+  const   dt  = route?.params?.ddd ||dataDefaulting 
 
   console.log("Start dt")
   console.log(dt)
-  console.log("End dddtd")
+  console.log("End dt")
 
   const theme = useTheme();
   const { user } = useAuth();
