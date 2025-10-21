@@ -496,15 +496,15 @@ const CARD_RADIUS = 22;
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+    paddingHorizontal: 5,
+    paddingVertical: 5,
   },
   card: {
     flex: 1,
     borderRadius: CARD_RADIUS,
-    height: 120,
+    height: 110,
     overflow: 'hidden',
-    marginRight: 12,
+    marginRight: 5,
   },
   // New chart card styles
   chartCard: {
@@ -611,8 +611,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: width*0.01,
+    paddingVertical: height*0.01,
     marginTop: Platform.OS === 'ios' ? 50 : 20,
     marginBottom: 20,
   },
