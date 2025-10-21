@@ -455,13 +455,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8FAFC",
   },
   headerGradient: {
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingTop: 8,
+    paddingBottom: 8,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
   },
   headerContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 17,
   },
   headerTop: {
     flexDirection: "row",
