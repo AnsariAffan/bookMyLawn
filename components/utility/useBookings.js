@@ -18,7 +18,7 @@ export function useBookings() {
   const [endMonth, setEndMonth] = useState(11); // December
   const [openAmountSum, setOpenAmountSum] = useState(0);
 
-  // To safely store unsubscribe function
+  // Store unsubscribe function
   const unsubscribeRef = useRef(null);
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export function useBookings() {
 
     setLoading(true);
 
-    // Unsubscribe any previous listener
+    // Unsubscribe previous listener
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }
@@ -42,6 +42,8 @@ export function useBookings() {
     unsubscribeRef.current = onBillingDataChange(auth.currentUser.displayName, (data) => {
       if (data) {
         const bookings = Object.values(data);
+      
+
         setUserBookings(bookings);
 
         const monthlyRevenue = calculateRevenueByMonth(bookings);
@@ -54,8 +56,12 @@ export function useBookings() {
         setCurrentMonthBookings(calculateCurrentMonthBookings(bookings));
         setUpcomingDatesInCurrentMonth(getUpcomingDatesInCurrentMonth(bookings));
         setOpenAmountSum(calculateOpenAmountSum(bookings));
+
+        // Calculate current week bookings
+        const weekBookings = getCurrentWeekBookings(bookings);
+        setCurrentWeekBookings(weekBookings);
+        console.log("Current week bookings:", weekBookings);
       } else {
-        // reset all state if no data
         setUserBookings([]);
         setTotalReceivedAmounts([]);
         setTotalRevenue(0);
@@ -65,11 +71,11 @@ export function useBookings() {
         setCurrentMonthBookings(0);
         setUpcomingDatesInCurrentMonth(0);
         setOpenAmountSum(0);
+        setCurrentWeekBookings([]);
       }
       setLoading(false);
     });
 
-    // Cleanup on unmount
     return () => {
       if (unsubscribeRef.current) {
         unsubscribeRef.current();
@@ -172,6 +178,29 @@ export function useBookings() {
     return data.reduce((total, booking) => total + (parseFloat(booking.remainingAmount) || 0), 0);
   };
 
+  // Current week bookings
+  const [currentWeekBookings, setCurrentWeekBookings] = useState([]);
+
+  const getCurrentWeekBookings = (bookings) => {
+    if (!Array.isArray(bookings)) return [];
+
+    const now = new Date();
+
+    const firstDayOfWeek = new Date(now);
+    firstDayOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
+    firstDayOfWeek.setHours(0, 0, 0, 0);
+
+    const lastDayOfWeek = new Date(firstDayOfWeek);
+    lastDayOfWeek.setDate(lastDayOfWeek.getDate() + 6); // Saturday
+    lastDayOfWeek.setHours(23, 59, 59, 999);
+
+    return bookings.filter((booking) => {
+      const bookingDate = booking.dates?.[0] ? new Date(booking.dates[0]) : null;
+      if (!bookingDate) return false;
+      return bookingDate >= firstDayOfWeek && bookingDate <= lastDayOfWeek;
+    });
+  };
+
   return { 
     userBookings, 
     totalReceivedAmounts,
@@ -186,6 +215,7 @@ export function useBookings() {
     setMonthRange,
     formatDates,
     openAmountSum,
-    totalRevenueForSelectedRange
+    totalRevenueForSelectedRange,
+    currentWeekBookings // <-- now available
   };
 }

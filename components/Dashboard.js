@@ -208,9 +208,13 @@ const [selectedMonth, setSelectedMonth] = useState(currentMonthIndex);
     currentMonthBookings,
     openAmountSum,
     revenueByMonth,
-    totalRevenueForSelectedRange
+    totalRevenueForSelectedRange,
+    currentWeekBookings
   } = useBookings();
   console.log(totalRevenueForSelectedRange)
+console.log("Start currentWeekBookings---------------")
+console.log(currentWeekBookings)
+console.log("End currentWeekBookings--------------")
 
   const navigation = useNavigation();
   const [user, setUser] = useState(null);
@@ -409,85 +413,45 @@ const [selectedMonth, setSelectedMonth] = useState(currentMonthIndex);
         </View>
 
         {/* Upcoming Events Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Upcoming Events</Text>
-          <View style={styles.eventsContainer}>
-            {/* Sample Events - Always Visible */}
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Billingdetails", { booking: { clientName: "Rajesh & Priya" } })}
-              style={styles.eventItem}
-            >
-              <View style={styles.eventContent}>
-                <Text style={styles.eventNames}>Rajesh & Priya</Text>
-                <Text style={styles.eventDateTime}>15/9/2025 at 18:00</Text>
-                <Text style={styles.eventDetails}>300 guests • ₹50,000</Text>
-              </View>
-              <View style={[styles.statusBadge, styles.confirmedBadge]}>
-                <Text style={[styles.statusText, styles.confirmedText]}>confirmed</Text>
-              </View>
-            </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Billingdetails", { booking: { clientName: "Amit & Sneha" } })}
-              style={styles.eventItem}
-            >
-              <View style={styles.eventContent}>
-                <Text style={styles.eventNames}>Amit & Sneha</Text>
-                <Text style={styles.eventDateTime}>22/9/2025 at 19:00</Text>
-                <Text style={styles.eventDetails}>250 guests • ₹45,000</Text>
-              </View>
-              <View style={[styles.statusBadge, styles.pendingBadge]}>
-                <Text style={[styles.statusText, styles.pendingText]}>pending</Text>
-              </View>
-            </TouchableOpacity>
+{/* Dynamic Events from your data (Current Week Only) */}
+{currentWeekBookings.map((event, index) => (
+  <TouchableOpacity
+    key={`week-${index}`}
+    onPress={() => navigation.navigate("Billingdetails", { ddd: event})}
+    style={styles.eventItem}
+  >
+    <View style={styles.eventContent}>
+      <Text style={styles.eventNames}>
+        {event?.name || event?.name || `Event ${index + 1}`}
+      </Text>
+      <Text style={styles.eventDateTime}>
+        {event?.dates?.[0] ? new Date(event.dates[0]).toLocaleDateString() : "Date TBD"} at {event?.time || "Time TBD"}
+      </Text>
+      <Text style={styles.eventDetails}>
+        {event?.numberOfGuests || "0"} guests • ₹{event?.totalAmount || "0"}
+      </Text>
+    </View>
+    <View
+      style={[
+        styles.statusBadge,
+        event?.paymentStatus === "confirmed" ? styles.confirmedBadge : styles.pendingBadge,
+      ]}
+    >
+      <Text
+        style={[
+          styles.statusText,
+          event?.paymentStatus === "confirmed" ? styles.confirmedText : styles.pendingText,
+        ]}
+      >
+        {event?.paymentStatus || "pending"}
+      </Text>
+    </View>
+  </TouchableOpacity>
+))}
 
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Billingdetails", { booking: { clientName: "Rohit & Priya" } })}
-              style={styles.eventItem}
-            >
-              <View style={styles.eventContent}>
-                <Text style={styles.eventNames}>Rohit & Priya</Text>
-                <Text style={styles.eventDateTime}>28/9/2025 at 17:30</Text>
-                <Text style={styles.eventDetails}>400 guests • ₹65,000</Text>
-              </View>
-              <View style={[styles.statusBadge, styles.confirmedBadge]}>
-                <Text style={[styles.statusText, styles.confirmedText]}>confirmed</Text>
-              </View>
-            </TouchableOpacity>
 
-            {/* Dynamic Events from your data */}
-            {Array.isArray(billingDataState?.filteredData) && billingDataState.filteredData.map((event, index) => (
-              <TouchableOpacity
-                key={`dynamic-${index}`}
-                onPress={() => navigation.navigate("Billingdetails", { booking: event })}
-                style={styles.eventItem}
-              >
-                <View style={styles.eventContent}>
-                  <Text style={styles.eventNames}>
-                    {event?.clientName || event?.customerName || `Event ${index + 4}`}
-                  </Text>
-                  <Text style={styles.eventDateTime}>
-                    {event?.dates || "Date TBD"} at {event?.time || "Time TBD"}
-                  </Text>
-                  <Text style={styles.eventDetails}>
-                    {event?.guests || "0"} guests • ₹{event?.totalAmount || "0"}
-                  </Text>
-                </View>
-                <View style={[
-                  styles.statusBadge, 
-                  event?.paymentStatus === 'confirmed' ? styles.confirmedBadge : styles.pendingBadge
-                ]}>
-                  <Text style={[
-                    styles.statusText,
-                    event?.paymentStatus === 'confirmed' ? styles.confirmedText : styles.pendingText
-                  ]}>
-                    {event?.paymentStatus || 'pending'}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+
       </ScrollView>
     </LinearGradient>
   );

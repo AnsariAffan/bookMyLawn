@@ -32,10 +32,17 @@ import { exportData } from "../utility/ExportData";
 
 const { width, height } = Dimensions.get("window");
 
-const BillingDetails = ({ navigation, dataDefaulting }) => {
+const BillingDetails = ({ navigation, dataDefaulting,route }) => {
+
+   const dt  = route?.params?.ddd 
+
+  console.log("Start dt")
+  console.log(dt)
+  console.log("End dddtd")
+
   const theme = useTheme();
   const { user } = useAuth();
-  const [billingData, setBillingData] = useState(dataDefaulting);
+  const [billingData, setBillingData] = useState( dataDefaulting || dt  );
   const [loading, setLoading] = useState(false);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogMessage, setDialogMessage] = useState("");
@@ -122,6 +129,8 @@ const BillingDetails = ({ navigation, dataDefaulting }) => {
   }, [dataDefaulting?.email]);
 
   const handleShare = useCallback(async () => {
+
+ 
     try {
       const shareContent = `Invoice Details\n\nCustomer: ${dataDefaulting?.name}\nAmount: ₹${billingData?.totalAmount}\nStatus: ${billingData?.paymentStatus}\nDate: ${billingData?.dates}\n\nBill ID: ${dataDefaulting?.id}`;
       
@@ -219,8 +228,8 @@ const BillingDetails = ({ navigation, dataDefaulting }) => {
 
         <View style={styles.invoiceInfo}>
           <View style={styles.invoiceDetails}>
-            <Text style={styles.invoiceNumber}>#{dataDefaulting?.id?.slice(-8)}</Text>
-            <Text style={styles.invoiceDate}>{dataDefaulting?.createdAt}</Text>
+            <Text style={styles.invoiceNumber}>#{dataDefaulting?.id?.slice(-8) || dt?.id}</Text>
+            <Text style={styles.invoiceDate}>{dataDefaulting?.createdAt || dt.createdAt}</Text>
           </View>
           
           <View style={styles.amountContainer}>
@@ -268,7 +277,7 @@ const BillingDetails = ({ navigation, dataDefaulting }) => {
             <Icon name="account" size={20} color="#666" style={styles.detailIcon} />
             <View style={styles.detailContent}>
               <Text style={styles.detailLabel}>Customer Name</Text>
-              <Text style={styles.detailValue}>{dataDefaulting?.name}</Text>
+              <Text style={styles.detailValue}>{dataDefaulting?.name || dt.name}</Text>
             </View>
           </View>
 
@@ -276,7 +285,7 @@ const BillingDetails = ({ navigation, dataDefaulting }) => {
             <Icon name="map-marker" size={20} color="#666" style={styles.detailIcon} />
             <View style={styles.detailContent}>
               <Text style={styles.detailLabel}>Address</Text>
-              <Text style={styles.detailValue}>{dataDefaulting?.address}</Text>
+              <Text style={styles.detailValue}>{dataDefaulting?.address || dt.address}</Text>
             </View>
           </View>
 
@@ -285,7 +294,7 @@ const BillingDetails = ({ navigation, dataDefaulting }) => {
             <View style={styles.detailContent}>
               <Text style={styles.detailLabel}>Phone Number</Text>
               <Text style={[styles.detailValue, styles.contactLink]}>
-                {dataDefaulting?.contact}
+                {dataDefaulting?.contact || dt.contact}
               </Text>
             </View>
             <Icon name="phone-dial" size={16} color="#667eea" />
