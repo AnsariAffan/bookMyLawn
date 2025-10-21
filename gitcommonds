@@ -28,3 +28,9 @@ npm patch
 
 Open emulator 
 C:\Users\Admin\AppData\Local\Android\Sdk\emulator\emulator -avd Pixel_3a_API_26 -no-snapshot-load
+
+C:\Users\Ansari\AppData\Local\Android\Sdk\emulator\emulator -avd Pixel_3a_API_26 -no-snapshot-load
+
+CMD comond
+
+emulator -avd Pixel_4a

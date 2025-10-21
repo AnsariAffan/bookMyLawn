@@ -1,113 +1,115 @@
 import { getAuth } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { onBillingDataChange } from "../../firebaseConfiguration/FirebaseCrud";
 
 export function useBookings() {
   const [userBookings, setUserBookings] = useState([]);
-  const [totalReceivedAmounts, setTotalReceivedAmounts] = useState([]); // New state for totalReceivedAmounts
+  const [totalReceivedAmounts, setTotalReceivedAmounts] = useState([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [bookingsByMonth, setBookingsByMonth] = useState({});
-  const [revenueByMonth, setRevenueByMonth] = useState(new Array(12).fill(0)); // Initialize as array of 12 months with zero values
+  const [revenueByMonth, setRevenueByMonth] = useState(new Array(12).fill(0));
   const [upcomingEventDates, setUpcomingEventDates] = useState([]);
   const [currentMonthBookings, setCurrentMonthBookings] = useState(0);
   const [upcomingDatesInCurrentMonth, setUpcomingDatesInCurrentMonth] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Add state for month range
   const [startMonth, setStartMonth] = useState(0); // January
   const [endMonth, setEndMonth] = useState(11); // December
   const [openAmountSum, setOpenAmountSum] = useState(0);
 
+  // To safely store unsubscribe function
+  const unsubscribeRef = useRef(null);
+
   useEffect(() => {
     const auth = getAuth();
-    const loggedInUserId = auth.currentUser ? auth.currentUser?.uid : null;
+    const loggedInUserId = auth.currentUser?.uid || null;
 
-    // If no user is logged in, set error and stop loading
     if (!loggedInUserId) {
       setError("No user is logged in.");
       setLoading(false);
       return;
     }
 
-    setLoading(true); // Start loading
+    setLoading(true);
 
-    // Use the onBillingDataChange function for real-time updates
-    const unsubscribe = onBillingDataChange(auth.currentUser.displayName, (data) => {
+    // Unsubscribe any previous listener
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+    }
+
+    // Set up new listener
+    unsubscribeRef.current = onBillingDataChange(auth.currentUser.displayName, (data) => {
       if (data) {
-        const bookings = Object.values(data); // Convert the data object into an array
+        const bookings = Object.values(data);
         setUserBookings(bookings);
 
-        // Calculate totalReceivedAmounts from bookings and monthly sums
-        const receivedAmounts = calculateRevenueByMonth(bookings); // Use the monthly revenue calculation here
-        setTotalReceivedAmounts(receivedAmounts); // Update totalReceivedAmounts with the monthly sums
+        const monthlyRevenue = calculateRevenueByMonth(bookings);
+        setTotalReceivedAmounts(monthlyRevenue);
 
-        // Calculate necessary data
         setTotalRevenue(calculateTotalRevenue(bookings, loggedInUserId));
         setBookingsByMonth(calculateBookingsByMonth(bookings));
-        setRevenueByMonth(receivedAmounts); // Set the monthly revenue data
+        setRevenueByMonth(monthlyRevenue);
         setUpcomingEventDates(getUpcomingEventDates(bookings));
         setCurrentMonthBookings(calculateCurrentMonthBookings(bookings));
         setUpcomingDatesInCurrentMonth(getUpcomingDatesInCurrentMonth(bookings));
         setOpenAmountSum(calculateOpenAmountSum(bookings));
       } else {
+        // reset all state if no data
         setUserBookings([]);
-        setTotalReceivedAmounts([]); // Reset when there's no data
+        setTotalReceivedAmounts([]);
         setTotalRevenue(0);
         setBookingsByMonth({});
-        setRevenueByMonth(new Array(12).fill(0)); // Reset to empty array
+        setRevenueByMonth(new Array(12).fill(0));
         setUpcomingEventDates([]);
-        setCurrentMonthBookings([]);
-        setUpcomingDatesInCurrentMonth([]);
+        setCurrentMonthBookings(0);
+        setUpcomingDatesInCurrentMonth(0);
         setOpenAmountSum(0);
       }
-      setLoading(false); // Set loading to false after processing data
+      setLoading(false);
     });
 
-    return () => unsubscribe // Cleanup subscription on unmount
+    // Cleanup on unmount
+    return () => {
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+      }
+    };
   }, [startMonth, endMonth]);
 
-  // Function to calculate total revenue
+  const totalRevenueForSelectedRange = useMemo(() => {
+    return revenueByMonth.slice(startMonth, endMonth + 1).reduce((acc, rev) => acc + rev, 0);
+  }, [revenueByMonth, startMonth, endMonth]);
+
   const calculateTotalRevenue = (data, loggedInUserId) => {
     return data.reduce((total, booking) => {
       if (booking.userId === loggedInUserId) {
-        const receivedAmount = parseFloat(booking.totalReceivedAmount) || 0;
-        return total + receivedAmount;
+        return total + (parseFloat(booking.totalReceivedAmount) || 0);
       }
       return total;
     }, 0);
   };
-   const calculateRevenueForSelectedRange = () => {
-    const sum = revenueByMonth.slice(startMonth, endMonth + 1).reduce((acc, revenue) => acc + revenue, 0);
-    return sum;
-  };
 
-  // Function to calculate revenue by month
   const calculateRevenueByMonth = (data) => {
-    const monthlyRevenue = new Array(12).fill(0); // Create an array with 12 months, initialized to 0
-
+    const monthlyRevenue = new Array(12).fill(0);
     data.forEach((booking) => {
-      const eventDate = booking.dates && booking.dates[0]; // Get the first event date
-      const receivedAmount = parseFloat(booking.totalReceivedAmount) || 0; // Get the received amount for this booking
+      const eventDate = booking.dates?.[0];
+      const receivedAmount = parseFloat(booking.totalReceivedAmount) || 0;
       if (eventDate && receivedAmount) {
-        const month = new Date(eventDate).getMonth(); // Get the 0-based month index
-        monthlyRevenue[month] += receivedAmount; // Add the received amount to the appropriate month
+        const month = new Date(eventDate).getMonth();
+        monthlyRevenue[month] += receivedAmount;
       }
     });
-
-    return monthlyRevenue; // Return the array of monthly revenue sums
+    return monthlyRevenue;
   };
 
   const calculateBookingsByMonth = (data) => {
     return data.reduce((result, booking) => {
-      const eventDate = booking.dates && booking.dates[0];
+      const eventDate = booking.dates?.[0];
       if (eventDate) {
         const month = new Date(eventDate).getMonth();
         if (month >= startMonth && month <= endMonth) {
-          if (!result[month + 1]) {
-            result[month + 1] = 0;
-          }
-          result[month + 1]++;
+          result[month + 1] = (result[month + 1] || 0) + 1;
         }
       }
       return result;
@@ -115,115 +117,75 @@ export function useBookings() {
   };
 
   const getUpcomingEventDates = (data) => {
-    const currentDate = new Date();
-    // Normalize the current date to midnight for accurate comparison
-    const currentDateNormalized = new Date(currentDate.setHours(0, 0, 0, 0));
-
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
     return data
-      .filter(booking => {
-        const eventDate = new Date(booking.dates[0]);
-
-        // Normalize eventDate to midnight as well for accurate comparison
-        const eventDateNormalized = new Date(eventDate.setHours(0, 0, 0, 0));
-        return eventDateNormalized > currentDateNormalized; // Compare only the date part
-      })
-      .map(booking => booking.dates[0]);
+      .filter(b => b.dates?.[0] && new Date(b.dates[0]).setHours(0,0,0,0) > now)
+      .map(b => b.dates[0]);
   };
 
   const calculateCurrentMonthBookings = (data) => {
-    const currentDate = new Date(); // Get the current date
-    const currentMonth = currentDate.getMonth(); // Get the current month
-    const currentYear = currentDate.getFullYear(); // Get the current year
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
 
     return data.reduce((total, booking) => {
-      const eventDate = booking.dates && booking.dates[0];
-      if (eventDate) {
-        const bookingDate = new Date(eventDate);
-        const bookingMonth = bookingDate.getMonth();
-        const bookingYear = bookingDate.getFullYear();
-
-        // Check if the booking is in the current month or in the future
-        if (
-          (bookingYear === currentYear && bookingMonth === currentMonth) || // Current month
-          bookingDate > currentDate // Future dates
-        ) {
-          return total + 1;
-        }
+      const bookingDate = booking.dates?.[0] ? new Date(booking.dates[0]) : null;
+      if (!bookingDate) return total;
+      const bookingMonth = bookingDate.getMonth();
+      const bookingYear = bookingDate.getFullYear();
+      if ((bookingYear === currentYear && bookingMonth === currentMonth) || bookingDate > now) {
+        return total + 1;
       }
       return total;
     }, 0);
   };
 
   const getUpcomingDatesInCurrentMonth = (data) => {
-    const currentDate = new Date();
-    // Set the current date to midnight to ignore the time portion
-    currentDate.setHours(0, 0, 0, 0); // This will set the time to 00:00:00
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
 
-    const currentMonth = currentDate.getMonth(); // Get the current month (0-based)
-    const currentYear = currentDate.getFullYear(); // Get the current year
-
-    // Filter bookings that are in the current month and occur after the current date (ignoring time)
-    const upcomingDates = data.filter(booking => {
-      const eventDate = new Date(booking.dates[0]); // Get the event date from the booking
-      eventDate.setHours(0, 0, 0, 0); // Set event date to midnight to ignore time
-
-      const eventMonth = eventDate.getMonth(); // Get the month of the booking (0-based)
-      const eventYear = eventDate.getFullYear(); // Get the year of the booking
-
-      return (
-        eventYear === currentYear && // Same year
-        eventMonth === currentMonth && // Same month
-        eventDate > currentDate // Future date (ignoring the time part of the date)
-      );
-    });
-
-    return upcomingDates.length; // Return the count of upcoming dates
+    return data.filter(b => {
+      const bookingDate = b.dates?.[0] ? new Date(b.dates[0]) : null;
+      if (!bookingDate) return false;
+      bookingDate.setHours(0, 0, 0, 0);
+      return bookingDate > now && bookingDate.getMonth() === currentMonth && bookingDate.getFullYear() === currentYear;
+    }).length;
   };
 
-  // Function to format the dates into "Day Month Year" format
   const formatDates = (dates) => {
-    const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-
-    return dates
-      ?.map(dateString => {
-        const date = new Date(dateString); // Create a Date object from the string
-        const day = date.getDate(); // Get the day of the month
-        const month = monthNames[date.getMonth()]; // Get the month name
-        const year = date.getFullYear(); // Get the year
-        //return ${day} ${month} ${year}; // Format the date as "Day Month Year"
-      })
-      .join(", "); // Join multiple dates with commas
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    return dates?.map(d => {
+      const date = new Date(d);
+      return `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+    }).join(", ");
   };
 
-  // Function to set a new range of months
   const setMonthRange = (start, end) => {
     setStartMonth(start);
     setEndMonth(end);
   };
 
   const calculateOpenAmountSum = (data) => {
-    return data.reduce((total, booking) => {
-      const remainingAmount = parseFloat(booking.remainingAmount) || 0; // Amount still pending
-      return total + remainingAmount; // Add the remaining amount to the total
-    }, 0);
+    return data.reduce((total, booking) => total + (parseFloat(booking.remainingAmount) || 0), 0);
   };
 
   return { 
     userBookings, 
-    totalReceivedAmounts, // Expose the totalReceivedAmounts array
+    totalReceivedAmounts,
     totalRevenue, 
     bookingsByMonth, 
-    revenueByMonth, // Now an array of revenue by month
+    revenueByMonth,
     upcomingEventDates, 
     currentMonthBookings, 
     upcomingDatesInCurrentMonth, 
     loading, 
     error,
-    setMonthRange, // Expose this function to allow setting a custom month range
+    setMonthRange,
     formatDates,
     openAmountSum,
-     totalRevenueForSelectedRange: calculateRevenueForSelectedRange(),  // Expose it
+    totalRevenueForSelectedRange
   };
-} 
+}
