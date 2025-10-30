@@ -54,10 +54,16 @@ export const BookingListProvider = ({ children }) => {
   const handleFilterChange = (status) => setFilter(status);
 
   const handleCardPress = useCallback((item, navigation) => {
-    setSelectedBooking(item);
+
+    try{
+   setSelectedBooking(item);
     // console.log(item)
     // navigation.navigate("Billingdetails", { booking: item });
-     navigation.navigate("TabScreen", { booking: item })
+     navigation?.navigate("TabScreen", { booking: item })
+    } catch (error) {
+    console.error("Error navigating:", error);
+    Alert.alert("Error", "Something went wrong opening this booking.");
+  }
   }, []);
 
   const renderItem = useCallback(

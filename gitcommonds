@@ -1,5 +1,5 @@
 git add .
-git commit -m "commit 30-Aug2025-full UI changed"
+git commit -m "commit 30-OCT2025-full UI changed"
 git push origin main
 npm version patch -m "bump version to %s"
 git push origin main
@@ -34,3 +34,9 @@ C:\Users\Ansari\AppData\Local\Android\Sdk\emulator\emulator -avd Pixel_3a_API_26
 CMD comond
 
 emulator -avd Pixel_4a
+
+
+
+check diff 
+
+

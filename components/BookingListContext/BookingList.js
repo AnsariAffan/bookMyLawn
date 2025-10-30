@@ -46,7 +46,7 @@ const BookingList = ({ navigation }) => {
     handleSearch,
     handleFilterChange,
     handleCardPress,
-    filter,
+    filter,z
   } = useContext(BookingListContext);
 
   const { billingDataState } = useBillingData();
@@ -124,6 +124,7 @@ const BookingList = ({ navigation }) => {
           onPress={() => handleCardPress(item, navigation)}
           activeOpacity={0.96}
         >
+
           <View style={styles.cardHeader}>
             <View style={styles.customerSection}>
               <View style={styles.avatarContainer}>

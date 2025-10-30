@@ -18,12 +18,12 @@ const TabScreen = ({ route ,navigation}) => {
 
   const handleGoBack = () => {
     if (navigation) {
-      navigation.goBack();
+      navigation?.goBack();
     }
   };
   // Custom renderScene to pass props to components
   const renderScene = ({ route }) => {
-    switch (route.key) {
+    switch (route?.key) {
       case 'booking':
         return (
           <View style={styles.sceneContainer}>

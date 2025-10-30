@@ -29,6 +29,9 @@ const Tab = createBottomTabNavigator();
 
 // Bottom Tab Navigator
 const MainApp = () => (
+
+
+  
   <Tab.Navigator
     screenOptions={({ route }) => ({
       headerShown: false,

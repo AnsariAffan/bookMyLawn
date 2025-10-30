@@ -419,7 +419,7 @@ console.log("End currentWeekBookings--------------")
 {currentWeekBookings.map((event, index) => (
   <TouchableOpacity
     key={`week-${index}`}
-    onPress={() => navigation.navigate("Billingdetails", { ddd: event})}
+   
     style={styles.eventItem}
   >
     <View style={styles.eventContent}>
