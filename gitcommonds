@@ -1,5 +1,5 @@
 git add .
-git commit -m "commit 30-OCT2025-full UI changed"
+git commit -m "commit on 02Nov2025 fix app crash issue on card click Resolved"
 git push origin main
 npm version patch -m "bump version to %s"
 git push origin main
