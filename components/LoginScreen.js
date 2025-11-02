@@ -274,11 +274,11 @@ export default function LoginScreen() {
               </Animatable.View>
 
               {/* Social Login Divider */}
-              <View style={styles.dividerContainer}>
+             {/* <View style={styles.dividerContainer}>
                 <View style={styles.dividerLine} />
                 <Text style={styles.dividerText}>or continue with</Text>
                 <View style={styles.dividerLine} />
-              </View>
+              </View>*/} 
 
               
             </Animatable.View>
@@ -382,16 +382,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   formSection: {
-    flex: 1,
+ 
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 24,
     paddingTop: 32,
     paddingBottom: 20,
+     borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: 18,
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -514,6 +516,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   footerSection: {
+    marginTop:height*0.15,
     alignItems: 'center',
   },
   switchContainer: {
@@ -532,6 +535,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Roboto',
   },
   versionContainer: {
+ 
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,

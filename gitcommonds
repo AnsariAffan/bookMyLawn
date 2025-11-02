@@ -1,5 +1,5 @@
 git add .
-git commit -m "commit on 02Nov2025 path-2 addes assets selection"
+git commit -m "commit on 02Nov2025 path-3 Update Ui on Login screen"
 git push origin main
 npm version patch -m "bump version to %s"
 git push origin main
