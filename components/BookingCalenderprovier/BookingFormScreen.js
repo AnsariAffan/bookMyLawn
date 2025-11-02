@@ -20,7 +20,11 @@ import { useNavigation } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
 
-const BookingFormScreen = ({dataDefaulting}) => {
+const BookingFormScreen = ({ dataDefaulting }) => {
+
+  // console.log("bookingData")
+  // console.log(dataDefaulting)
+  // console.log("bookingData")
   const {
     selectedDates,
     setSelectedDates,
@@ -140,68 +144,68 @@ const BookingFormScreen = ({dataDefaulting}) => {
   //   setErrors(newErrors);
   //   return Object.keys(newErrors).length === 0;
   // };
-const validateForm = () => {
-  const newErrors = {};
-  const bookingData = dataDefaulting || newBooking;  // Use dataDefaulting first, fallback to newBooking if not available.
+  const validateForm = () => {
+    const newErrors = {};
+    const bookingData = dataDefaulting || newBooking;  // Use dataDefaulting first, fallback to newBooking if not available.
 
-  // Name validation
-  if (!bookingData.name) newErrors.name = "Name is required";
+    // Name validation
+    if (!bookingData.name) newErrors.name = "Name is required";
 
-  // Contact validation
-  if (!bookingData.contact) {
-    newErrors.contact = "Contact is required";
-  } else if (!/^\d{10}$/.test(bookingData.contact)) {
-    newErrors.contact = "Contact must be a 10-digit number";
-  }
-
-  // Email validation
-  if (!bookingData.email) {
-    newErrors.email = "Email is required";
-  } else if (!/\S+@\S+\.\S+/.test(bookingData.email)) {
-    newErrors.email = "Email is invalid";
-  }
-
-  // Address validation
-  if (!bookingData.address) newErrors.address = "Address is required";
-
-  // Event Type validation
-  if (!bookingData.eventType) newErrors.eventType = "Event Type is required";
-
-  // Number of Guests validation
-  if (!bookingData.numberOfGuests) {
-    newErrors.numberOfGuests = "Number of Guests is required";
-  } else if (isNaN(bookingData.numberOfGuests) || bookingData.numberOfGuests <= 0) {
-    newErrors.numberOfGuests = "Number of Guests must be a positive number";
-  }
-
-  // Total Amount validation
-  if (!bookingData.totalAmount) {
-    newErrors.totalAmount = "Total Amount is required";
-  } else if (isNaN(bookingData.totalAmount) || bookingData.totalAmount <= 0) {
-    newErrors.totalAmount = "Total Amount must be a positive number";
-  }
-
-  // Advance Booking Amount validation
-  if (isNaN(bookingData.AdvBookAmount) || bookingData.AdvBookAmount < 0) {
-    newErrors.AdvBookAmount = "Advance Amount must be a non-negative number";
-  }
-
-  // Setup Assistance validation
-  if (!bookingData.requiresSetupAssistance) {
-    newErrors.requiresSetupAssistance = "Setup Assistance is required";
-  }
-
-  // Asset quantity validation
-  
-  tempAssets.forEach((asset, index) => {
-    if (asset.included && asset.quantity <= 0) {
-      newErrors[`assetQty_${index}`] = `Please select quantity for ${asset.name}`;
+    // Contact validation
+    if (!bookingData.contact) {
+      newErrors.contact = "Contact is required";
+    } else if (!/^\d{10}$/.test(bookingData.contact)) {
+      newErrors.contact = "Contact must be a 10-digit number";
     }
-  });
 
-  setErrors(newErrors);  // Set the errors state
-  return Object.keys(newErrors).length === 0;  // Return whether the form is valid or not
-};
+    // Email validation
+    if (!bookingData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(bookingData.email)) {
+      newErrors.email = "Email is invalid";
+    }
+
+    // Address validation
+    if (!bookingData.address) newErrors.address = "Address is required";
+
+    // Event Type validation
+    if (!bookingData.eventType) newErrors.eventType = "Event Type is required";
+
+    // Number of Guests validation
+    if (!bookingData.numberOfGuests) {
+      newErrors.numberOfGuests = "Number of Guests is required";
+    } else if (isNaN(bookingData.numberOfGuests) || bookingData.numberOfGuests <= 0) {
+      newErrors.numberOfGuests = "Number of Guests must be a positive number";
+    }
+
+    // Total Amount validation
+    if (!bookingData.totalAmount) {
+      newErrors.totalAmount = "Total Amount is required";
+    } else if (isNaN(bookingData.totalAmount) || bookingData.totalAmount <= 0) {
+      newErrors.totalAmount = "Total Amount must be a positive number";
+    }
+
+    // Advance Booking Amount validation
+    if (isNaN(bookingData.AdvBookAmount) || bookingData.AdvBookAmount < 0) {
+      newErrors.AdvBookAmount = "Advance Amount must be a non-negative number";
+    }
+
+    // Setup Assistance validation
+    if (!bookingData.requiresSetupAssistance) {
+      newErrors.requiresSetupAssistance = "Setup Assistance is required";
+    }
+
+    // Asset quantity validation
+
+    tempAssets.forEach((asset, index) => {
+      if (asset.included && asset.quantity <= 0) {
+        newErrors[`assetQty_${index}`] = `Please select quantity for ${asset.name}`;
+      }
+    });
+
+    setErrors(newErrors);  // Set the errors state
+    return Object.keys(newErrors).length === 0;  // Return whether the form is valid or not
+  };
 
   const handleBookingSubmitWrapper = () => {
     if (!validateForm()) {
@@ -221,9 +225,9 @@ const validateForm = () => {
               },
             };
           });
-          console.log(updatedMarkedDates)
+          // console.log(updatedMarkedDates)
           return updatedMarkedDates;
-         
+
         });
         setSelectedDates([]);
         navigation.goBack();
@@ -273,7 +277,7 @@ const validateForm = () => {
           style={[styles.modernInput, multiline && styles.multilineInput]}
           placeholder={placeholder}
           placeholderTextColor="#9CA3AF"
-   value={dataDefaulting ? dataDefaulting[keyProp]?.toString() : newBooking[keyProp]?.toString() || ""}
+          value={dataDefaulting ? dataDefaulting[keyProp]?.toString() : newBooking[keyProp]?.toString() || ""}
           onChangeText={(text) =>
             setNewBooking({
               ...newBooking,
@@ -327,6 +331,7 @@ const validateForm = () => {
           {asset.included && (
             <View style={styles.modernQuantityWrapper}>
               <Picker
+
                 style={styles.modernAssetQtyPicker}
                 selectedValue={asset.quantity}
                 onValueChange={(value) => updateAssetQuantity(asset.originalIndex, value)}
@@ -346,23 +351,111 @@ const validateForm = () => {
     </View>
   );
 
-  const selectedAssets = newBooking.assets ? newBooking.assets.filter((asset) => asset.included) : [];
+  //  const selectedAssets = newBooking.assets ? newBooking.assets.filter((asset) => asset.included) : [];
+
+// ✅ handles both new and edit safely
+const [selectedAssets, setSelectedAssets] = useState([]);
+
+// 🧠 Update selectedAssets whenever newBooking or dataDefaulting changes
+// useEffect(() => {
+//   const isEditMode = !!dataDefaulting?.id; // true if editing
+
+//   let baseAssets = [];
+
+//   if (isEditMode) {
+//     // Editing existing booking
+//     baseAssets =
+//       Array.isArray(newBooking?.assets) && newBooking.assets.length > 0
+//         ? newBooking.assets
+//         : Array.isArray(dataDefaulting?.assets)
+//         ? dataDefaulting.assets
+//         : [];
+//   } else {
+//     // Creating new booking
+//     baseAssets = Array.isArray(newBooking?.assets)
+//       ? newBooking.assets
+//       : [];
+//   }
+
+//   // Normalize
+//   const normalized = baseAssets.map(a => ({
+//     ...a,
+//     included: a?.included === true || a?.included === "true",
+//     quantity: a?.quantity ?? 0,
+//   }));
+
+//   // Filter for selected ones
+//   const filtered =
+//     normalized.filter(a => a.included).length > 0
+//       ? normalized.filter(a => a.included)
+//       : isEditMode
+//       ? normalized
+//       : []; // 🧠 for new booking, start empty
+
+//   setSelectedAssets(filtered);
+
+//   console.log("🔥 isEditMode:", isEditMode);
+//   console.log("✅ selectedAssets:", filtered);
+// }, [newBooking?.assets, dataDefaulting?.assets])
+
+
+useEffect(() => {
+  const isEditMode = !!dataDefaulting?.id;
+
+  let baseAssets = [];
+
+  if (isEditMode) {
+    // ✅ For edit mode, prefer dataDefaulting.assets (saved data)
+    baseAssets = Array.isArray(dataDefaulting?.assets)
+      ? dataDefaulting.assets
+      : Array.isArray(newBooking?.assets)
+      ? newBooking.assets
+      : [];
+  } else {
+    // ✅ For new booking, use only newBooking.assets
+    baseAssets = Array.isArray(newBooking?.assets)
+      ? newBooking.assets
+      : [];
+  }
+
+  // Normalize
+  const normalized = baseAssets.map(a => ({
+    ...a,
+    included: a?.included === true || a?.included === "true",
+    quantity: a?.quantity ?? 0,
+  }));
+
+  // Filter
+  const filtered =
+    normalized.filter(a => a.included).length > 0
+      ? normalized.filter(a => a.included)
+      : isEditMode
+      ? normalized
+      : [];
+
+  setSelectedAssets(filtered);
+
+  console.log("🔥 isEditMode:", isEditMode);
+  console.log("✅ selectedAssets:", filtered);
+}, [dataDefaulting?.assets, newBooking?.assets]);
+
+
 
   return (
     <LinearGradient colors={["#F8FAFC", "#E2E8F0"]} style={styles.gradient}>
       <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
         {/* Header */}
-        {dataDefaulting?"":<View style={styles.header}>
+        {dataDefaulting ? "" : <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
             <Icon name="arrow-back" size={24} color="#374151" />
           </TouchableOpacity>
-       
+
           <Text style={styles.headerTitle}>New Booking</Text>
           <View style={styles.placeholder} />
         </View>}
-        
 
-        <ScrollView 
+
+        <ScrollView
           style={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
@@ -373,14 +466,14 @@ const validateForm = () => {
               <Icon name="person" size={24} color="#3B82F6" />
               <Text style={styles.cardTitle}>Personal Information</Text>
             </View>
-            
+
             {renderModernInput({
               label: "Full Name",
               placeholder: "Enter your full name",
               icon: "person",
               keyProp: "name"
             })}
-            
+
             {renderModernInput({
               label: "Contact Number",
               placeholder: "Enter 10-digit mobile number",
@@ -388,7 +481,7 @@ const validateForm = () => {
               keyProp: "contact",
               keyboardType: "phone-pad"
             })}
-            
+
             {renderModernInput({
               label: "Email Address",
               placeholder: "Enter your email address",
@@ -396,7 +489,7 @@ const validateForm = () => {
               keyProp: "email",
               keyboardType: "email-address"
             })}
-            
+
             {renderModernInput({
               label: "Address",
               placeholder: "Enter complete address",
@@ -412,7 +505,7 @@ const validateForm = () => {
               <Icon name="event" size={24} color="#10B981" />
               <Text style={styles.cardTitle}>Event Details</Text>
             </View>
-            
+
             {renderModernPicker({
               label: "Event Type",
               icon: "category",
@@ -420,7 +513,7 @@ const validateForm = () => {
               placeholder: "Select event type",
               options: ["Wedding", "Birthday Party", "Corporate Event", "Family Gathering", "Other"]
             })}
-            
+
             {renderModernInput({
               label: "Number of Guests",
               placeholder: "Expected number of guests",
@@ -428,7 +521,7 @@ const validateForm = () => {
               keyProp: "numberOfGuests",
               keyboardType: "numeric"
             })}
-            
+
             {renderModernPicker({
               label: "Setup Assistance",
               icon: "build",
@@ -444,7 +537,7 @@ const validateForm = () => {
               <Icon name="attach-money" size={24} color="#F59E0B" />
               <Text style={styles.cardTitle}>Financial Details</Text>
             </View>
-            
+
             {renderModernInput({
               label: "Total Amount",
               placeholder: "Enter total booking amount",
@@ -452,7 +545,7 @@ const validateForm = () => {
               keyProp: "totalAmount",
               keyboardType: "numeric"
             })}
-            
+
             {renderModernInput({
               label: "Advance Amount",
               placeholder: "Enter advance payment",
@@ -468,7 +561,7 @@ const validateForm = () => {
               <Icon name="note" size={24} color="#8B5CF6" />
               <Text style={styles.cardTitle}>Additional Information</Text>
             </View>
-            
+
             {renderModernInput({
               label: "Special Requests",
               placeholder: "Any special requests or requirements",
@@ -476,7 +569,7 @@ const validateForm = () => {
               keyProp: "specialRequests",
               multiline: true
             })}
-            
+
             {renderModernInput({
               label: "Additional Services",
               placeholder: "Any additional services needed",
@@ -487,12 +580,13 @@ const validateForm = () => {
           </View>
 
           {/* Assets Selection Card */}
+
           <View style={styles.card}>
             <View style={styles.cardHeader}>
               <Icon name="inventory" size={24} color="#EF4444" />
               <Text style={styles.cardTitle}>Assets & Equipment</Text>
             </View>
-            
+
             <TouchableOpacity
               style={styles.assetSelectButton}
               onPress={() => setModalVisible(true)}
@@ -500,10 +594,9 @@ const validateForm = () => {
             >
               <Icon name="list" size={20} color="#6B7280" />
               <Text style={styles.assetSelectText}>
-                {selectedAssets.length > 0 
-                  ? `${selectedAssets.length} items selected` 
-                  : "Select assets & equipment"
-                }
+                {selectedAssets.length > 0
+                  ? `${selectedAssets.length} items selected`
+                  : "Select assets & equipment"}
               </Text>
               <Icon name="chevron-right" size={20} color="#6B7280" />
             </TouchableOpacity>
@@ -515,18 +608,23 @@ const validateForm = () => {
                 <View style={styles.selectedAssetsTags}>
                   {selectedAssets.slice(0, 3).map((asset, index) => (
                     <View key={index} style={styles.assetTag}>
-                      <Text style={styles.assetTagText}>{asset.name} ({asset.quantity})</Text>
+                      <Text style={styles.assetTagText}>
+                        {asset.name} ({asset.quantity})
+                      </Text>
                     </View>
                   ))}
                   {selectedAssets.length > 3 && (
                     <View style={styles.assetTag}>
-                      <Text style={styles.assetTagText}>+{selectedAssets.length - 3} more</Text>
+                      <Text style={styles.assetTagText}>
+                        +{selectedAssets.length - 3} more
+                      </Text>
                     </View>
                   )}
                 </View>
               </View>
             )}
           </View>
+
         </ScrollView>
 
         {/* Bottom Actions */}
@@ -538,7 +636,7 @@ const validateForm = () => {
           >
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={[styles.submitButton, loading && styles.submitButtonDisabled]}
             onPress={handleBookingSubmitWrapper}
@@ -554,7 +652,7 @@ const validateForm = () => {
               ) : (
                 <>
                   <Icon name="check" size={20} color="#FFFFFF" />
-                  <Text style={styles.submitButtonText}>Submit Booking</Text>
+                  <Text style={styles.submitButtonText}>{dataDefaulting ? "Update Booking" : "Submit Booking"}</Text>
                 </>
               )}
             </LinearGradient>
@@ -572,7 +670,7 @@ const validateForm = () => {
             <View style={styles.modernModalContent}>
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Select Assets & Equipment</Text>
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => setModalVisible(false)}
                   style={styles.modalCloseButton}
                   activeOpacity={0.7}
@@ -580,13 +678,16 @@ const validateForm = () => {
                   <Icon name="close" size={24} color="#6B7280" />
                 </TouchableOpacity>
               </View>
-              
-              <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
-                {Object.entries(groupedAssets).map(([category, assets]) =>
-                  renderAssetCategory(category, assets)
-                )}
+              <ScrollView>
+                <View>
+                  {Object.entries(groupedAssets).map(([category, assets]) =>
+                    renderAssetCategory(category, assets)
+                  )}
+                </View>
+
               </ScrollView>
-              
+
+
               <View style={styles.modalActions}>
                 <TouchableOpacity
                   style={styles.modalCancelButton}
@@ -595,7 +696,7 @@ const validateForm = () => {
                 >
                   <Text style={styles.modalCancelText}>Cancel</Text>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity
                   style={styles.modalApplyButton}
                   onPress={applyAssetSelections}
@@ -690,7 +791,7 @@ const styles = StyleSheet.create({
   },
 
   scrollContent: {
-    paddingHorizontal: width*0,
+    paddingHorizontal: width * 0,
 
   },
   card: {

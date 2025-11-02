@@ -4,7 +4,7 @@ import { TabView, TabBar } from 'react-native-tab-view';
 import { LinearGradient } from 'expo-linear-gradient'; // Add this dependency if not already present
 import Billingdetail from './BillingDetails/Billingdetail';
 import BookingFormScreen from './BookingCalenderprovier/BookingFormScreen';
-import EditForm from './editform/EditForm';
+
 
 // Main Tab Screen
 const TabScreen = ({ route ,navigation}) => {
@@ -211,15 +211,14 @@ const styles = StyleSheet.create({
   },
 
   backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 25,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
-    elevation: 2,
-    shadowColor: '#000',
+
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -228,6 +227,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#ffffff',
     fontWeight: 'bold',
+    marginBottom:8
   },
 });
 
