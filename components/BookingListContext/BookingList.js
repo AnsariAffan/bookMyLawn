@@ -147,7 +147,7 @@ const BookingList = ({ navigation }) => {
                   <View style={styles.contactRow}>
                     <Feather name="phone" size={normalize(12)} color="#6B7280" />
                     <Text style={styles.phoneNumber}>
-                      {item.phone || "N/A"}
+                      {item.contact || "N/A"}
                     </Text>
                   </View>
                 </View>

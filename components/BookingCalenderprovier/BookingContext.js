@@ -1,8 +1,10 @@
-
 import React, { createContext, useState, useEffect } from "react";
 import moment from "moment";
 import { useAuth } from "../Authprovider.js/AuthProvider";
-import { onBillingDataChange, saveBillingData } from "../../firebaseConfiguration/FirebaseCrud";
+import {
+  onBillingDataChange,
+  saveBillingData,
+} from "../../firebaseConfiguration/FirebaseCrud";
 
 export const BookingContext = createContext();
 
@@ -10,6 +12,7 @@ export const BookingProvider = ({ children }) => {
   const [bookings, setBookings] = useState([]);
   const [markedDates, setMarkedDates] = useState({});
   const [selectedDates, setSelectedDates] = useState([]);
+
   const [newBooking, setNewBooking] = useState({
     name: "",
     contact: "",
@@ -32,68 +35,78 @@ export const BookingProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
 
   const { user } = useAuth();
 
+  /* -------------------------------------------------
+     Fetch Booking Data from Firebase
+  -------------------------------------------------- */
   useEffect(() => {
-    if (!user || !user?.uid) {
+    if (!user?.uid) {
       setBookings([]);
       setMarkedDates({});
       return;
     }
 
-    const handleBillingDataChange = (billingData) => {
+    const handleBillingData = (billingData) => {
       if (!billingData) {
         setBookings([]);
         setMarkedDates({});
-      } else {
-        const bookingArray = Object.entries(billingData).map(([id, data]) => ({
-          id,
-          ...data,
-        }));
-        setBookings(bookingArray);
-
-        const updatedMarkedDates = {};
-        bookingArray.forEach((booking) => {
-          if (booking.dates) {
-            booking.dates.forEach((date) => {
-              updatedMarkedDates[date] = {
-                customStyles: {
-                  container: { backgroundColor: "#4DB6AC" },
-                  text: { color: "#000" },
-                },
-              };
-            });
-          }
-        });
-        setMarkedDates(updatedMarkedDates);
+        return;
       }
+
+      const bookingArray = Object.entries(billingData).map(
+        ([id, data]) => ({ id, ...data })
+      );
+
+      setBookings(bookingArray);
+
+      const datesMap = {};
+      bookingArray.forEach((booking) => {
+        booking.dates?.forEach((date) => {
+          datesMap[date] = {
+            customStyles: {
+              container: { backgroundColor: "#4DB6AC" },
+              text: { color: "#000" },
+            },
+          };
+        });
+      });
+
+      setMarkedDates(datesMap);
     };
 
-    onBillingDataChange(user.displayName, handleBillingDataChange);
+    onBillingDataChange(user.displayName, handleBillingData);
   }, [user?.uid]);
 
-  const isDateBooked = (date) => markedDates[date] !== undefined;
+  /* -------------------------------------------------
+     Helpers
+  -------------------------------------------------- */
+  const isDateBooked = (date) => Boolean(markedDates[date]);
 
-  const getBookingForDate = (date) => {
-    return bookings.find((booking) => booking.dates?.includes(date)) || null;
-  };
+  const getBookingForDate = (date) =>
+    bookings.find((b) => b.dates?.includes(date)) || null;
 
   const formatSelectedDates = () => {
-    const groupedByMonth = selectedDates.reduce((acc, date) => {
+    const grouped = selectedDates.reduce((acc, date) => {
       const monthYear = moment(date).format("MMM YYYY");
       const day = moment(date).format("D");
       if (!acc[monthYear]) acc[monthYear] = [];
       acc[monthYear].push(day);
       return acc;
     }, {});
-    return Object.entries(groupedByMonth)
+
+    return Object.entries(grouped)
       .map(([month, days]) => `${month}: ${days.join(", ")}`)
       .join(" | ");
   };
 
+  /* -------------------------------------------------
+     Submit Booking
+  -------------------------------------------------- */
   const handleBookingSubmit = async () => {
     try {
       setLoading(true);
@@ -107,22 +120,10 @@ export const BookingProvider = ({ children }) => {
       }
 
       const bookingData = {
-        name: newBooking.name,
-        contact: newBooking.contact,
-        email: newBooking.email,
-        address: newBooking.address,
-        eventType: newBooking.eventType,
-        numberOfGuests: newBooking.numberOfGuests,
-        additionalServices: newBooking.additionalServices,
-        specialRequests: newBooking.specialRequests,
-        requiresSetupAssistance: newBooking.requiresSetupAssistance,
-        totalAmount: newBooking.totalAmount,
-        paymentStatus: paymentStatus,
-        AdvBookAmount: newBooking.AdvBookAmount,
-        paidAmount: newBooking.paidAmount || 0,
-        billingId: newBooking.billingId || "",
-        totalReceivedAmount: newBooking.totalReceivedAmount || newBooking.AdvBookAmount,
-        assets: newBooking.assets,
+        ...newBooking,
+        paymentStatus,
+        totalReceivedAmount:
+          newBooking.totalReceivedAmount || newBooking.AdvBookAmount,
         dates: selectedDates,
         status: "Approved",
         remainingAmount: newBooking.totalAmount - newBooking.AdvBookAmount,
@@ -153,6 +154,7 @@ export const BookingProvider = ({ children }) => {
         totalReceivedAmount: 0,
         assets: [],
       });
+
       setSelectedDates([]);
 
       return true;
@@ -185,7 +187,6 @@ export const BookingProvider = ({ children }) => {
         setSelectedBooking,
         detailsModalVisible,
         setDetailsModalVisible,
-        
       }}
     >
       {children}
