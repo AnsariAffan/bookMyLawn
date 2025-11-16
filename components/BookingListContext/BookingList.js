@@ -105,13 +105,17 @@ const BookingList = ({ navigation }) => {
         Single Booking Card Component
   ------------------------------------------ */
   const RenderBookingItem = React.memo(
-    ({ item, index }) => {
+    ({ item, index, handleCardPress, navigation }) => {
       const totalAmount = parseFloat(item.totalAmount) || 0;
       const receivedAmount = parseFloat(item.totalReceivedAmount) || 0;
       const balance = totalAmount - receivedAmount;
 
       const getStatusConfig = (status) => {
-        const key = status?.toLowerCase();
+        const key = String(status || "")
+  .trim()
+  .toLowerCase()
+  .replace(/_/g, " ")
+  .replace(/\s+/g, " ");
         if (key === "fully paid" || key === "confirmed")
           return { bg: "#ECFDF5", color: "#059669", icon: "check-circle" };
 
@@ -240,7 +244,7 @@ const BookingList = ({ navigation }) => {
         </Animatable.View>
       );
     },
-    (prev, next) => prev.item.id === next.item.id
+() => false
   );
 
   /* -----------------------------------------
@@ -333,12 +337,14 @@ const BookingList = ({ navigation }) => {
           <EmptyState />
         ) : (
           <FlatList
-            data={filteredData}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id?.toString()}
-            contentContainerStyle={styles.listContainer}
-            showsVerticalScrollIndicator={false}
-          />
+  data={filteredData}
+  extraData={filteredData}     // 🔥 Mandatory for UI refresh
+  renderItem={renderItem}
+  keyExtractor={(item) => item.id?.toString()}
+  contentContainerStyle={styles.listContainer}
+  showsVerticalScrollIndicator={false}
+/>
+
         )}
       </SafeAreaView>
     </>

@@ -20,9 +20,9 @@ export const BookingListProvider = ({ children }) => {
 
   const { user } = useAuth();
 
-  /* -------------------------------------------
-      Fetch Billing Data (Firebase Listener)
-  -------------------------------------------- */
+  /* --------------------------------------------------
+      🔥 REALTIME LISTENER — FIXED (uses Firebase keys)
+  ---------------------------------------------------- */
   useEffect(() => {
     if (!user) {
       setLoading(false);
@@ -31,13 +31,13 @@ export const BookingListProvider = ({ children }) => {
 
     const handleBillingDataChange = (billingData) => {
       const updated = billingData
-        ? Object.values(billingData).map((item) => ({
-            id: item.bookingId,
+        ? Object.entries(billingData).map(([key, item]) => ({
+            id: key,           // ✅ FIXED (use firebase key)
             ...item,
           }))
         : [];
 
-      setBillData(updated);
+      setBillData(updated);     // always updates list
       setLoading(false);
     };
 
@@ -47,33 +47,32 @@ export const BookingListProvider = ({ children }) => {
     );
 
     return () => {
-      // In case your Firebase function returns unsubscribe
       if (typeof unsubscribe === "function") unsubscribe();
     };
   }, [user]);
 
-  /* -------------------------------------------
-      Search + Filter Logic
-  -------------------------------------------- */
+  /* --------------------------------------------------
+      🔍 SEARCH + FILTER
+  ---------------------------------------------------- */
   useEffect(() => {
     const filtered = billData.filter((hotel) => {
-      const matchesSearch = hotel.name
+      const matchSearch = hotel.name
         ?.toLowerCase()
         .includes(search.toLowerCase());
 
-      const matchesFilter =
+      const matchFilter =
         filter === "all" ||
         hotel.paymentStatus?.toLowerCase() === filter.toLowerCase();
 
-      return matchesSearch && matchesFilter;
+      return matchSearch && matchFilter;
     });
 
     setFilteredHotels(filtered);
   }, [search, filter, billData]);
 
-  /* -------------------------------------------
-      Handlers
-  -------------------------------------------- */
+  /* --------------------------------------------------
+      HANDLERS
+  ---------------------------------------------------- */
   const handleSearch = (text) => setSearch(text);
   const handleFilterChange = (status) => setFilter(status);
 
@@ -87,12 +86,15 @@ export const BookingListProvider = ({ children }) => {
     }
   }, []);
 
-  /* -------------------------------------------
-      FlatList Render Item
-  -------------------------------------------- */
+  /* --------------------------------------------------
+      DUMMY CARD (you modify UI here if needed)
+  ---------------------------------------------------- */
   const renderItem = useCallback(
-    ({ item, navigation }) => (
-      <HotelCard hotel={item} onPress={() => handleCardPress(item, navigation)} />
+    ({ item }) => (
+      <HotelCard
+        hotel={item}
+        onPress={() => handleCardPress(item)}
+      />
     ),
     [handleCardPress]
   );
@@ -116,12 +118,15 @@ export const BookingListProvider = ({ children }) => {
   );
 };
 
-/* -------------------------------------------
-    Memoized HotelCard
--------------------------------------------- */
-const HotelCard = React.memo(({ hotel, onPress }) => (
-  <TouchableOpacity onPress={onPress}>
-    <Text>{hotel.name}</Text>
-    <Text>{hotel.paymentStatus}</Text>
-  </TouchableOpacity>
-));
+/* --------------------------------------------------
+    🔥 FIXED — Memoized card (always re-renders on update)
+---------------------------------------------------- */
+const HotelCard = React.memo(
+  ({ hotel, onPress }) => (
+    <TouchableOpacity onPress={onPress}>
+      <Text>{hotel.name}</Text>
+      <Text>{hotel.paymentStatus}</Text>
+    </TouchableOpacity>
+  ),
+  (prev, next) => prev.hotel.id === next.hotel.id
+);
