@@ -1,13 +1,18 @@
-import React, { createContext, useEffect, useState, useCallback } from 'react';
-import { useAuth } from '../Authprovider.js/AuthProvider';
-import { onBillingDataChange } from '../../firebaseConfiguration/FirebaseCrud';
+import React, {
+  createContext,
+  useEffect,
+  useState,
+  useCallback
+} from "react";
+import { TouchableOpacity, Text, Alert } from "react-native";
+import { useAuth } from "../Authprovider.js/AuthProvider";
+import { onBillingDataChange } from "../../firebaseConfiguration/FirebaseCrud";
 
 export const BookingListContext = createContext();
 
 export const BookingListProvider = ({ children }) => {
   const [search, setSearch] = useState("");
   const [filteredHotels, setFilteredHotels] = useState([]);
-  const [hotels, setHotels] = useState([]);
   const [billData, setBillData] = useState([]);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -15,6 +20,9 @@ export const BookingListProvider = ({ children }) => {
 
   const { user } = useAuth();
 
+  /* -------------------------------------------
+      Fetch Billing Data (Firebase Listener)
+  -------------------------------------------- */
   useEffect(() => {
     if (!user) {
       setLoading(false);
@@ -22,56 +30,69 @@ export const BookingListProvider = ({ children }) => {
     }
 
     const handleBillingDataChange = (billingData) => {
-      const updatedBillData = billingData
-        ? Object.values(billingData).map((billingItem) => ({
-            id: billingItem.bookingId,
-            ...billingItem,
+      const updated = billingData
+        ? Object.values(billingData).map((item) => ({
+            id: item.bookingId,
+            ...item,
           }))
         : [];
-      setBillData(updatedBillData);
-      setHotels(updatedBillData);
+
+      setBillData(updated);
       setLoading(false);
     };
 
-    onBillingDataChange(user?.displayName, handleBillingDataChange);
+    const unsubscribe = onBillingDataChange(
+      user?.displayName,
+      handleBillingDataChange
+    );
 
     return () => {
-      // Cleanup logic if needed
+      // In case your Firebase function returns unsubscribe
+      if (typeof unsubscribe === "function") unsubscribe();
     };
   }, [user]);
 
+  /* -------------------------------------------
+      Search + Filter Logic
+  -------------------------------------------- */
   useEffect(() => {
     const filtered = billData.filter((hotel) => {
-      const matchesSearch = hotel.name.toLowerCase().includes(search.toLowerCase());
-      const matchesFilter = filter === "all" || hotel.paymentStatus.toLowerCase() === filter.toLowerCase();
+      const matchesSearch = hotel.name
+        ?.toLowerCase()
+        .includes(search.toLowerCase());
+
+      const matchesFilter =
+        filter === "all" ||
+        hotel.paymentStatus?.toLowerCase() === filter.toLowerCase();
+
       return matchesSearch && matchesFilter;
     });
+
     setFilteredHotels(filtered);
   }, [search, filter, billData]);
 
+  /* -------------------------------------------
+      Handlers
+  -------------------------------------------- */
   const handleSearch = (text) => setSearch(text);
-
   const handleFilterChange = (status) => setFilter(status);
 
   const handleCardPress = useCallback((item, navigation) => {
-
-    try{
-   setSelectedBooking(item);
-    // console.log(item)
-    // navigation.navigate("Billingdetails", { booking: item });
-     navigation?.navigate("TabScreen", { booking: item })
+    try {
+      setSelectedBooking(item);
+      navigation?.navigate("TabScreen", { booking: item });
     } catch (error) {
-    console.error("Error navigating:", error);
-    Alert.alert("Error", "Something went wrong opening this booking.");
-  }
+      console.error("Navigation Error:", error);
+      Alert.alert("Error", "Something went wrong opening this booking.");
+    }
   }, []);
 
+  /* -------------------------------------------
+      FlatList Render Item
+  -------------------------------------------- */
   const renderItem = useCallback(
     ({ item, navigation }) => (
-      <HotelCard
-        hotel={item}
-        onPress={() => handleCardPress(item, navigation)}
-      />
+      <HotelCard hotel={item} onPress={() => handleCardPress(item, navigation)} />
     ),
     [handleCardPress]
   );
@@ -86,7 +107,8 @@ export const BookingListProvider = ({ children }) => {
         handleFilterChange,
         handleCardPress,
         filter,
-        renderItem, // Expose renderItem for FlatList usage
+        renderItem,
+        selectedBooking,
       }}
     >
       {children}
@@ -94,12 +116,12 @@ export const BookingListProvider = ({ children }) => {
   );
 };
 
-// Memoized HotelCard component
-const HotelCard = React.memo(({ hotel, onPress }) => {
-  return (
-    <TouchableOpacity onPress={onPress}>
-      <Text>{hotel.name}</Text>
-      <Text>{hotel.paymentStatus}</Text>
-    </TouchableOpacity>
-  );
-});
+/* -------------------------------------------
+    Memoized HotelCard
+-------------------------------------------- */
+const HotelCard = React.memo(({ hotel, onPress }) => (
+  <TouchableOpacity onPress={onPress}>
+    <Text>{hotel.name}</Text>
+    <Text>{hotel.paymentStatus}</Text>
+  </TouchableOpacity>
+));
